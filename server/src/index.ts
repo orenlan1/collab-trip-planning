@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import passport from './auth/passport.js';
 import { sessionMiddleware } from './middleware/session.js';
 import authRoutes from './routes/auth.js';
+import userRoutes from './routes/user.js';
+import tripRoutes from './routes/trip.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -21,6 +23,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/trips', tripRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -50,8 +50,9 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: 'Login failed' });
   }
+  const { password, ...safeUser } = req.user as any;
 
-  res.status(200).json(req.user);
+  res.status(200).json(safeUser);
 });
 
 // Logout

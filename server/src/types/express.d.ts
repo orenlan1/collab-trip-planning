@@ -5,3 +5,6 @@ declare global {
     interface User extends Omit<PrismaUser, 'password'> {}
   }
 }
+
+
+export {};
