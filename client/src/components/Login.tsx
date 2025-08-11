@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import type {LoginData} from '../services/api';
 import { useEffect } from 'react';
 
+
 export function Login() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm<LoginData>();
   const navigate = useNavigate();
@@ -44,11 +45,12 @@ export function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl mb-6 text-center">Login</h2>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {errors.root && (
+    
+      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl mb-6 text-center">Login</h2>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {errors.root && (
           <div className="p-3 text-sm text-red-500 bg-red-100 rounded">
             {errors.root.message}
           </div>
