@@ -10,6 +10,7 @@ import { Login } from './components/Login.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import { Register } from './components/Register.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
+import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <DashboardPage />
+      },
+      {
+        path: 'trips/create',
+        element: <CreateTripPage />
       }
     ]
   },
@@ -39,7 +44,6 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <App /> */}
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>

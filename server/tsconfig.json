@@ -11,8 +11,11 @@
     "target": "es2022",
     "types": ["node", "express"],
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": false,
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],

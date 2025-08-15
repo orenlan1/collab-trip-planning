@@ -2,13 +2,22 @@ import type { Request, Response } from "express";
 import tripService from "../services/trip-service";
 
 
+
+export interface TripFormData {
+    title: string;
+    destination?: string;
+    description?: string;
+    startDate?: Date;
+    endDate?: Date;
+}
+
 const createTrip = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const { title } = req.body;
+  const data: TripFormData = req.body;
   try {
-    const trip = await tripService.create(title, req.user.id);
+    const trip = await tripService.create(data, req.user.id);
     res.status(201).json(trip);
   } catch (error) {
     res.status(500).json({ error: "Failed to create trip" });

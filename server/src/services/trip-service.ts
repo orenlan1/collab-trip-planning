@@ -1,12 +1,15 @@
 import {prisma} from '../prisma/client.js';
-import type { TripUpdateData } from '../controllers/trip-controller.js';
+import type {TripFormData, TripUpdateData } from '../controllers/trip-controller.js';
 
 
-
-const create = async (title : string, creatorId : string ) => {
+const create = async (data: TripFormData, creatorId: string) => {
   const trip = await prisma.trip.create({
     data: {
-      title,
+      title: data.title,
+      ...(data.destination !== undefined && { destination: data.destination }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.startDate !== undefined && { startDate: data.startDate }),
+      ...(data.endDate !== undefined && { endDate: data.endDate }),
       createdById: creatorId,
       members: {
         create: {
