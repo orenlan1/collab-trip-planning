@@ -1,6 +1,9 @@
 import { GoInbox} from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 
 export function TripsList() {
+  const navigate = useNavigate();
+
   return (
     <div className="p-4">
       <div className="flex justify-between">
@@ -23,7 +26,7 @@ export function TripsList() {
           Create your first trip to start planning with friends.
         </div>
         <div>
-          <button className="hover:bg-indigo-700 transition font-semibold text-white bg-indigo-600 rounded-md pt-2 pr-4 pb-2 pl-4">
+          <button onClick={() => navigate("/trips/create")} className="hover:bg-indigo-700 transition font-semibold text-white bg-indigo-600 rounded-md pt-2 pr-4 pb-2 pl-4">
             Create Trip
           </button>
         </div>

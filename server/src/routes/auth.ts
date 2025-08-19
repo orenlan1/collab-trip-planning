@@ -51,15 +51,27 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     return res.status(401).json({ message: 'Login failed' });
   }
   const { password, ...safeUser } = req.user as any;
-
+  
   res.status(200).json(safeUser);
 });
 
 // Logout
 router.post('/logout', (req, res) => {
+  // First logout to clear passport's session content
   req.logout((err) => {
     if (err) return res.status(500).json({ message: 'Logout failed' });
-    res.status(200).json({ message: 'Logged out' });
+    
+    // Then destroy the session in the database
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destruction failed:', err);
+        return res.status(500).json({ message: 'Session cleanup failed' });
+      }
+      
+      // Clear the session cookie
+      res.clearCookie('sessionId');
+      res.status(200).json({ message: 'Logged out' });
+    });
   });
 });
 

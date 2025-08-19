@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { TypedSocket } from "../types/socket";
 import tripService from "../services/trip-service";
 
 
@@ -95,10 +96,40 @@ const deleteTrip = async (req: Request, res: Response) => {
     }
 };
 
+
+const inviteUserToTrip = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { id } = req.params;
+    const { email: invitedUserEmail } = req.body;
+    if (!id) {
+        return res.status(400).json({ error: "Invalid trip ID" });
+    }
+    try {
+        const invitation = await tripService.inviteUser(id, invitedUserEmail, req.user.id);
+        
+        // Get the socket instance
+        // @ts-ignore - we'll add the io property to the request in index.ts
+        const io = req.app.get('io');
+        
+        // Emit to the invited user's room
+        io.to(`user:${invitation.invitedUserId}`).emit('invite:created', {
+            tripId: invitation.tripId,
+            inviterId: invitation.inviterUserId
+        });
+
+        res.status(200).json({ message: "User invited successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to invite user" });
+    }
+};
+
 export default {
     createTrip,
     getUserTrips,
     getTripDetails,
+    inviteUserToTrip,
     updateTrip,
     deleteTrip
 }

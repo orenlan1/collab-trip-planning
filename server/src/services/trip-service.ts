@@ -41,6 +41,19 @@ const getAllTripsByUserId = async (userId: string) => {
 const getTripById = async (id: string) => {
   const trip = await prisma.trip.findUnique({
     where: { id },
+    include: {
+      members: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      },
+    }
   });
   return trip;
 };
@@ -66,10 +79,50 @@ const deleteTripById = async (id: string) => {
   return trip;
 };
 
+const inviteUser = async (tripId: string, invitedUserEmail: string, inviterId: string) => {
+  const trip = await prisma.trip.findUnique({
+    where: { id: tripId },
+    include: {
+      members: true,
+      createdBy: true, // Assuming the creator is the inviter
+    }
+  });
+
+  if (!trip) {
+    throw new Error('Trip not found');
+  }
+
+  const invitedUser = await prisma.user.findUnique({
+    where: { email: invitedUserEmail },
+  });
+
+  if (!invitedUser) {
+    throw new Error('Invited user not found');
+  }
+
+  const isAlreadyMember = trip.members.some(m => m.userId === invitedUser.id);
+  if (isAlreadyMember) {
+    throw new Error('User is already a member of this trip');
+  }
+
+  // Create an invitation
+  return prisma.invitation.create({
+    data: {
+      tripId,
+      invitedUserId: invitedUser.id,
+      inviterUserId: inviterId, 
+    },
+  });
+};
+
+
+
+
 export default {
     create,
     getAllTripsByUserId,
     getTripById,
     update,
-    deleteTripById
+    deleteTripById,
+    inviteUser
 }

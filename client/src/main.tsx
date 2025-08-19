@@ -8,14 +8,21 @@ import { MainLayout } from './layouts/MainLayout.tsx'
 import { HomePage } from './pages/home/HomePage.tsx'
 import { Login } from './components/Login.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
+import { ThemeProvider } from './context/ThemeContext'
 import { Register } from './components/Register.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
 import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
+import { SingleTripPage } from './pages/trips/SingleTripPage.tsx'
+import { Loader } from 'lucide-react'
+import { ProtectedRoute } from './components/ProtectedRoute.tsx'
+import { SocketProvider } from './context/SocketContext.tsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: (
+        <MainLayout />
+    ),
     errorElement: <NotFoundPage />,
     children: [
       {
@@ -24,11 +31,22 @@ const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <DashboardPage />
+        element: <ProtectedRoute><DashboardPage /></ProtectedRoute>
+      },
+      {
+        path: 'trips',
+        children: [
+          {
+            path: ':tripId',
+            element: <ProtectedRoute><SingleTripPage /></ProtectedRoute>
+          }
+  
+        ]
+
       },
       {
         path: 'trips/create',
-        element: <CreateTripPage />
+        element: <ProtectedRoute><CreateTripPage /></ProtectedRoute>
       }
     ]
   },
@@ -45,7 +63,11 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <SocketProvider>
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </SocketProvider>
     </AuthProvider>
   </StrictMode>,
 )

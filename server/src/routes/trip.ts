@@ -10,6 +10,7 @@ router.get("/", isAuthenticated, tripController.getUserTrips);
 router.get("/:id", isAuthenticated, tripController.getTripDetails);
 router.patch("/:id", isAuthenticated, tripController.updateTrip);
 router.delete("/:id", isAuthenticated, tripController.deleteTrip);
+router.post("/:id/invite", isAuthenticated, tripController.inviteUserToTrip);
 
 
 

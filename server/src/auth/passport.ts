@@ -8,7 +8,7 @@ passport.use(localStrategy);
 passport.use(googleStrategy)
 
 passport.serializeUser((user: Express.User, done) => {
-  done(null, user.id);
+  done(null, user.id); 
 });
 
 passport.deserializeUser(async (id: string, done) => {

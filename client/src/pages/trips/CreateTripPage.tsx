@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { tripsApi } from "./services/api";
+import { useNavigate } from "react-router-dom";
 
 export interface TripFormData {
     title: string;
@@ -23,9 +24,11 @@ export interface TripFormData {
 }
 
 export const CreateTripPage = () => {
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const { register, handleSubmit, formState: { errors } } = useForm<TripFormData>();
+
+    const navigate = useNavigate();
+    const [startDate, setStartDate] = useState<Date>();
+    const [endDate, setEndDate] = useState<Date>();
+    const { register, handleSubmit, formState: { errors } } = useForm<TripFormData>();
 
 
   const onSubmit = async (data: TripFormData) => {
@@ -36,8 +39,9 @@ export const CreateTripPage = () => {
       data.endDate = endDate;
     }
     try {
-      await tripsApi.create(data);
+      const response = await tripsApi.create(data);
       console.log("Trip created successfully");
+      navigate(`/trips/${response.data.id}`);
     } catch (error) {
       console.error("Error creating trip:", error);
     }

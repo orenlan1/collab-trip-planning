@@ -1,51 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('ts-theme') || 'light';
-    setIsDark(saved === 'dark');
-    applyTheme(saved === 'dark');
-  }, []);
-
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    applyTheme(newDark);
-    localStorage.setItem('ts-theme', newDark ? 'dark' : 'light');
-  };
-
-  const applyTheme = (dark: boolean) => {
-    const body = document.body;
-    if (dark) {
-      body.classList.remove('bg-sky-50', 'text-slate-900');
-      body.classList.add('bg-slate-900', 'text-slate-100');
-      document.querySelector('header')?.classList.remove('bg-neutral-900/8', 'border-neutral-200/40');
-      document.querySelector('header')?.classList.add('bg-neutral-900/50', 'border-neutral-800/60');
-    } else {
-      body.classList.remove('bg-slate-900', 'text-slate-100');
-      body.classList.add('bg-sky-50', 'text-slate-900');
-      document.querySelector('header')?.classList.remove('bg-neutral-900/50', 'border-neutral-800/60');
-      document.querySelector('header')?.classList.add('bg-neutral-900/8', 'border-neutral-200/40');
-    }
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
       aria-label="Toggle dark mode"
-      className="p-2 rounded-md hover:bg-neutral-200/60 transition ring-1 ring-transparent focus:ring-2 focus:ring-indigo-500"
+      className="p-2 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition ring-1 ring-transparent focus:ring-2 focus:ring-indigo-500"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className={`h-5 w-5 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
+        className="h-5 w-5 text-slate-700 dark:text-slate-200"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
         strokeWidth="1.5"
       >
-        {isDark ? (
+        {theme === 'dark' ? (
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
