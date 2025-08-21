@@ -125,11 +125,25 @@ const inviteUserToTrip = async (req: Request, res: Response) => {
     }
 };
 
+const getNewestTripsByUserId = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { limit } = req.query;
+    try {
+        const trips = await tripService.getNewestTripsMetadataByUserId(req.user.id, Number(limit) || 5);
+        res.status(200).json(trips);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch trips" });
+    }
+};
+
 export default {
     createTrip,
     getUserTrips,
     getTripDetails,
     inviteUserToTrip,
     updateTrip,
-    deleteTrip
+    deleteTrip,
+    getNewestTripsByUserId
 }

@@ -49,6 +49,7 @@ const getTripById = async (id: string) => {
               id: true,
               email: true,
               name: true,
+              image: true, // Include image if available
             },
           },
         },
@@ -116,7 +117,29 @@ const inviteUser = async (tripId: string, invitedUserEmail: string, inviterId: s
 };
 
 
-
+const getNewestTripsMetadataByUserId = async (userId : string, limit: number) => {
+  const trips = await prisma.trip.findMany({
+    where: {
+      members: {
+        some: {
+          userId: userId,
+        },
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      startDate: true,
+      endDate: true,
+      image: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: limit,
+  });
+  return trips;
+};
 
 export default {
     create,
@@ -124,5 +147,6 @@ export default {
     getTripById,
     update,
     deleteTripById,
-    inviteUser
+    inviteUser,
+    getNewestTripsMetadataByUserId
 }

@@ -12,7 +12,7 @@ const store = new PostgresqlStore({
   // Using the same connection string as Prisma
   conString: process.env.DATABASE_URL,
   createTableIfMissing: true, // Automatically creates the session table
-  tableName: 'session',       // Table name for sessions
+  tableName: 'Session',       // Table name for sessions
   pruneSessionInterval: 60 * 15, // Clean up expired sessions every 15 minutes
 });
 

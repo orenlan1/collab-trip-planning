@@ -1,10 +1,7 @@
 import { useState, useEffect} from 'react';
 import { tripsApi, invitationsApi } from './services/api';
-import { io } from 'socket.io-client'
 import { useParams } from 'react-router-dom';
-
-
-
+import { TripMember } from './components/TripMember';
 
 interface TripData {
   title: string;
@@ -20,6 +17,7 @@ interface TripData {
       id: string;
       email: string;
       name: string;
+      image: string | null;
     };
   }>;
 }
@@ -58,26 +56,24 @@ export const SingleTripPage = () => {
 
     fetchTripDetails();
 
-  //   // Listen for new invitations
-  //   socket.on('invite:created', (invitation) => {
-  //     console.log('Received invitation:', invitation);
-  //     // Handle the invitation (e.g., show notification)
-  //   });
-
-  //   // Cleanup listener
-  //   return () => {
-  //     socket.off('invite:created');
-  //   };
   }, []);
 
   return (
-    <div>
-      {trip?.title}
+    <div className='bg-white/80 border-sky-200'>
+      <h1 className='text-xl font-bold text-center'>{trip?.title}</h1>
       <div>
-        <h3>Participants:</h3>
+        <div className='flex items-center justify-between'>
+          <div className='text-sm font-semibold tracking-tight'>
+            <h3>Participants:</h3>
+          </div>
+          <div className='text-xs text-slate-500'>
+            {trip?.members.length} total
+          </div>
+        </div>
+        
         <ul>
           {trip?.members.map(member => (
-            <li key={member.userId}>{member.role}: {member.user.name}</li>
+            <TripMember key={member.userId} member={member} />
           ))}
         </ul>
         <input 

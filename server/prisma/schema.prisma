@@ -62,6 +62,7 @@ model Trip {
   endDate     DateTime?
   createdBy   User      @relation(fields: [createdById], references: [id])
   createdById String
+  image       String?
 
   members TripMember[]
   invitations Invitation[]
@@ -93,4 +94,10 @@ model Invitation {
   invitedUser User @relation("Invited", fields: [invitedUserId], references: [id])
   status String @default("PENDING")
   createdAt DateTime @default(now())
+}
+
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
 }

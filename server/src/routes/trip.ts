@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.post("/", isAuthenticated, tripController.createTrip);
 router.get("/", isAuthenticated, tripController.getUserTrips);
+router.get("/newest", isAuthenticated, tripController.getNewestTripsByUserId);
 router.get("/:id", isAuthenticated, tripController.getTripDetails);
 router.patch("/:id", isAuthenticated, tripController.updateTrip);
 router.delete("/:id", isAuthenticated, tripController.deleteTrip);

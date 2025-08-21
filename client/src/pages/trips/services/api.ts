@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { TripFormData } from '../CreateTripPage';
+import { get } from 'react-hook-form';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -13,6 +14,7 @@ export const tripsApi = {
   delete: (id: string) => api.delete(`/api/trips/${id}`),
   getAll: () => api.get('/api/trips'),
   getById: (id: string) => api.get(`/api/trips/${id}`),
+  getNewest: (limit: number) => api.get(`/api/trips/newest?limit=${limit}`),
 };
 
 export const invitationsApi = {
