@@ -5,6 +5,9 @@ import { sessionMiddleware } from './middleware/session.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import tripRoutes from './routes/trip.js';
+import itineraryRoutes from './routes/itinerary.js';
+import flightRoutes from './routes/flight.js';
+import lodgingRoutes from './routes/lodging.js';
 import cors from 'cors';
 import { Server } from "socket.io" 
 import { createServer} from "http"
@@ -57,6 +60,9 @@ app.set('io', io);
 app.use('/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/itineraries', itineraryRoutes);
+app.use('/api/flights', flightRoutes);
+app.use('/api/lodgings', lodgingRoutes);;
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

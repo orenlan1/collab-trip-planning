@@ -16,6 +16,8 @@ import { SingleTripPage } from './pages/trips/SingleTripPage.tsx'
 import { Loader } from 'lucide-react'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
+import { SidebarLayout } from './layouts/SidebarLayout.tsx'
+
 
 const router = createBrowserRouter([
   {
@@ -34,22 +36,23 @@ const router = createBrowserRouter([
         element: <ProtectedRoute><DashboardPage /></ProtectedRoute>
       },
       {
-        path: 'trips',
-        children: [
-          {
-            path: ':tripId',
-            element: <ProtectedRoute><SingleTripPage /></ProtectedRoute>
-          }
-  
-        ]
-
-      },
-      {
         path: 'trips/create',
         element: <ProtectedRoute><CreateTripPage /></ProtectedRoute>
       }
     ]
   },
+    
+  {
+    path: 'trips',
+    element: <SidebarLayout />,
+    children: [
+      {
+        path: ':tripId',
+        element: <ProtectedRoute><SingleTripPage /></ProtectedRoute>
+      }
+    ]
+  },
+  
   {
     path: '/login',
     element: <Login />

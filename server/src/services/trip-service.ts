@@ -1,8 +1,10 @@
 import {prisma} from '../prisma/client.js';
 import type {TripFormData, TripUpdateData } from '../controllers/trip-controller.js';
+import itineraryService from './itinerary-service.js';
 
 
 const create = async (data: TripFormData, creatorId: string) => {
+
   const trip = await prisma.trip.create({
     data: {
       title: data.title,
@@ -15,11 +17,22 @@ const create = async (data: TripFormData, creatorId: string) => {
         create: {
             userId: creatorId,
             role: "creator"
-
         }
+      },
+      itinerary: {
+        create: {} // Initialize empty itinerary
       }
     },
+    include: {
+      itinerary: true
+    },
   });
+
+
+  if (data.startDate && data.endDate && trip.itinerary) {
+    const days = await itineraryService.createItineraryDays(trip.itinerary.id, data.startDate, data.endDate);
+  }
+
   return trip;
 };
 
@@ -54,6 +67,11 @@ const getTripById = async (id: string) => {
           },
         },
       },
+      itinerary: {
+        include: {
+          days: true
+        }
+      }
     }
   });
   return trip;

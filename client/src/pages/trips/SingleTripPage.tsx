@@ -3,6 +3,7 @@ import { tripsApi, invitationsApi } from './services/api';
 import { useParams } from 'react-router-dom';
 import { TripMember } from './components/TripMember';
 
+
 interface TripData {
   title: string;
   destination: string;

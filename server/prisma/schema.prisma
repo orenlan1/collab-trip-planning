@@ -66,6 +66,9 @@ model Trip {
 
   members TripMember[]
   invitations Invitation[]
+  itinerary Itinerary?
+  flights   Flight[]
+  lodgings  Lodging[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,4 +103,60 @@ model Session {
   sid    String   @id
   sess   Json
   expire DateTime
+}
+
+
+model Itinerary {
+  id        String   @id @default(cuid())
+  tripId    String  @unique 
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  days      TripDay[]
+}
+
+model TripDay {
+  id          String     @id @default(cuid())
+  itineraryId String 
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  activities  Activity[]
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  tripDayId   String
+  tripDay     TripDay  @relation(fields: [tripDayId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  startTime   DateTime?
+  endTime     DateTime?
+  location    String?
+  image       String?
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Flight {
+  id          String   @id @default(cuid())
+  tripId     String
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  flightNumber String
+  airline     String
+  departure   DateTime
+  arrival     DateTime
+  from        String
+  to          String
+}
+
+model Lodging {
+  id         String   @id @default(cuid())
+  tripId     String
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  name       String
+  address    String
+  checkIn    DateTime
+  checkOut   DateTime
+  guests     Int
 }

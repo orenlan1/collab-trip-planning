@@ -1,0 +1,139 @@
+import type { Request, Response } from "express";
+import itineraryService from "../services/itinerary-service";
+
+export interface ItineraryFormData {
+    tripId: string;
+}
+
+export interface TripDayFormData {
+    date: Date;
+}
+
+export interface ActivityFormData {
+    title: string;
+    description?: string;
+    startTime?: Date;
+    endTime?: Date;
+    location?: string;
+    image?: string;
+}
+
+
+const getItinerary = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { tripId } = req.params;
+
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+    try {
+        const itinerary = await itineraryService.getByTripId(tripId);
+        if (!itinerary) {
+            return res.status(404).json({ error: "Itinerary not found" });
+        }
+        res.status(200).json(itinerary);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch itinerary" });
+    }
+};
+
+const addTripDay = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { itineraryId } = req.params;
+    if (!itineraryId) {
+        return res.status(400).json({ error: "Itinerary ID is required" });
+    }
+
+    const data: TripDayFormData = req.body;
+    try {
+        const tripDay = await itineraryService.addTripDay(itineraryId, data);
+        res.status(201).json(tripDay);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to add trip day" });
+    }
+};
+
+const addActivity = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { tripDayId } = req.params;
+    if (!tripDayId) {
+        return res.status(400).json({ error: "Trip Day ID is required" });
+    }
+
+    const data: ActivityFormData = req.body;
+    try {
+        const activity = await itineraryService.addActivity(tripDayId, data);
+        res.status(201).json(activity);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to add activity" });
+    }
+};
+
+const updateActivity = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { activityId } = req.params;
+
+    if (!activityId) {
+        return res.status(400).json({ error: "Activity ID is required" });
+    }
+
+    const data: ActivityFormData = req.body;
+    try {
+        const activity = await itineraryService.updateActivity(activityId, data);
+        res.status(200).json(activity);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update activity" });
+    }
+};
+
+const deleteActivity = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { activityId } = req.params;
+    if (!activityId) {
+        return res.status(400).json({ error: "Activity ID is required" });
+    }
+
+    try {
+        await itineraryService.deleteActivity(activityId);
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete activity" });
+    }
+};
+
+const deleteTripDay = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { tripDayId } = req.params;
+
+    if (!tripDayId) {
+        return res.status(400).json({ error: "Trip Day ID is required" });
+    }
+
+    try {
+        await itineraryService.deleteTripDay(tripDayId);
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete trip day" });
+    }
+};
+
+export default {
+    getItinerary,
+    addTripDay,
+    addActivity,
+    updateActivity,
+    deleteActivity,
+    deleteTripDay
+};

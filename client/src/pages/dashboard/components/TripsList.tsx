@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { GoInbox} from "react-icons/go";
-import { useNavigate } from "react-router-dom";
 import { tripsApi } from "@/pages/trips/services/api";
-import { EmptyTripsListState } from "./EmptyTripSListState";
+import { EmptyTripsListState } from "./EmptyTripsListState";
 import { TripItem } from "./TripItem";
 
 export interface TripsMetadata {
@@ -15,7 +13,6 @@ export interface TripsMetadata {
 
 
 export function TripsList() {
-  const navigate = useNavigate();
   const [trips, setTrips] = useState<TripsMetadata[]>([]);
 
 
