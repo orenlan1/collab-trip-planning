@@ -12,7 +12,10 @@ import { ThemeProvider } from './context/ThemeContext'
 import { Register } from './components/Register.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
 import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
-import { SingleTripPage } from './pages/trips/SingleTripPage.tsx'
+import { TripOverviewPage } from './pages/trips/TripOverviewPage.tsx'
+import { TripItineraryPage } from './pages/trips/TripItineraryPage.tsx'
+import { TripBudgetPage } from './pages/trips/TripBudgetPage.tsx'
+import { TripChatPage } from './pages/trips/TripChatPage.tsx'
 import { Loader } from 'lucide-react'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
@@ -48,7 +51,24 @@ const router = createBrowserRouter([
     children: [
       {
         path: ':tripId',
-        element: <ProtectedRoute><SingleTripPage /></ProtectedRoute>
+        children: [
+          {
+            path: 'overview',
+            element: <ProtectedRoute><TripOverviewPage /></ProtectedRoute>
+          },
+          {
+            path: 'itinerary',
+            element: <ProtectedRoute><TripItineraryPage /></ProtectedRoute>
+          },
+          {
+            path: 'budget',
+            element: <ProtectedRoute><TripBudgetPage /></ProtectedRoute>
+          },
+          {
+            path: 'chat',
+            element: <ProtectedRoute><TripChatPage /></ProtectedRoute>
+          }
+        ]
       }
     ]
   },

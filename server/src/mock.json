@@ -1,0 +1,2427 @@
+{
+    "meta": {
+        "count": 5,
+        "links": {
+            "self": "https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=TLV&destinationLocationCode=BCN&departureDate=2025-09-15&returnDate=2025-09-18&adults=2&max=5"
+        }
+    },
+    "data": [
+        {
+            "type": "flight-offer",
+            "id": "1",
+            "source": "GDS",
+            "instantTicketingRequired": false,
+            "nonHomogeneous": false,
+            "oneWay": false,
+            "isUpsellOffer": false,
+            "lastTicketingDate": "2025-08-27",
+            "lastTicketingDateTime": "2025-08-27",
+            "numberOfBookableSeats": 9,
+            "itineraries": [
+                {
+                    "duration": "PT4H40M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "TLV",
+                                "at": "2025-09-15T13:35:00"
+                            },
+                            "arrival": {
+                                "iataCode": "BCN",
+                                "at": "2025-09-15T17:15:00"
+                            },
+                            "carrierCode": "H1",
+                            "number": "54",
+                            "aircraft": {
+                                "code": "737"
+                            },
+                            "operating": {
+                                "carrierCode": "BZ"
+                            },
+                            "duration": "PT4H40M",
+                            "id": "1",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                },
+                {
+                    "duration": "PT4H15M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "BCN",
+                                "at": "2025-09-18T19:00:00"
+                            },
+                            "arrival": {
+                                "iataCode": "TLV",
+                                "at": "2025-09-19T00:15:00"
+                            },
+                            "carrierCode": "H1",
+                            "number": "46",
+                            "aircraft": {
+                                "code": "737"
+                            },
+                            "operating": {
+                                "carrierCode": "BZ"
+                            },
+                            "duration": "PT4H15M",
+                            "id": "6",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                }
+            ],
+            "price": {
+                "currency": "EUR",
+                "total": "401.82",
+                "base": "194.00",
+                "fees": [
+                    {
+                        "amount": "0.00",
+                        "type": "SUPPLIER"
+                    },
+                    {
+                        "amount": "0.00",
+                        "type": "TICKETING"
+                    }
+                ],
+                "grandTotal": "401.82"
+            },
+            "pricingOptions": {
+                "fareType": [
+                    "PUBLISHED"
+                ],
+                "includedCheckedBagsOnly": false
+            },
+            "validatingAirlineCodes": [
+                "HR"
+            ],
+            "travelerPricings": [
+                {
+                    "travelerId": "1",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "200.91",
+                        "base": "97.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "1",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRTBZ",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            }
+                        },
+                        {
+                            "segmentId": "6",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRTBZ",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "travelerId": "2",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "200.91",
+                        "base": "97.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "1",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRTBZ",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            }
+                        },
+                        {
+                            "segmentId": "6",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRTBZ",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "flight-offer",
+            "id": "2",
+            "source": "GDS",
+            "instantTicketingRequired": false,
+            "nonHomogeneous": false,
+            "oneWay": false,
+            "isUpsellOffer": false,
+            "lastTicketingDate": "2025-09-15",
+            "lastTicketingDateTime": "2025-09-15",
+            "numberOfBookableSeats": 9,
+            "itineraries": [
+                {
+                    "duration": "PT7H40M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-15T09:15:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "3",
+                                "at": "2025-09-15T12:00:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "815",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H45M",
+                            "id": "2",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-15T14:05:00"
+                            },
+                            "arrival": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-15T15:55:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "76",
+                            "aircraft": {
+                                "code": "223"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H50M",
+                            "id": "3",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                },
+                {
+                    "duration": "PT7H50M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-18T11:40:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T13:25:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "77",
+                            "aircraft": {
+                                "code": "32N"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H45M",
+                            "id": "11",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T16:10:00"
+                            },
+                            "arrival": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-18T20:30:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "812",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H20M",
+                            "id": "12",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                }
+            ],
+            "price": {
+                "currency": "EUR",
+                "total": "521.46",
+                "base": "228.00",
+                "fees": [
+                    {
+                        "amount": "0.00",
+                        "type": "SUPPLIER"
+                    },
+                    {
+                        "amount": "0.00",
+                        "type": "TICKETING"
+                    }
+                ],
+                "grandTotal": "521.46"
+            },
+            "pricingOptions": {
+                "fareType": [
+                    "PUBLISHED"
+                ],
+                "includedCheckedBagsOnly": false
+            },
+            "validatingAirlineCodes": [
+                "AZ"
+            ],
+            "travelerPricings": [
+                {
+                    "travelerId": "1",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "11",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "12",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "travelerId": "2",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "11",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "12",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "flight-offer",
+            "id": "3",
+            "source": "GDS",
+            "instantTicketingRequired": false,
+            "nonHomogeneous": false,
+            "oneWay": false,
+            "isUpsellOffer": false,
+            "lastTicketingDate": "2025-09-15",
+            "lastTicketingDateTime": "2025-09-15",
+            "numberOfBookableSeats": 9,
+            "itineraries": [
+                {
+                    "duration": "PT7H40M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-15T09:15:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "3",
+                                "at": "2025-09-15T12:00:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "815",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H45M",
+                            "id": "2",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-15T14:05:00"
+                            },
+                            "arrival": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-15T15:55:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "76",
+                            "aircraft": {
+                                "code": "223"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H50M",
+                            "id": "3",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                },
+                {
+                    "duration": "PT9H20M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-18T16:50:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T18:35:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "79",
+                            "aircraft": {
+                                "code": "223"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H45M",
+                            "id": "7",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T22:50:00"
+                            },
+                            "arrival": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-19T03:10:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "810",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H20M",
+                            "id": "8",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                }
+            ],
+            "price": {
+                "currency": "EUR",
+                "total": "521.46",
+                "base": "228.00",
+                "fees": [
+                    {
+                        "amount": "0.00",
+                        "type": "SUPPLIER"
+                    },
+                    {
+                        "amount": "0.00",
+                        "type": "TICKETING"
+                    }
+                ],
+                "grandTotal": "521.46"
+            },
+            "pricingOptions": {
+                "fareType": [
+                    "PUBLISHED"
+                ],
+                "includedCheckedBagsOnly": false
+            },
+            "validatingAirlineCodes": [
+                "AZ"
+            ],
+            "travelerPricings": [
+                {
+                    "travelerId": "1",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "7",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "8",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "travelerId": "2",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "7",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "8",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "flight-offer",
+            "id": "4",
+            "source": "GDS",
+            "instantTicketingRequired": false,
+            "nonHomogeneous": false,
+            "oneWay": false,
+            "isUpsellOffer": false,
+            "lastTicketingDate": "2025-09-15",
+            "lastTicketingDateTime": "2025-09-15",
+            "numberOfBookableSeats": 9,
+            "itineraries": [
+                {
+                    "duration": "PT7H40M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-15T09:15:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "3",
+                                "at": "2025-09-15T12:00:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "815",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H45M",
+                            "id": "2",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-15T14:05:00"
+                            },
+                            "arrival": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-15T15:55:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "76",
+                            "aircraft": {
+                                "code": "223"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H50M",
+                            "id": "3",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                },
+                {
+                    "duration": "PT13H10M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-18T06:20:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T08:05:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "75",
+                            "aircraft": {
+                                "code": "32N"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H45M",
+                            "id": "4",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T16:10:00"
+                            },
+                            "arrival": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-18T20:30:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "812",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H20M",
+                            "id": "5",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                }
+            ],
+            "price": {
+                "currency": "EUR",
+                "total": "521.46",
+                "base": "228.00",
+                "fees": [
+                    {
+                        "amount": "0.00",
+                        "type": "SUPPLIER"
+                    },
+                    {
+                        "amount": "0.00",
+                        "type": "TICKETING"
+                    }
+                ],
+                "grandTotal": "521.46"
+            },
+            "pricingOptions": {
+                "fareType": [
+                    "PUBLISHED"
+                ],
+                "includedCheckedBagsOnly": false
+            },
+            "validatingAirlineCodes": [
+                "AZ"
+            ],
+            "travelerPricings": [
+                {
+                    "travelerId": "1",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "4",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "5",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "travelerId": "2",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "4",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "5",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "flight-offer",
+            "id": "5",
+            "source": "GDS",
+            "instantTicketingRequired": false,
+            "nonHomogeneous": false,
+            "oneWay": false,
+            "isUpsellOffer": false,
+            "lastTicketingDate": "2025-09-15",
+            "lastTicketingDateTime": "2025-09-15",
+            "numberOfBookableSeats": 9,
+            "itineraries": [
+                {
+                    "duration": "PT7H40M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-15T09:15:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "3",
+                                "at": "2025-09-15T12:00:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "815",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H45M",
+                            "id": "2",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-15T14:05:00"
+                            },
+                            "arrival": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-15T15:55:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "76",
+                            "aircraft": {
+                                "code": "223"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H50M",
+                            "id": "3",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                },
+                {
+                    "duration": "PT14H30M",
+                    "segments": [
+                        {
+                            "departure": {
+                                "iataCode": "BCN",
+                                "terminal": "1",
+                                "at": "2025-09-18T11:40:00"
+                            },
+                            "arrival": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T13:25:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "77",
+                            "aircraft": {
+                                "code": "32N"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT1H45M",
+                            "id": "9",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        },
+                        {
+                            "departure": {
+                                "iataCode": "FCO",
+                                "terminal": "1",
+                                "at": "2025-09-18T22:50:00"
+                            },
+                            "arrival": {
+                                "iataCode": "TLV",
+                                "terminal": "3",
+                                "at": "2025-09-19T03:10:00"
+                            },
+                            "carrierCode": "AZ",
+                            "number": "810",
+                            "aircraft": {
+                                "code": "32Q"
+                            },
+                            "operating": {
+                                "carrierCode": "AZ"
+                            },
+                            "duration": "PT3H20M",
+                            "id": "10",
+                            "numberOfStops": 0,
+                            "blacklistedInEU": false
+                        }
+                    ]
+                }
+            ],
+            "price": {
+                "currency": "EUR",
+                "total": "521.46",
+                "base": "228.00",
+                "fees": [
+                    {
+                        "amount": "0.00",
+                        "type": "SUPPLIER"
+                    },
+                    {
+                        "amount": "0.00",
+                        "type": "TICKETING"
+                    }
+                ],
+                "grandTotal": "521.46"
+            },
+            "pricingOptions": {
+                "fareType": [
+                    "PUBLISHED"
+                ],
+                "includedCheckedBagsOnly": false
+            },
+            "validatingAirlineCodes": [
+                "AZ"
+            ],
+            "travelerPricings": [
+                {
+                    "travelerId": "1",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "9",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "10",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "travelerId": "2",
+                    "fareOption": "STANDARD",
+                    "travelerType": "ADULT",
+                    "price": {
+                        "currency": "EUR",
+                        "total": "260.73",
+                        "base": "114.00"
+                    },
+                    "fareDetailsBySegment": [
+                        {
+                            "segmentId": "2",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "3",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "9",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "segmentId": "10",
+                            "cabin": "ECONOMY",
+                            "fareBasis": "LRLGME1",
+                            "brandedFare": "ECOLIGHT",
+                            "brandedFareLabel": "ECONOMY LIGHT",
+                            "class": "L",
+                            "includedCheckedBags": {
+                                "quantity": 0
+                            },
+                            "includedCabinBags": {
+                                "quantity": 1
+                            },
+                            "amenities": [
+                                {
+                                    "description": "UP TO 50LB 23KG 62LI 158LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "CARRY8KG 18LB UPTO46LI 118LCM",
+                                    "isChargeable": true,
+                                    "amenityType": "BAGGAGE",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "ADVANCE SEAT RESERVATION",
+                                    "isChargeable": true,
+                                    "amenityType": "PRE_RESERVED_SEAT",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                },
+                                {
+                                    "description": "SNACK",
+                                    "isChargeable": false,
+                                    "amenityType": "MEAL",
+                                    "amenityProvider": {
+                                        "name": "BrandedFare"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "dictionaries": {
+        "locations": {
+            "FCO": {
+                "cityCode": "ROM",
+                "countryCode": "IT"
+            },
+            "BCN": {
+                "cityCode": "BCN",
+                "countryCode": "ES"
+            },
+            "TLV": {
+                "cityCode": "TLV",
+                "countryCode": "IL"
+            }
+        },
+        "aircraft": {
+            "32Q": "AIRBUS A321NEO",
+            "223": "AIRBUS  A220-300",
+            "737": "BOEING 737 ALL SERIES PASSENGER",
+            "32N": "AIRBUS A320NEO"
+        },
+        "currencies": {
+            "EUR": "EURO"
+        },
+        "carriers": {
+            "BZ": "BLUE BIRD AIRWAYS",
+            "H1": "HAHN AIR SYSTEMS",
+            "AZ": "ITA AIRWAYS"
+        }
+    }
+}

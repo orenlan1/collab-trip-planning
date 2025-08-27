@@ -22,7 +22,7 @@ export function TripItem({ trip }: { trip: TripsMetadata }) {
     const navigate = useNavigate();
 
     return (
-        <div onClick={() => navigate(`/trips/${trip.id}`)} className='flex gap-3 hover:border-indigo-500 transition group bg-white/60 border-sky-100 border rounded-lg pt-3 pr-3 pb-3 pl-3 items-center'>
+        <div onClick={() => navigate(`/trips/${trip.id}/overview`)} className='flex gap-3 hover:border-indigo-500 transition group bg-white/60 border-sky-100 border rounded-lg pt-3 pr-3 pb-3 pl-3 items-center'>
             <div className='w-14 h-14 overflow-hidden flex-shrink-0 rounded-md'>
                 <img src={trip.image} alt={trip.title} className='w-full h-full object-cover' />
             </div>

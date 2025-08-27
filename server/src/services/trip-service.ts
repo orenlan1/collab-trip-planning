@@ -32,7 +32,7 @@ const create = async (data: TripFormData, creatorId: string) => {
   if (data.startDate && data.endDate && trip.itinerary) {
     const days = await itineraryService.createItineraryDays(trip.itinerary.id, data.startDate, data.endDate);
   }
-
+  
   return trip;
 };
 
@@ -56,24 +56,27 @@ const getTripById = async (id: string) => {
     where: { id },
     include: {
       members: {
-        include: {
+        select: {
+          userId: true,
+          role: true,
           user: {
             select: {
               id: true,
               email: true,
               name: true,
               image: true, // Include image if available
-            },
-          },
-        },
+            }
+          }
+        }
       },
       itinerary: {
-        include: {
-          days: true
+        select: {
+          id: true
         }
       }
     }
   });
+  
   return trip;
 };
 

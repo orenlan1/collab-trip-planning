@@ -1,5 +1,5 @@
 import { Navbar } from '../components/navigation/top/Navbar';
-import { Sidebar } from '../components/navigation/side/Sidebar';
+import { Sidebar } from '../pages/trips/navigation/Sidebar';
 import { Footer } from '../components/navigation/top/Footer';
 import { Outlet } from 'react-router-dom';
 
