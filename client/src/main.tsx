@@ -23,6 +23,7 @@ import { SidebarLayout } from './layouts/SidebarLayout.tsx'
 import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
 import { SearchingLayout } from './layouts/SearchingLayout.tsx'
 import { FlightResults } from './pages/flights/components/FlightResults.tsx'
+import { JoinTripPage } from './pages/trips/JoinTripPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
     ]
   },
 
+  {
+    path: 'trips/join/:token',
+    element: <ProtectedRoute><JoinTripPage /></ProtectedRoute>
+  },
   {
     path: '/login',
     element: <Login />

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
+
 export interface User {
   id: string;
   email: string;
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkSession();
   }, []);
+
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading }}>

@@ -93,10 +93,19 @@ model Invitation {
   trip   Trip   @relation(fields: [tripId], references: [id])
   inviterUserId String
   inviterUser User @relation("Inviter",fields: [inviterUserId], references: [id])
-  invitedUserId String
-  invitedUser User @relation("Invited", fields: [invitedUserId], references: [id])
-  status String @default("PENDING")
+  invitedUserId String?
+  invitedUser User? @relation("Invited", fields: [invitedUserId], references: [id])
+  email String?
+  token String?
+  type String @default("EMAIL") // EMAIL or MAGIC_LINK
+  expiresAt DateTime?
+  status String @default("ACTIVE") // ACTIVE, EXPIRED, REVOKED for magic links; PENDING, ACCEPTED, REJECTED for email invites
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // We'll create separate indexes for token and email since they serve different purposes
+  @@index([token])
+  @@index([email])
 }
 
 model Session {

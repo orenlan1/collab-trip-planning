@@ -89,7 +89,7 @@ export const TripOverviewPage = () => {
           <DestinationCard destination={trip?.destination ?? ""} />
         </div>
         <div>
-          <ParticipantsCard members={trip?.members ?? []} />
+          <ParticipantsCard members={trip?.members ?? []} tripId={tripId!} />
         </div>   
       </div>
 
