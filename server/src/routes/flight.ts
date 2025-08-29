@@ -9,4 +9,5 @@ router.get("/:tripId", isAuthenticated, flightController.getFlights);
 router.patch("/:flightId", isAuthenticated, flightController.updateFlight);
 router.delete("/:flightId", isAuthenticated, flightController.deleteFlight);
 
+router.post("/search/:tripId", isAuthenticated, flightController.searchFlights);
 export default router;

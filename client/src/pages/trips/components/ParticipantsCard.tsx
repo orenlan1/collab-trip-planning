@@ -32,12 +32,12 @@ export function ParticipantsCard({ members }: ParticipantCardProps) {
               ))}
             </ul>
         </div>
-        {/* <div className="bg-indigo-200 border-1 rounded-2xl w-1/2 m-4 hover:bg-indigo-300 transition "> */}
-            <button className="flex bg-indigo-500 hover:bg-indigo-600 transition ml-4 rounded-2xl gap-2 px-4 py-2 text-sm font-semibold text-white">
-                <FiUserPlus className="text-lg" />
-                Add Participant
-            </button>
-        {/* </div> */}
+
+        <button className="flex items-center bg-indigo-500 hover:bg-indigo-600 transition ml-4 rounded-2xl gap-2 px-4 py-2 text-sm font-semibold text-white">
+            <FiUserPlus className="text-lg" />
+            Add Participant
+        </button>
+     
 
     </div>
   );

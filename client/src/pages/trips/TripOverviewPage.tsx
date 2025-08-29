@@ -8,6 +8,8 @@ import { DestinationCard } from './components/DestinationCard';
 import { DescriptionCard} from './components/DescriptionCard';
 import { LodgingCard } from './components/LodgingCard';
 
+
+
 interface TripData {
   title: string;
   destination: string;
@@ -35,6 +37,7 @@ export const TripOverviewPage = () => {
   const { tripId } = useParams<{ tripId: string }>();
   const [trip, setTrip] = useState<TripData | null>(null);
   const [inviteeEmail, setInviteeEmail] = useState<string>("");
+ 
 
 
 

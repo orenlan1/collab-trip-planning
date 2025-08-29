@@ -20,7 +20,9 @@ import { Loader } from 'lucide-react'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
 import { SidebarLayout } from './layouts/SidebarLayout.tsx'
-
+import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
+import { SearchingLayout } from './layouts/SearchingLayout.tsx'
+import { FlightResults } from './pages/flights/components/FlightResults.tsx'
 
 const router = createBrowserRouter([
   {
@@ -41,7 +43,7 @@ const router = createBrowserRouter([
       {
         path: 'trips/create',
         element: <ProtectedRoute><CreateTripPage /></ProtectedRoute>
-      }
+      },
     ]
   },
     
@@ -72,7 +74,22 @@ const router = createBrowserRouter([
       }
     ]
   },
-  
+
+  {
+    path: '/search',
+    element: <SearchingLayout />,
+    children: [
+      {
+        path: 'flights',
+        element: <ProtectedRoute><SearchFlightsPage /></ProtectedRoute>,
+      },
+      {
+        path: 'flights/results',
+        element: <ProtectedRoute><FlightResults /></ProtectedRoute>,
+      }
+    ]
+  },
+
   {
     path: '/login',
     element: <Login />

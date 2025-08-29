@@ -1,8 +1,10 @@
 import { IoAirplaneOutline } from "react-icons/io5";
-
+import { useNavigate } from "react-router-dom";
 
 
 export function FlightsCard() {
+  const navigate = useNavigate();
+
   return (
     <div className="border-1 rounded-xl py-3 bg-white/80 shadow-sm">
       <div className="flex px-4 gap-3 items-center">
@@ -22,7 +24,7 @@ export function FlightsCard() {
           <button className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-semibold">
             Add Flight
           </button>
-          <button className="border-2 border-indigo-500 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-semibold">
+          <button onClick={() => navigate("/search/flights")} className="border-2 border-indigo-500 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-semibold">
             Search Flights
           </button>
         </div>

@@ -6,7 +6,7 @@ dotenv.config();
 
 let cachedToken: { token: string; expiry: number } | null = null;
 
-async function getAmadeusToken(): Promise<string> {
+export async function getAmadeusToken(): Promise<string> {
   const now = Date.now();
 
   if (cachedToken && cachedToken.expiry > now) {
