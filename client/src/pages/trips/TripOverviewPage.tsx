@@ -94,7 +94,7 @@ export const TripOverviewPage = () => {
       </div>
 
       <div className='mt-6'>
-        <DescriptionCard />
+        <DescriptionCard description={trip?.description ?? ""} />
       </div>
 
       <div className='mt-6'>

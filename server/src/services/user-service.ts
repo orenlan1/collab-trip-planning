@@ -33,7 +33,7 @@ const isMemberOfTheTrip = async (userId: string, tripId: string) => {
         where: { id: tripId },
         include: { members : true }
     });
-    return trip?.members.some(member => member.id === userId) ?? false;
+    return trip?.members.some(member => member.userId === userId) ?? false;
 };
 
 export default {
