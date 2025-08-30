@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { TypedSocket } from "../types/socket";
 import tripService from "../services/trip-service";
+import userService from "../services/user-service";
 
 
 
@@ -45,6 +46,12 @@ const getTripDetails = async (req: Request, res: Response) => {
     if (!id) {
         return res.status(400).json({ error: "Invalid trip ID" });
     }
+
+    const isMember = await userService.isMemberOfTheTrip(req.user.id, id);
+    if (!isMember) {
+        return res.status(403).json({ error: "Forbidden" });
+    }
+
     try {
         const trip = await tripService.getTripById(id);
         if (!trip) {

@@ -19,7 +19,7 @@ export function TripsList() {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const response = await tripsApi.getNewest(3);
+        const response = await tripsApi.getAll();
         setTrips(response.data);
       } catch (error) {
         console.error("Error fetching trips:", error);
