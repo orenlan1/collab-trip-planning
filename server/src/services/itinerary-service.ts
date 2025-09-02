@@ -2,14 +2,45 @@ import { prisma } from '../prisma/client.js';
 import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
 
 
-const createItineraryDays = async (itineraryId: string, startDate: Date, endDate: Date) => {
+const createItineraryDays = async (itineraryId: string, startDate: Date | string, endDate: Date | string) => {
     const days = [];
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+
+    // Handle both Date objects and date strings (YYYY-MM-DD)
+    // Extract just the date portion to ensure consistency
+    const startDateStr = typeof startDate === 'string' 
+        ? startDate 
+        : startDate instanceof Date 
+            ? startDate.toISOString().split('T')[0] 
+            : String(startDate).split('T')[0];
+            
+    const endDateStr = typeof endDate === 'string' 
+        ? endDate 
+        : endDate instanceof Date 
+            ? endDate.toISOString().split('T')[0] 
+            : String(endDate).split('T')[0];
+    
+    
+    // Create dates at UTC midnight for consistent date comparison and storage
+    const start = new Date(`${startDateStr}T00:00:00.000Z`);
+    const end = new Date(`${endDateStr}T00:00:00.000Z`);
+    
+
+    // Use while loop for clearer logic
+    let currentDate = new Date(start);
+    while (currentDate <= end) {
+        // Store the date with the correct year, month, day at UTC midnight
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const dateToStore = new Date(`${dateStr}T00:00:00.000Z`);
+        
         days.push({
             itineraryId,
-            date: new Date(date)
+            date: dateToStore
         });
+        
+        // Move to next day (using UTC methods to avoid DST issues)
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
+    
     await prisma.tripDay.createMany({
         data: days
     });
@@ -26,9 +57,9 @@ const createItineraryDays = async (itineraryId: string, startDate: Date, endDate
 }
 
 
-const getByTripId = async (tripId: string) => {
+const getById = async (itineraryId: string) => {
     return prisma.itinerary.findUnique({
-        where: { tripId },
+        where: { id: itineraryId },
         include: {
             days: {
                 include: {
@@ -95,7 +126,7 @@ const deleteTripDay = async (tripDayId: string) => {
 };
 
 export default {
-    getByTripId,
+    getById,
     addTripDay,
     addActivity,
     updateActivity,

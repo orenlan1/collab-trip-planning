@@ -4,14 +4,36 @@ import itineraryService from './itinerary-service.js';
 
 
 const create = async (data: TripFormData, creatorId: string) => {
+  // Normalize dates to ensure consistent handling
+  let normalizedStartDate = undefined;
+  let normalizedEndDate = undefined;
+  
+  if (data.startDate) {
+    const startDateStr = typeof data.startDate === 'string' 
+      ? data.startDate 
+      : data.startDate instanceof Date 
+        ? data.startDate.toISOString().split('T')[0] 
+        : String(data.startDate).split('T')[0];
+    normalizedStartDate = new Date(`${startDateStr}T00:00:00.000Z`);
+  }
+  
+  if (data.endDate) {
+    const endDateStr = typeof data.endDate === 'string' 
+      ? data.endDate 
+      : data.endDate instanceof Date 
+        ? data.endDate.toISOString().split('T')[0] 
+        : String(data.endDate).split('T')[0];
+    normalizedEndDate = new Date(`${endDateStr}T00:00:00.000Z`);
+  }
+
 
   const trip = await prisma.trip.create({
     data: {
       title: data.title,
       ...(data.destination !== undefined && { destination: data.destination }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.startDate !== undefined && { startDate: data.startDate }),
-      ...(data.endDate !== undefined && { endDate: data.endDate }),
+      ...(normalizedStartDate !== undefined && { startDate: normalizedStartDate }),
+      ...(normalizedEndDate !== undefined && { endDate: normalizedEndDate }),
       createdById: creatorId,
       members: {
         create: {
@@ -30,7 +52,12 @@ const create = async (data: TripFormData, creatorId: string) => {
 
 
   if (data.startDate && data.endDate && trip.itinerary) {
-    const days = await itineraryService.createItineraryDays(trip.itinerary.id, data.startDate, data.endDate);
+    // Use the normalized dates we already created
+    const days = await itineraryService.createItineraryDays(
+      trip.itinerary.id, 
+      normalizedStartDate!, 
+      normalizedEndDate!
+    );
   }
   
   return trip;
@@ -82,13 +109,36 @@ const getTripById = async (id: string) => {
 
 
 const update = async (id: string, data: TripUpdateData) => {
+  // Normalize dates for update
+  let normalizedStartDate = undefined;
+  let normalizedEndDate = undefined;
+  
+  if (data.startDate) {
+    const startDateStr = typeof data.startDate === 'string' 
+      ? data.startDate 
+      : data.startDate instanceof Date 
+        ? data.startDate.toISOString().split('T')[0] 
+        : String(data.startDate).split('T')[0];
+    normalizedStartDate = new Date(`${startDateStr}T00:00:00.000Z`);
+  }
+  
+  if (data.endDate) {
+    const endDateStr = typeof data.endDate === 'string' 
+      ? data.endDate 
+      : data.endDate instanceof Date 
+        ? data.endDate.toISOString().split('T')[0] 
+        : String(data.endDate).split('T')[0];
+    normalizedEndDate = new Date(`${endDateStr}T00:00:00.000Z`);
+  }
+
   const trip = await prisma.trip.update({
     where: { id },
     data: {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.destination !== undefined && { destination: data.destination }),
-        ...(data.startDate !== undefined && { startDate: data.startDate }),
-        ...(data.endDate !== undefined && { endDate: data.endDate }),
+        ...(normalizedStartDate !== undefined && { startDate: normalizedStartDate }),
+        ...(normalizedEndDate !== undefined && { endDate: normalizedEndDate }),
+        ...(data.description !== undefined && { description: data.description }),
     }
   });
   return trip;

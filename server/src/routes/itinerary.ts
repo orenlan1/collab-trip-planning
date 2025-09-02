@@ -5,7 +5,7 @@ import itineraryController from '../controllers/itinerary-controller';
 const router = express.Router();
 
 // Itinerary routes
-router.get("/:tripId", isAuthenticated, itineraryController.getItinerary);
+router.get("/:itineraryId", isAuthenticated, itineraryController.getItinerary);
 
 // Trip day routes
 router.post("/:itineraryId/days", isAuthenticated, itineraryController.addTripDay);

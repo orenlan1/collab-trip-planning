@@ -68,6 +68,7 @@ export interface TripUpdateData {
     destination?: string;
     startDate?: Date;
     endDate?: Date;
+    description?: string;
 }
 
 const updateTrip = async (req: Request, res: Response) => {

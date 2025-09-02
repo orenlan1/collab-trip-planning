@@ -3,24 +3,16 @@ import { TripMember } from "./TripMember";
 import { FiUsers } from "react-icons/fi";
 import { FiUserPlus } from "react-icons/fi";
 import { InviteModal } from "./InviteModal";
+import { useTripStore } from "@/stores/tripStore";
 
 interface ParticipantCardProps {
     tripId: string;
-    members: Array<{
-    userId: string;
-    role: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      image: string | null;
-    };
-  }>;
 }
 
 
-export function ParticipantsCard({ members, tripId }: ParticipantCardProps) {
+export function ParticipantsCard({ tripId }: ParticipantCardProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const members = useTripStore(state => state.members);
 
   return (
     <div className="border-1 rounded-xl py-3 bg-white/80 shadow-sm">

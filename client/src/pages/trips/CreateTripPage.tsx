@@ -33,15 +33,21 @@ export const CreateTripPage = () => {
 
   const onSubmit = async (data: TripFormData) => {
     if (startDate) {
-      data.startDate = startDate;
+      // Send just the date string in YYYY-MM-DD format
+      const startDateStr = format(startDate, "yyyy-MM-dd");
+      // We'll send as string and let the backend parse it properly
+      data.startDate = startDateStr as any;
     }
     if (endDate) {
-      data.endDate = endDate;
+      // Send just the date string in YYYY-MM-DD format
+      const endDateStr = format(endDate, "yyyy-MM-dd");
+      // We'll send as string and let the backend parse it properly
+      data.endDate = endDateStr as any;
     }
     try {
       const response = await tripsApi.create(data);
       console.log("Trip created successfully");
-      navigate(`/trips/${response.data.id}`);
+      navigate(`/trips/${response.data.id}/overview`);
     } catch (error) {
       console.error("Error creating trip:", error);
     }

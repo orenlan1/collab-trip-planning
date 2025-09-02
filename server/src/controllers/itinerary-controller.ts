@@ -23,13 +23,13 @@ const getItinerary = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { tripId } = req.params;
+    const { itineraryId } = req.params;
 
-    if (!tripId) {
-        return res.status(400).json({ error: "Trip ID is required" });
+    if (!itineraryId) {
+        return res.status(400).json({ error: "Itinerary ID is required" });
     }
     try {
-        const itinerary = await itineraryService.getByTripId(tripId);
+        const itinerary = await itineraryService.getById(itineraryId);
         if (!itinerary) {
             return res.status(404).json({ error: "Itinerary not found" });
         }
