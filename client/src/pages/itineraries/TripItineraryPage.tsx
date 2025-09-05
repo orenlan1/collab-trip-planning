@@ -1,70 +1,51 @@
-import { useTripStore } from "@/stores/tripStore"; 
-import axios from "axios";
-import { useEffect, useState } from "react";
-
-export interface Itinerary {
-  days: Array<{
-    id: string;
-    date: Date;
-    activities: Array<{
-      id: string;
-      title: string;
-        description?: string;
-        startTime?: string;
-        endTime?: string;
-        location?: string;
-        image?: string;
-      }>
-    }>
-  
-}
-
+import { useTripStore } from "@/stores/tripStore";
+import { useItineraryStore } from "@/stores/itineraryStore";
+import { useEffect } from "react";
+import { DateCard } from "./components/DateCard";
+import { TripDayPage } from "../tripday/TripDayPage";
+import { useState } from "react";
+import type { TripDay } from "../tripday/services/api";
 
 export function TripItineraryPage() {
   const itineraryId = useTripStore(state => state.itinerary.id);
-  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const { days, isLoading, error, setItineraryData } = useItineraryStore();
+  const [selectedDay, setSelectedDay] = useState<TripDay | null>(null);
 
   useEffect(() => {
-    const fetchItinerary = async () => {
-      try {
-        console.log("Fetching itinerary for ID:", itineraryId);
-        const response = await axios.get(`http://localhost:3000/api/itineraries/${itineraryId}`, { withCredentials: true });
-        console.log("Fetched itinerary data:", response.data);
-        setItinerary(response.data);
-      } catch (error) {
-        console.error("Error fetching itinerary:", error);
-      }
-    };
-
-    fetchItinerary();
-  }, [itineraryId]);
-
+    if (itineraryId) {
+      console.log("Fetching itinerary for ID:", itineraryId);
+      setItineraryData(itineraryId);
+    }
+  }, [itineraryId, setItineraryData]);
 
   return (
     <div>
-      <h1>Trip Itinerary</h1>
-      {itinerary ? (
-        <div>
-          {itinerary.days.map((day) => (
-            <div key={day.id}>
-              <h2>{ new Date(day.date).toLocaleDateString()}</h2>
-              <ul>
-                {day.activities.map(activity => (
-                  <li key={activity.id}>
-                    <h3>{activity.title}</h3>
-                    <p>{activity.description}</p>
-                    {activity.startTime && <p>Start: {activity.startTime}</p>}
-                    {activity.endTime && <p>End: {activity.endTime}</p>}
-                    {activity.location && <p>Location: {activity.location}</p>}
-                    {activity.image && <img src={activity.image} alt={activity.title} />}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      ) : (
+      <h1 className="text-2xl font-semibold mb-4">Trip Timeline</h1>
+      {isLoading ? (
         <p>Loading itinerary...</p>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : days.length > 0 ? (
+        <div>
+          <hr />
+          <div className="flex justify-around overflow-x-auto gap-5 m-10">
+            {days.map((day, index) => (
+              <div key={day.id}>
+                <DateCard date={new Date(day.date)} index={index} setDay={() => setSelectedDay(day)} />
+              </div>
+            ))}
+          </div>
+          <hr />
+
+          {selectedDay && (
+            <div>
+              <TripDayPage day={selectedDay} />
+            </div>
+          )}
+        </div>
+
+      ) : (
+        <p>No itinerary data available</p>
       )}
     </div>
   );

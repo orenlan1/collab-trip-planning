@@ -89,7 +89,6 @@ const addActivity = async (tripDayId: string, data: ActivityFormData) => {
     return prisma.activity.create({
         data: {
             tripDayId,
-            title: data.title,
             description: data.description || null,
             startTime: data.startTime || null,
             endTime: data.endTime || null,

@@ -16,7 +16,7 @@ export function InviteModal({ isOpen, onClose, tripId }: InviteModalProps) {
   const generateInviteLink = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:3000/trips/invite/magic-link', {
+      const response = await fetch('http://localhost:3000/api/trips/invite/magic-link', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

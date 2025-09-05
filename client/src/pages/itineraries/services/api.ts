@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Itinerary } from '../TripItineraryPage';
+import type { Itinerary } from '@/stores/itineraryStore';
 
 
 const api = axios.create({
@@ -9,5 +9,5 @@ const api = axios.create({
 
 
 export const itinerariesApi = {
-    getItinerary: (id: string) => api.get<Itinerary>(`/itineraries/${id}`),  
+    getItinerary: (id: string) => api.get<Itinerary>(`api/itineraries/${id}`),  
 };

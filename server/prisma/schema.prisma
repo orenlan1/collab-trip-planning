@@ -135,7 +135,6 @@ model Activity {
   id          String   @id @default(cuid())
   tripDayId   String
   tripDay     TripDay  @relation(fields: [tripDayId], references: [id], onDelete: Cascade)
-  title       String
   description String?
   startTime   DateTime?
   endTime     DateTime?
