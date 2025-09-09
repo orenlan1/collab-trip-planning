@@ -138,7 +138,8 @@ model Activity {
   description String?
   startTime   DateTime?
   endTime     DateTime?
-  location    String?
+  name      String?
+  address     String?
   image       String?
 
 

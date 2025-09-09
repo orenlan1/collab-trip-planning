@@ -6,11 +6,11 @@ export type TripDay = {
     date: Date;
     activities: Array<{
       id: string;
-      title: string;
       description?: string;
       startTime?: string;
       endTime?: string;
-      location?: string;
+      name?: string;
+      address?: string;
       image?: string;
     }>
 };
@@ -22,6 +22,7 @@ const api = axios.create({
 
 
 export const tripDaysApi = {
-    addNewActivity: (dayId: string, activity: Omit<TripDay['activities'][number], 'id'>) =>
-        api.post(`api/itineraries/days/${dayId}/activities`, activity),
+    addNewActivity: (dayId: string, data: { name: string, address: string }) =>
+        api.post(`api/itineraries/days/${dayId}/activities`,  data ),
+    getActivities: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}/activities`)
 };

@@ -1,36 +1,55 @@
-
+import { GrLocationPin } from "react-icons/gr";
 import {  IoLocationOutline } from "react-icons/io5";
 
 interface ActivityCardProps {
   activity?: {
     id?: string;
-    title?: string;
     description?: string;
     startTime?: string;
     endTime?: string;
-    location?: string;
+    name?: string;
+    address?: string;
     image?: string;
   };
-  isEditable?: boolean;
 }
 
-export const ActivityCard = ({ activity, isEditable = false }: ActivityCardProps) => {
-  // Default empty activity if none provided
+export const ActivityCard = ({ activity }: ActivityCardProps) => {
   const displayActivity = activity || {
     title: "",
     description: "",
     startTime: "",
     endTime: "",
-    location: ""
+    name: "",
+    address: "",
+    image: null,
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white">
-        <div className="relative flex items-center gap-2 p-2 border-b border-gray-300">
-            <IoLocationOutline className="absolute left-2 top-1/2 transform -translate-y-1/2" />
-            <input type="text" value={displayActivity.location} placeholder="Add place" className="border-b border-gray-300 p-2 ml-4 w-full" />
-
+    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white my-4">
+      <div className="flex">
+        {displayActivity.image && (
+          <div className="w-28 h-28 m-4 flex-shrink-0 ">
+            <img
+              src={displayActivity.image}
+              alt={"Place Picture"}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+        )}
+        
+        <div className="flex-grow">
+          <div className="pl-4 pr-4 pt-4 border-gray-200 flex items-center">
+            <h1 className="text-lg font-semibold">{displayActivity.name}</h1>
+          </div>
+          <div className="pt-4 pr-4 pb-4 mr-4">
+            <textarea value={displayActivity.description} placeholder="Add any important notes" className="p-4 w-full" />
+          </div>
+          <div className="px-4 pb-4 flex items-center text-sm text-gray-600">
+            <GrLocationPin className="text-gray-500 " />
+            <span className="ml-1">{displayActivity.address || "No address provided"}</span>
+          </div>
         </div>
+      </div>
     </div>
   );
 }

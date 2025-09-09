@@ -12,6 +12,7 @@ router.post("/:itineraryId/days", isAuthenticated, itineraryController.addTripDa
 router.delete("/days/:tripDayId", isAuthenticated, itineraryController.deleteTripDay);
 
 // Activity routes
+router.get("/days/:tripDayId/activities", isAuthenticated, itineraryController.getActivities);
 router.post("/days/:tripDayId/activities", isAuthenticated, itineraryController.addActivity);
 router.patch("/activities/:activityId", isAuthenticated, itineraryController.updateActivity);
 router.delete("/activities/:activityId", isAuthenticated, itineraryController.deleteActivity);

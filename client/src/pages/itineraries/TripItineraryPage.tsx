@@ -3,13 +3,19 @@ import { useItineraryStore } from "@/stores/itineraryStore";
 import { useEffect } from "react";
 import { DateCard } from "./components/DateCard";
 import { TripDayPage } from "../tripday/TripDayPage";
-import { useState } from "react";
-import type { TripDay } from "../tripday/services/api";
 
 export function TripItineraryPage() {
   const itineraryId = useTripStore(state => state.itinerary.id);
-  const { days, isLoading, error, setItineraryData } = useItineraryStore();
-  const [selectedDay, setSelectedDay] = useState<TripDay | null>(null);
+  const { 
+    days, 
+    isLoading, 
+    error, 
+    setItineraryData, 
+    selectedDayId, 
+    selectDay 
+  } = useItineraryStore();
+  
+  const selectedDay = selectedDayId ? days.find(day => day.id === selectedDayId) || null : null;
 
   useEffect(() => {
     if (itineraryId) {
@@ -31,7 +37,7 @@ export function TripItineraryPage() {
           <div className="flex justify-around overflow-x-auto gap-5 m-10">
             {days.map((day, index) => (
               <div key={day.id}>
-                <DateCard date={new Date(day.date)} index={index} setDay={() => setSelectedDay(day)} />
+                <DateCard date={new Date(day.date)} index={index} setDay={() => selectDay(day.id)} />
               </div>
             ))}
           </div>

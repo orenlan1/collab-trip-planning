@@ -14,7 +14,8 @@ export interface ActivityFormData {
     description?: string;
     startTime?: Date;
     endTime?: Date;
-    location?: string;
+    name?: string;
+    address?: string;
     image?: string;
 }
 
@@ -129,11 +130,29 @@ const deleteTripDay = async (req: Request, res: Response) => {
     }
 };
 
+const getActivities = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { tripDayId } = req.params;
+    if (!tripDayId) {
+        return res.status(400).json({ error: "Trip Day ID is required" });
+    }
+
+    try {
+        const activities = await itineraryService.getActivities(tripDayId);
+        res.status(200).json(activities);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch activities" });
+    }
+};
+
 export default {
     getItinerary,
     addTripDay,
     addActivity,
     updateActivity,
     deleteActivity,
-    deleteTripDay
+    deleteTripDay,
+    getActivities
 };

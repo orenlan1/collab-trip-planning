@@ -1,6 +1,6 @@
 import { prisma } from '../prisma/client.js';
 import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
-
+import { fetchImageURL } from '../apiClients/unsplash/images.js';
 
 const createItineraryDays = async (itineraryId: string, startDate: Date | string, endDate: Date | string) => {
     const days = [];
@@ -86,13 +86,16 @@ const addTripDay = async (itineraryId: string, data: TripDayFormData) => {
 };
 
 const addActivity = async (tripDayId: string, data: ActivityFormData) => {
+    data.image = data.image || (data.name ? await fetchImageURL(data.name) : undefined);
+
     return prisma.activity.create({
         data: {
             tripDayId,
             description: data.description || null,
             startTime: data.startTime || null,
             endTime: data.endTime || null,
-            location: data.location || null,
+            name: data.name || null,
+            address: data.address || null,
             image: data.image || null
         }
     });
@@ -106,7 +109,8 @@ const updateActivity = async (activityId: string, data: Partial<ActivityFormData
             ...(data.description !== undefined && { description: data.description }),
             ...(data.startTime !== undefined && { startTime: data.startTime }),
             ...(data.endTime !== undefined && { endTime: data.endTime }),
-            ...(data.location !== undefined && { location: data.location }),
+            ...(data.name !== undefined && { name: data.name }),
+            ...(data.address !== undefined && { address: data.address }),
             ...(data.image !== undefined && { image: data.image })
         }
     });
@@ -124,6 +128,15 @@ const deleteTripDay = async (tripDayId: string) => {
     });
 };
 
+const getActivities = async (tripDayId: string) => {
+    return prisma.tripDay.findUnique({
+        where: {id : tripDayId},
+        include: {
+            activities: true
+        }
+    })
+}
+
 export default {
     getById,
     addTripDay,
@@ -131,5 +144,6 @@ export default {
     updateActivity,
     deleteActivity,
     deleteTripDay,
-    createItineraryDays
+    createItineraryDays,
+    getActivities
 };

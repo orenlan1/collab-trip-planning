@@ -23,6 +23,9 @@ import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
 import { SearchingLayout } from './layouts/SearchingLayout.tsx'
 import { FlightResults } from './pages/flights/components/FlightResults.tsx'
 import { JoinTripPage } from './pages/trips/JoinTripPage.tsx';
+// Import commented out until needed
+import {APIProvider} from "@vis.gl/react-google-maps"
+
 
 const router = createBrowserRouter([
   {
@@ -109,7 +112,9 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <SocketProvider>
         <ThemeProvider>
-          <RouterProvider router={router} />
+          <APIProvider libraries={['places']} apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+            <RouterProvider router={router} />
+          </APIProvider>
         </ThemeProvider>
       </SocketProvider>
     </AuthProvider>
