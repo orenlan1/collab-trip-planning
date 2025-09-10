@@ -2,6 +2,7 @@ import { prisma } from '../prisma/client.js';
 import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
 import { fetchImageURL } from '../apiClients/unsplash/images.js';
 
+
 const createItineraryDays = async (itineraryId: string, startDate: Date | string, endDate: Date | string) => {
     const days = [];
 

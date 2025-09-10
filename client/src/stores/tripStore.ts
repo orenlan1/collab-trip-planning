@@ -27,6 +27,7 @@ interface TripData {
 
 interface TripStore extends TripData {
   setTripData: (tripId: string) => Promise<void>;
+  setDescription: (description: string) => void;
   reset: () => void;
 }
 
@@ -50,6 +51,7 @@ export const useTripStore = create<TripStore>((set) => ({
       console.error("Error fetching trip data:", error);
     }
   },
+  setDescription: (description: string) => set({ description }),
   reset: () => set({
     title: '',
     destination: undefined,

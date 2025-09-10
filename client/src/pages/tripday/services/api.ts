@@ -24,5 +24,7 @@ const api = axios.create({
 export const tripDaysApi = {
     addNewActivity: (dayId: string, data: { name: string, address: string }) =>
         api.post(`api/itineraries/days/${dayId}/activities`,  data ),
-    getActivities: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}/activities`)
+    getActivities: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}/activities`),
+    updateActivity: (activityId: string, data: Partial<{ description: string; startTime: string; endTime: string; name: string; address: string; image: string }>) =>
+      api.patch(`api/itineraries/activities/${activityId}`, data),
 };

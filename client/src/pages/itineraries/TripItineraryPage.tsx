@@ -37,7 +37,8 @@ export function TripItineraryPage() {
           <div className="flex justify-around overflow-x-auto gap-5 m-10">
             {days.map((day, index) => (
               <div key={day.id}>
-                <DateCard date={new Date(day.date)} index={index} setDay={() => selectDay(day.id)} />
+                <DateCard date={new Date(day.date)} index={index} setDay={() => selectDay(day.id)} 
+                  isSelected={selectedDayId === day.id} />
               </div>
             ))}
           </div>
