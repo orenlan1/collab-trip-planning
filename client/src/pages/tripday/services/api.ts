@@ -27,4 +27,5 @@ export const tripDaysApi = {
     getActivities: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}/activities`),
     updateActivity: (activityId: string, data: Partial<{ description: string; startTime: string; endTime: string; name: string; address: string; image: string }>) =>
       api.patch(`api/itineraries/activities/${activityId}`, data),
+    deleteActivity: (activityId: string) => api.delete(`api/itineraries/activities/${activityId}`),
 };

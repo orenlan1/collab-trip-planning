@@ -6,7 +6,13 @@ import { DestinationCard } from './components/DestinationCard';
 import { DescriptionCard} from './components/DescriptionCard';
 import { LodgingCard } from './components/LodgingCard';
 import { useTripStore } from '@/stores/tripStore';
-
+import { BsCalendar4 } from "react-icons/bs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DatesSetter } from './components/DatesSetter';
 
 
 export const TripOverviewPage = () => {
@@ -38,16 +44,35 @@ export const TripOverviewPage = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         </div>
 
-        <div className="absolute bottom-6 left-6 right-6 text-white">
-          <div className="space-y-1">
+        <div className="absolute bottom-6 left-6 right-6 text-white ">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h1 className="text-4xl font-semibold">
                 {title}
               </h1>
             </div>
-            <p className="text-sm text-slate-200">
-              {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "creator")?.user.name}
-            </p>
+            <div className='flex items-center gap-2'>
+             
+              <div
+                className='relative flex flex-col items-center justify-center w-8 h-8 bg-white/80 border border-indigo-500 rounded-lg shadow-md cursor-pointer transition-transform duration-200 hover:scale-110 hover:bg-indigo-100 group'
+                title='View trip dates'
+              >
+                <div className='absolute top-0 left-0 w-full h-1.5 bg-indigo-500 rounded-t-lg' />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className='flex items-center justify-center w-full h-full'>
+                      <BsCalendar4 className='text-indigo-600 z-10' size={16} />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent side='bottom' align='start' className='w-auto p-0'>
+                    <DatesSetter />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <p className="text-md text-slate-200 font-semibold">
+                {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "creator")?.user.name}
+              </p>
+            </div>
           </div>
         </div>
       </div>

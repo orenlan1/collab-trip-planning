@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { itinerariesApi } from "@/pages/itineraries/services/api";
 import { persist } from "zustand/middleware";
+import { tripDaysApi } from "@/pages/tripday/services/api";
 
 interface TripDay {
   id: string;
@@ -31,6 +32,7 @@ interface ItineraryStore extends Itinerary {
   setActivities: (day: TripDay, activities: Activity[]) => void;
   selectDay: (dayId: string) => void;
   addActivity: (dayId: string, activity: Activity) => void;
+  deleteActivity: (activityId: string) => void;
   reset: () => void;
 }
 
@@ -67,6 +69,19 @@ export const useItineraryStore = create<ItineraryStore>()(
             : day
         )
       })),
+      deleteActivity: async (activityId: string) => {
+        try {
+          await tripDaysApi.deleteActivity(activityId);
+          set(state => ({
+            days: state.days.map(day => ({
+              ...day,
+              activities: day.activities.filter(activity => activity.id !== activityId)
+            }))
+          }));
+        } catch (error) {
+          console.error("Error deleting activity:", error);
+        }
+      },
       reset: () => set({
         days: [],
         isLoading: false,

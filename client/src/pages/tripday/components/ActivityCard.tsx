@@ -4,6 +4,8 @@ import { useAutoSaveInput } from "@/hooks/useAutoSaveInput";
 import { useCallback } from "react";
 import { tripDaysApi } from "../services/api";
 import { AutoSaveInputStatusRender } from "@/components/AutoSaveInputStatusRender";
+import { FaTrash } from "react-icons/fa";
+import { useItineraryStore } from "@/stores/itineraryStore";
 
 interface ActivityCardProps {
   activity?: {
@@ -48,8 +50,10 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
     initialValue: displayActivity.description || "",
   });
 
+  const deleteActivity = useItineraryStore(state => state.deleteActivity);
 
-    
+  
+
 
 
   return (
@@ -66,10 +70,15 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         )}
         
         <div className="flex-grow">
-          <div className="pl-4 pr-4 pt-4 border-gray-200 flex items-center">
-            <h1 className="text-lg font-semibold">{displayActivity.name}</h1>
-            <div className="ml-2">
-              <AutoSaveInputStatusRender hasUnsavedChanges={hasUnsavedChanges} saveState={saveState} />
+          <div className="pl-4 pr-4 pt-4 border-gray-200 flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold">{displayActivity.name}</h1>
+              <div className="ml-2">
+                <AutoSaveInputStatusRender hasUnsavedChanges={hasUnsavedChanges} saveState={saveState} />
+              </div>
+            </div>
+            <div>
+                <FaTrash onClick={() => deleteActivity(displayActivity.id!)} className="text-slate-400 hover:text-red-500 cursor-pointer" />
             </div>
           </div>
           <div className="pt-4 pr-4 pb-4 mr-4">
