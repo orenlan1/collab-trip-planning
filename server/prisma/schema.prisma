@@ -137,7 +137,7 @@ model Activity {
   tripDay     TripDay  @relation(fields: [tripDayId], references: [id], onDelete: Cascade)
   description String?
   startTime   DateTime?
-  endTime     DateTime?
+  endTime     DateTime? 
   name      String?
   address     String?
   image       String?

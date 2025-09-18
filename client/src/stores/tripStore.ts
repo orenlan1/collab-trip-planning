@@ -1,68 +1,61 @@
 import { create } from "zustand";
 import { tripsApi } from "@/pages/trips/services/api";
+import { persist } from "zustand/middleware";
+import { formatTripFromAPI } from "@/lib/utils";
+import type { Trip } from "@/types/trip";
 
 
-interface TripData {
-  title: string;
-  destination?: string;
-  description?: string;
-  startDate?: Date;
-  endDate?: Date;
-  createdBy: string;
-  image: string | null;
-  members: Array<{
-    userId: string;
-    role: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      image: string | null;
-    };
-  }>;
-  itinerary: {
-    id: string;
-  }; 
-}
-
-interface TripStore extends TripData {
+interface TripStore extends Trip {
   setTripData: (tripId: string) => Promise<void>;
   setDescription: (description: string) => void;
   reset: () => void;
 }
 
-export const useTripStore = create<TripStore>((set) => ({
-  title: '',
-  destination: undefined,      // Optional: undefined shows it's not set yet
-  description: undefined,      // Optional: undefined shows it's not set yet
-  startDate: undefined,        // Optional: undefined for dates that are not set
-  endDate: undefined,          // Optional: undefined for dates that are not set
-  createdBy: '',
-  image: null,                 // null is appropriate for image fields that might be null in API
-  members: [],
-  itinerary: {
+export const useTripStore = create<TripStore>()(
+  persist(
+    (set) => ({
     id: '',
-  },
-  setTripData: async (tripId: string) => {
-    try {
-      const response = await tripsApi.getById(tripId);
-      set(response.data);
-    } catch (error) {
-      console.error("Error fetching trip data:", error);
-    }
-  },
-  setDescription: (description: string) => set({ description }),
-  reset: () => set({
     title: '',
-    destination: undefined,
-    description: undefined,
-    startDate: undefined,
-    endDate: undefined,
+    destination: undefined,      // Optional: undefined shows it's not set yet
+    description: undefined,      // Optional: undefined shows it's not set yet
+    startDate: undefined,        // Optional: undefined for dates that are not set
+    endDate: undefined,          // Optional: undefined for dates that are not set
     createdBy: '',
-    image: null,
+    image: null,                 // null is appropriate for image fields that might be null in API
     members: [],
     itinerary: {
       id: '',
-    }
-  })
-}));
+    },
+    setTripData: async (tripId: string) => {
+      try {
+        const response = await tripsApi.getById(tripId);
+        // Convert API response (ISO strings) to store format (Date objects)
+        const tripData = formatTripFromAPI(response.data);
+        set(tripData);
+      } catch (error) {
+        console.error("Error fetching trip data:", error);
+      }
+    },
+    setDescription: (description: string) => set({ description }),
+    reset: () => set({
+      id: '',
+      title: '',
+      destination: undefined,
+      description: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      createdBy: '',
+      image: null,
+      members: [],
+      itinerary: {
+        id: '',
+      }
+    })
+  }),
+  {
+    name: "trip-storage",
+    partialize: (state) => ({
+      itinerary: state.itinerary,
+    })
+  }
+));

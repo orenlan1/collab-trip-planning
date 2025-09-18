@@ -29,33 +29,6 @@ const PlaceInput: React.FC<PlaceInputProps> = ({ value, onChange, onPlaceSelect 
     }
   }, []);
 
-//   useEffect(() => {
-//     if (!value || !window.google || !window.google.maps || !window.google.maps.places || !isTyping) {
-//       setSuggestions([]);
-//       return;
-//     }
-
-//     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-
-//     debounceTimeout.current = window.setTimeout(() => {
-//       setLoading(true);
-           
-//       const service = new window.google.maps.places.AutocompleteService();
-//       service.getPlacePredictions({ input: value }, (predictions, status) => {
-//         if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-//           setSuggestions(predictions);
-//         } else {
-//           setSuggestions([]);
-//         }
-//         setLoading(false);
-//       });
-//     }, 500);
-
-//     return () => {
-//       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-//     };
-//   }, [value, isTyping]);
-
     useEffect(() => {
       if (!value || !window.google || !window.google.maps || !window.google.maps.places || !isTyping) {
         setSuggestions([]);

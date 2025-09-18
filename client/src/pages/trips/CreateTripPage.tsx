@@ -5,8 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { dateToLocalDateString } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -15,12 +14,12 @@ import {
 import { tripsApi } from "./services/api";
 import { useNavigate } from "react-router-dom";
 
-export interface TripFormData {
+export interface CreateTripRequest {
     title: string;
     destination?: string;
     description?: string;
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: string; // string format for API
+    endDate?: string;   // string format for API
 }
 
 export const CreateTripPage = () => {
@@ -28,21 +27,27 @@ export const CreateTripPage = () => {
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState<Date>();
     const [endDate, setEndDate] = useState<Date>();
-    const { register, handleSubmit, formState: { errors } } = useForm<TripFormData>();
+    const [dateError, setDateError] = useState<string>("");
+    const { register, handleSubmit, formState: { errors } } = useForm<CreateTripRequest>();
 
 
-  const onSubmit = async (data: TripFormData) => {
+  const onSubmit = async (data: CreateTripRequest) => {
+    // Validate that both dates are provided or both are empty
+    if ((startDate && !endDate) || (!startDate && endDate)) {
+      setDateError("Both start and end dates must be provided together, or leave both empty for an open-ended trip.");
+      return;
+    }
+    
+    // Clear any previous date errors
+    setDateError("");
+    
     if (startDate) {
-      // Send just the date string in YYYY-MM-DD format
-      const startDateStr = format(startDate, "yyyy-MM-dd");
-      // We'll send as string and let the backend parse it properly
-      data.startDate = startDateStr as any;
+      // Use consistent date formatting utility
+      data.startDate = dateToLocalDateString(startDate);
     }
     if (endDate) {
-      // Send just the date string in YYYY-MM-DD format
-      const endDateStr = format(endDate, "yyyy-MM-dd");
-      // We'll send as string and let the backend parse it properly
-      data.endDate = endDateStr as any;
+      // Use consistent date formatting utility  
+      data.endDate = dateToLocalDateString(endDate);
     }
     try {
       const response = await tripsApi.create(data);
@@ -121,6 +126,7 @@ export const CreateTripPage = () => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setStartDate(undefined);
+                                            setDateError(""); // Clear error when user clears date
                                         }}
                                     />
                                 )}
@@ -130,7 +136,10 @@ export const CreateTripPage = () => {
                             <Calendar
                                 mode="single"
                                 selected={startDate}
-                                onSelect={setStartDate}
+                                onSelect={(date) => {
+                                    setStartDate(date);
+                                    setDateError(""); // Clear error when user selects a date
+                                }}
                                 disabled={(date) =>
                                     date < new Date() || (endDate ? date > endDate : false)
                                 }
@@ -156,6 +165,7 @@ export const CreateTripPage = () => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setEndDate(undefined);
+                                            setDateError(""); // Clear error when user clears date
                                         }}
                                     />
                                 )}
@@ -165,16 +175,26 @@ export const CreateTripPage = () => {
                             <Calendar
                                 mode="single"
                                 selected={endDate}
-                                onSelect={setEndDate}
+                                onSelect={(date) => {
+                                    setEndDate(date);
+                                    setDateError(""); // Clear error when user selects a date
+                                }}
                                 disabled={(date) =>
                                     date < new Date() || (startDate ? date < startDate : false)
                                 }
                             />
                         </PopoverContent>
                     </Popover>
-                    <p className="text-xs text-slate-500 mt-2">Leave empty to make the trip open-ended. If both dates are set, end date must be the same or after the start date.</p>
                 </div>
             </div>
+            
+            {dateError && (
+                <div className="mt-3 p-2 bg-rose-50 border border-rose-200 rounded-lg">
+                    <p className="text-xs text-rose-600">{dateError}</p>
+                </div>
+            )}
+            
+            <p className="text-xs text-slate-500 mt-3">Both start and end dates must be provided together, or leave both empty to make the trip open-ended. End date must be the same or after the start date.</p>
             
 
 

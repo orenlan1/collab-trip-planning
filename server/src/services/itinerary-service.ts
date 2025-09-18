@@ -1,30 +1,19 @@
 import { prisma } from '../prisma/client.js';
 import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
 import { fetchImageURL } from '../apiClients/unsplash/images.js';
+import { normalizeDate, formatTripDayForAPI } from '../lib/utils.js';
 
 
 const createItineraryDays = async (itineraryId: string, startDate: Date | string, endDate: Date | string) => {
     const days = [];
 
-    // Handle both Date objects and date strings (YYYY-MM-DD)
-    // Extract just the date portion to ensure consistency
-    const startDateStr = typeof startDate === 'string' 
-        ? startDate 
-        : startDate instanceof Date 
-            ? startDate.toISOString().split('T')[0] 
-            : String(startDate).split('T')[0];
-            
-    const endDateStr = typeof endDate === 'string' 
-        ? endDate 
-        : endDate instanceof Date 
-            ? endDate.toISOString().split('T')[0] 
-            : String(endDate).split('T')[0];
+    // Normalize dates using utility function
+    const start = normalizeDate(startDate);
+    const end = normalizeDate(endDate);
     
-    
-    // Create dates at UTC midnight for consistent date comparison and storage
-    const start = new Date(`${startDateStr}T00:00:00.000Z`);
-    const end = new Date(`${endDateStr}T00:00:00.000Z`);
-    
+    if (!start || !end) {
+        throw new Error('Invalid start or end date provided');
+    }
 
     // Use while loop for clearer logic
     let currentDate = new Date(start);
@@ -46,8 +35,8 @@ const createItineraryDays = async (itineraryId: string, startDate: Date | string
         data: days
     });
 
-    // Fetch and return the created days
-    return prisma.tripDay.findMany({
+    // Fetch and return the created days with formatted dates
+    const createdDays = await prisma.tripDay.findMany({
         where: {
             itineraryId
         },
@@ -55,11 +44,13 @@ const createItineraryDays = async (itineraryId: string, startDate: Date | string
             date: 'asc'
         }
     });
+    
+    return createdDays.map(formatTripDayForAPI);
 }
 
 
 const getById = async (itineraryId: string) => {
-    return prisma.itinerary.findUnique({
+    const itinerary = await prisma.itinerary.findUnique({
         where: { id: itineraryId },
         include: {
             days: {
@@ -72,6 +63,13 @@ const getById = async (itineraryId: string) => {
             }
         }
     });
+    
+    if (!itinerary) return null;
+    
+    return {
+        ...itinerary,
+        days: itinerary.days.map(formatTripDayForAPI)
+    };
 };
 
 const addTripDay = async (itineraryId: string, data: TripDayFormData) => {

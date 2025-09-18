@@ -1,5 +1,5 @@
 import { IoAdd } from "react-icons/io5";
-import type { TripDay } from "./services/api";
+import type { TripDay } from "@/types/tripDay";
 import { ActivityCard } from "./components/ActivityCard";
 import { useState } from "react";
 import { tripDaysApi } from "./services/api";

@@ -1,17 +1,11 @@
-
+import type { TripMember } from "@/types/tripMember";
+// Local interface declaration (not from types folder)
 interface TripMemberProps {
-  member: {
-    role: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      image: string | null;
-    };
-  };
+  member: TripMember;
+
 }
 
-export const TripMember = ({ member }: TripMemberProps) => {
+export const TripMemberItem = ({ member }: TripMemberProps) => {
   return (
     
       <div className="flex gap-3 items-center">

@@ -6,17 +6,10 @@ import { tripDaysApi } from "../services/api";
 import { AutoSaveInputStatusRender } from "@/components/AutoSaveInputStatusRender";
 import { FaTrash } from "react-icons/fa";
 import { useItineraryStore } from "@/stores/itineraryStore";
+import type { Activity } from "@/types/activity";
 
 interface ActivityCardProps {
-  activity?: {
-    id?: string;
-    description?: string;
-    startTime?: string;
-    endTime?: string;
-    name?: string;
-    address?: string;
-    image?: string;
-  };
+  activity?: Activity;
 }
 
 export const ActivityCard = ({ activity }: ActivityCardProps) => {

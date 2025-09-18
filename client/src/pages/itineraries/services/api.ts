@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Itinerary } from '@/stores/itineraryStore';
+import type { Itinerary } from '@/types/itinerary';
 
 
 const api = axios.create({

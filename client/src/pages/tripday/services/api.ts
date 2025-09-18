@@ -1,19 +1,6 @@
 import axios from 'axios';
 import type { Itinerary } from '@/stores/itineraryStore';
-
-export type TripDay = {
-    id: string;
-    date: Date;
-    activities: Array<{
-      id: string;
-      description?: string;
-      startTime?: string;
-      endTime?: string;
-      name?: string;
-      address?: string;
-      image?: string;
-    }>
-};
+import type { TripDay } from '@/types/tripDay';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',

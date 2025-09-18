@@ -1,39 +1,21 @@
 import {prisma} from '../prisma/client.js';
 import type {TripFormData, TripUpdateData } from '../controllers/trip-controller.js';
 import itineraryService from './itinerary-service.js';
+import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
 
 
 const create = async (data: TripFormData, creatorId: string) => {
-  // Normalize dates to ensure consistent handling
-  let normalizedStartDate = undefined;
-  let normalizedEndDate = undefined;
-  
-  if (data.startDate) {
-    const startDateStr = typeof data.startDate === 'string' 
-      ? data.startDate 
-      : data.startDate instanceof Date 
-        ? data.startDate.toISOString().split('T')[0] 
-        : String(data.startDate).split('T')[0];
-    normalizedStartDate = new Date(`${startDateStr}T00:00:00.000Z`);
-  }
-  
-  if (data.endDate) {
-    const endDateStr = typeof data.endDate === 'string' 
-      ? data.endDate 
-      : data.endDate instanceof Date 
-        ? data.endDate.toISOString().split('T')[0] 
-        : String(data.endDate).split('T')[0];
-    normalizedEndDate = new Date(`${endDateStr}T00:00:00.000Z`);
-  }
-
+  // Normalize dates using utility function
+  const normalizedStartDate = normalizeDate(data.startDate);
+  const normalizedEndDate = normalizeDate(data.endDate);
 
   const trip = await prisma.trip.create({
     data: {
       title: data.title,
       ...(data.destination !== undefined && { destination: data.destination }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(normalizedStartDate !== undefined && { startDate: normalizedStartDate }),
-      ...(normalizedEndDate !== undefined && { endDate: normalizedEndDate }),
+      ...(normalizedStartDate !== null && { startDate: normalizedStartDate }),
+      ...(normalizedEndDate !== null && { endDate: normalizedEndDate }),
       createdById: creatorId,
       members: {
         create: {
@@ -50,17 +32,16 @@ const create = async (data: TripFormData, creatorId: string) => {
     },
   });
 
-
-  if (data.startDate && data.endDate && trip.itinerary) {
-    // Use the normalized dates we already created
-    const days = await itineraryService.createItineraryDays(
+  // Create itinerary days if dates are provided
+  if (normalizedStartDate && normalizedEndDate && trip.itinerary) {
+    await itineraryService.createItineraryDays(
       trip.itinerary.id, 
-      normalizedStartDate!, 
-      normalizedEndDate!
+      normalizedStartDate, 
+      normalizedEndDate
     );
   }
   
-  return trip;
+  return formatTripForAPI(trip);
 };
 
 
@@ -75,7 +56,8 @@ const getAllTripsByUserId = async (userId: string) => {
         }
     }
   })
-  return user?.memberships.map(m => m.trip) || [];
+  const trips = user?.memberships.map(m => m.trip) || [];
+  return trips.map(formatTripForAPI);
 };
 
 const getTripById = async (id: string) => {
@@ -104,44 +86,126 @@ const getTripById = async (id: string) => {
     }
   });
   
-  return trip;
+  return trip ? formatTripForAPI(trip) : null;
 };
 
 
 const update = async (id: string, data: TripUpdateData) => {
-  // Normalize dates for update
-  let normalizedStartDate = undefined;
-  let normalizedEndDate = undefined;
-  
-  if (data.startDate) {
-    const startDateStr = typeof data.startDate === 'string' 
-      ? data.startDate 
-      : data.startDate instanceof Date 
-        ? data.startDate.toISOString().split('T')[0] 
-        : String(data.startDate).split('T')[0];
-    normalizedStartDate = new Date(`${startDateStr}T00:00:00.000Z`);
-  }
-  
-  if (data.endDate) {
-    const endDateStr = typeof data.endDate === 'string' 
-      ? data.endDate 
-      : data.endDate instanceof Date 
-        ? data.endDate.toISOString().split('T')[0] 
-        : String(data.endDate).split('T')[0];
-    normalizedEndDate = new Date(`${endDateStr}T00:00:00.000Z`);
-  }
+  // Use transaction to ensure atomicity
+  return await prisma.$transaction(async (tx) => {
+    // First, get the current trip to check existing dates
+    const currentTrip = await tx.trip.findUnique({
+      where: { id },
+      include: {
+        itinerary: {
+          include: {
+            days: {
+              select: {
+                id: true,
+                date: true
+              }
+            }
+          }
+        }
+      }
+    });
 
-  const trip = await prisma.trip.update({
-    where: { id },
-    data: {
-        ...(data.title !== undefined && { title: data.title }),
-        ...(data.destination !== undefined && { destination: data.destination }),
-        ...(normalizedStartDate !== undefined && { startDate: normalizedStartDate }),
-        ...(normalizedEndDate !== undefined && { endDate: normalizedEndDate }),
-        ...(data.description !== undefined && { description: data.description }),
+    if (!currentTrip) {
+      throw new Error('Trip not found');
     }
+
+    // Normalize dates using utility function
+    const normalizedStartDate = normalizeDate(data.startDate);
+    const normalizedEndDate = normalizeDate(data.endDate);
+
+    // Handle date range changes and excluded days
+    if ((normalizedStartDate || normalizedEndDate) && currentTrip.startDate && currentTrip.endDate) {
+      const newStartDate = normalizedStartDate || currentTrip.startDate;
+      const newEndDate = normalizedEndDate || currentTrip.endDate;
+      
+      // Get dates that will be excluded from the new range
+      const excludedDates = getExcludedDates(
+        currentTrip.startDate,
+        currentTrip.endDate,
+        newStartDate,
+        newEndDate
+      );
+
+      // If there are excluded dates, find and delete corresponding trip days
+      if (excludedDates.length > 0 && currentTrip.itinerary) {
+        const excludedDateStrings = excludedDates.map(date => 
+          date.toISOString().split('T')[0]
+        );
+        
+        // Find trip days that fall on excluded dates
+        const tripDaysToDelete = currentTrip.itinerary.days.filter(day => {
+          const dayDateString = day.date.toISOString().split('T')[0];
+          return excludedDateStrings.includes(dayDateString);
+        });
+
+        // Delete trip days (activities will be automatically deleted due to CASCADE)
+        if (tripDaysToDelete.length > 0) {
+          const tripDayIds = tripDaysToDelete.map(day => day.id);
+          
+          await tx.tripDay.deleteMany({
+            where: {
+              id: {
+                in: tripDayIds
+              }
+            }
+          });
+        }
+      }
+
+      // Create new trip days if the date range expanded
+      if (currentTrip.itinerary) {
+        // Get all current day dates
+        const currentDayDates = currentTrip.itinerary.days.map(day => 
+          day.date.toISOString().split('T')[0]
+        );
+
+        // Generate all dates in the new range
+        const newDates: Date[] = [];
+        const current = new Date(newStartDate);
+        while (current <= newEndDate) {
+          const dateStr = current.toISOString().split('T')[0];
+          
+          // Only add dates that don't already exist
+          if (!currentDayDates.includes(dateStr)) {
+            newDates.push(new Date(`${dateStr}T00:00:00.000Z`));
+          }
+          
+          current.setUTCDate(current.getUTCDate() + 1);
+        }
+
+        // Create new trip days for expanded dates
+        if (newDates.length > 0) {
+          const newDaysData = newDates.map(date => ({
+            itineraryId: currentTrip.itinerary!.id,
+            date: date
+          }));
+
+          await tx.tripDay.createMany({
+            data: newDaysData
+          });
+        }
+      }
+    }
+
+    // Update the trip with new data
+    const trip = await tx.trip.update({
+      where: { id },
+      data: {
+          ...(data.title !== undefined && { title: data.title }),
+          ...(data.destination !== undefined && { destination: data.destination }),
+          ...(normalizedStartDate !== null && { startDate: normalizedStartDate }),
+          ...(normalizedEndDate !== null && { endDate: normalizedEndDate }),
+          ...(data.description !== undefined && { description: data.description }),
+      }
+    });
+
+    return formatTripForAPI(trip);
   });
-  return trip;
 };
 
 const deleteTripById = async (id: string) => {
@@ -209,7 +273,7 @@ const getNewestTripsMetadataByUserId = async (userId : string, limit: number) =>
     },
     take: limit,
   });
-  return trips;
+  return trips.map(formatTripForAPI);
 };
 
 export default {

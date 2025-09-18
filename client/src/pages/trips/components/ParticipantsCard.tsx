@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TripMember } from "./TripMember";
+import { TripMemberItem } from "./TripMemberItem";
 import { FiUsers } from "react-icons/fi";
 import { FiUserPlus } from "react-icons/fi";
 import { InviteModal } from "./InviteModal";
@@ -24,7 +24,7 @@ export function ParticipantsCard({ tripId }: ParticipantCardProps) {
             <ul>
               {members.map(member => (
                 <li key={member.userId} className="flex items-center gap-4 p-4 ">
-                  <TripMember member={member} />
+                  <TripMemberItem member={member} />
                 </li>
               ))}
             </ul>

@@ -1,15 +1,90 @@
 import { Calendar } from "@/components/ui/calendar";
 import { useTripStore } from "@/stores/tripStore";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
+import { createPortal } from "react-dom";
 import type { DateRange } from "react-day-picker";
+import { getExcludedDates, checkIfDateHasActivities } from "@/lib/utils";
+import { tripsApi } from "../services/api";
+import { dateToLocalDateString } from "@/lib/utils";
 
 export const DatesSetter = () => {
+    const tripId  = useTripStore(state => state.id);
     const startDate = useTripStore(state => state.startDate);
     const endDate = useTripStore(state => state.endDate);
-    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [datesWithActivities, setDatesWithActivities] = useState<Date[]>([]);
+   
+
+    // Set initial dates from trip store when component mounts
+    useEffect(() => {
+        if (startDate && endDate) {
+            setDateRange({
+                from: new Date(startDate),
+                to: new Date(endDate)
+            });
+        }
+    }, [startDate, endDate]);
+
+   
+    const handleSaveDates = () => {
+      // check if dateRange is defined and has both from and to dates
+      if (dateRange?.from && dateRange?.to) {
+        if (startDate && endDate) {
+          const excludedDates = getExcludedDates(
+            new Date(startDate), 
+            new Date(endDate), 
+            dateRange.from, 
+            dateRange.to
+          );
+          
+          // Find dates with activities
+          const datesWithActivitiesFound = excludedDates.filter(date => checkIfDateHasActivities(date));
+          
+          if (datesWithActivitiesFound.length > 0) {
+            setDatesWithActivities(datesWithActivitiesFound);
+            setShowWarningModal(true);
+            return;
+          }
+        }
+        
+        // No conflicts, save the dates directly
+        saveDatesDirectly();
+      }
+    };
+
+    const saveDatesDirectly = async () => {
+      if (dateRange?.from && dateRange?.to) {
+        // TODO: Update trip dates in the store/API
+        try {
+            const trip = await tripsApi.update(tripId, {
+            startDate: dateToLocalDateString(dateRange.from),
+            endDate: dateToLocalDateString(dateRange.to)
+          });
+        } catch (error) {
+          console.error("Error saving dates:", error);
+        }
+        console.log("Saving dates:", dateRange.from, "to", dateRange.to);
+      }
+    };
+
+    const handleConfirmDelete = () => {
+      // TODO: Delete activities for the excluded dates
+      console.log("Deleting activities for dates:", datesWithActivities);
+      saveDatesDirectly();
+      setShowWarningModal(false);
+      setDatesWithActivities([]);
+    };
+
+    const handleCancelChange = () => {
+      setShowWarningModal(false);
+      setDatesWithActivities([]);
+      // Reset date range to original values
+      setDateRange({
         from: startDate ? new Date(startDate) : undefined,
         to: endDate ? new Date(endDate) : undefined,
-    });
+      });
+    };
 
   return (
     <div>
@@ -17,11 +92,59 @@ export const DatesSetter = () => {
         mode="range"
         numberOfMonths={2}
         selected={dateRange}
-        onSelect={undefined}
-        disabled={(date) => date < new Date()}
-        initialFocus={undefined}
+        onSelect={setDateRange}
+        // disabled={(date) => date < new Date()}
+        initialFocus
       />
-      <button onClick={() => {}} className="bg-indigo-500 hover:bg-indigo-600 transition text-white m-4 px-4 py-2 rounded-md" >Save</button>
+      <button 
+        onClick={handleSaveDates} 
+        className="bg-indigo-500 hover:bg-indigo-600 transition text-white m-4 px-4 py-2 rounded-md"
+      >
+        Save
+      </button>
+
+      {/* Warning Modal - Using Portal to escape component boundaries */}
+      {showWarningModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop overlay - Transparent but clickable */}
+          <div 
+            className="absolute inset-0"
+            onClick={handleCancelChange}
+          />
+          
+          {/* Modal content */}
+          <div className="relative bg-white rounded-lg shadow-xl w-96 p-6 max-w-[90vw] max-h-[90vh] overflow-auto">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              Warning: Activities Will Be Deleted
+            </h3>
+            <p className="text-gray-700 mb-4">
+              The following dates have activities planned that will be deleted if you proceed:
+            </p>
+            <ul className="list-disc list-inside mb-6 text-gray-700">
+              {datesWithActivities.map((date, index) => (
+                <li key={index}>
+                  {date.toLocaleDateString()}
+                </li>
+              ))}
+            </ul>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleCancelChange}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 transition"
+              >
+                Delete Activities & Save Dates
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

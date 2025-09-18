@@ -14,6 +14,7 @@ export function TripItineraryPage() {
     selectedDayId, 
     selectDay 
   } = useItineraryStore();
+
   
   const selectedDay = selectedDayId ? days.find(day => day.id === selectedDayId) || null : null;
 
