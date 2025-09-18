@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { DatesSetter } from './components/DatesSetter';
+import { tripsApi } from './services/api';
 
 
 export const TripOverviewPage = () => {
@@ -24,10 +25,19 @@ export const TripOverviewPage = () => {
   const endDate = useTripStore(state => state.endDate);
   const setTripData = useTripStore(state => state.setTripData);
 
-   useEffect(() => {
-    if (tripId) {
-      setTripData(tripId);
-    }
+    useEffect(() => {
+    const fetchTripData = async () => {
+      if (tripId) {
+        try {
+          const response = await tripsApi.getById(tripId);
+          setTripData(response.data);
+        } catch (error) {
+          console.error("Error fetching trip data:", error);
+        }
+      }
+    };
+
+    fetchTripData();
   }, [tripId, setTripData]);
 
 

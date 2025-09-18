@@ -1,6 +1,6 @@
 import { Calendar } from "@/components/ui/calendar";
 import { useTripStore } from "@/stores/tripStore";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { DateRange } from "react-day-picker";
 import { getExcludedDates, checkIfDateHasActivities } from "@/lib/utils";
@@ -19,9 +19,13 @@ export const DatesSetter = () => {
     // Set initial dates from trip store when component mounts
     useEffect(() => {
         if (startDate && endDate) {
+            // Convert ISO string dates from store to Date objects for calendar
+            const startDateObj = new Date(startDate + 'T00:00:00');
+            const endDateObj = new Date(endDate + 'T00:00:00');
+            
             setDateRange({
-                from: new Date(startDate),
-                to: new Date(endDate)
+                from: startDateObj,
+                to: endDateObj
             });
         }
     }, [startDate, endDate]);
@@ -31,11 +35,21 @@ export const DatesSetter = () => {
       // check if dateRange is defined and has both from and to dates
       if (dateRange?.from && dateRange?.to) {
         if (startDate && endDate) {
+          // Convert ISO string dates from store to Date objects with consistent midnight time
+          const currentStart = new Date(startDate + 'T00:00:00');
+          const currentEnd = new Date(endDate + 'T00:00:00');
+          
+          const newStart = new Date(dateRange.from);
+          newStart.setHours(0, 0, 0, 0);
+          
+          const newEnd = new Date(dateRange.to);
+          newEnd.setHours(0, 0, 0, 0);
+          
           const excludedDates = getExcludedDates(
-            new Date(startDate), 
-            new Date(endDate), 
-            dateRange.from, 
-            dateRange.to
+            currentStart,
+            currentEnd,
+            newStart,
+            newEnd
           );
           
           // Find dates with activities
@@ -57,7 +71,7 @@ export const DatesSetter = () => {
       if (dateRange?.from && dateRange?.to) {
         // TODO: Update trip dates in the store/API
         try {
-            const trip = await tripsApi.update(tripId, {
+            await tripsApi.update(tripId, {
             startDate: dateToLocalDateString(dateRange.from),
             endDate: dateToLocalDateString(dateRange.to)
           });
@@ -81,8 +95,8 @@ export const DatesSetter = () => {
       setDatesWithActivities([]);
       // Reset date range to original values
       setDateRange({
-        from: startDate ? new Date(startDate) : undefined,
-        to: endDate ? new Date(endDate) : undefined,
+        from: startDate ? new Date(startDate + 'T00:00:00') : undefined,
+        to: endDate ? new Date(endDate + 'T00:00:00') : undefined,
       });
     };
 

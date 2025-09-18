@@ -6,7 +6,7 @@ import type { Trip } from "@/types/trip";
 
 
 interface TripStore extends Trip {
-  setTripData: (tripId: string) => Promise<void>;
+  setTripData: (trip: Trip) => Promise<void>;
   setDescription: (description: string) => void;
   reset: () => void;
 }
@@ -26,15 +26,8 @@ export const useTripStore = create<TripStore>()(
     itinerary: {
       id: '',
     },
-    setTripData: async (tripId: string) => {
-      try {
-        const response = await tripsApi.getById(tripId);
-        // Convert API response (ISO strings) to store format (Date objects)
-        const tripData = formatTripFromAPI(response.data);
-        set(tripData);
-      } catch (error) {
-        console.error("Error fetching trip data:", error);
-      }
+    setTripData: async (trip: Trip) => {
+      set({ ...trip });
     },
     setDescription: (description: string) => set({ description }),
     reset: () => set({

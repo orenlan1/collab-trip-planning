@@ -5,8 +5,8 @@ export interface Trip {
   title: string;
   destination?: string;
   description?: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: string; // ISO string format from API
+  endDate?: string;   // ISO string format from API
   createdBy: string;
   image: string | null;
   members: Array<TripMember>;
