@@ -21,7 +21,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.11",
     "@vis.gl/react-google-maps": "^1.5.5",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -33,6 +33,7 @@
     "react-hook-form": "^7.62.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.7.1",
+    "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.3.1",
     "zustand": "^5.0.8"
@@ -49,6 +50,6 @@
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.1.6"
   }
 }

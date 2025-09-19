@@ -6,11 +6,14 @@ import type { DateRange } from "react-day-picker";
 import { getExcludedDates, checkIfDateHasActivities } from "@/lib/utils";
 import { tripsApi } from "../services/api";
 import { dateToLocalDateString } from "@/lib/utils";
+import { ToastContainer, toast } from "react-toastify";
+import { notifySuccess } from "@/layouts/SidebarLayout";
 
 export const DatesSetter = () => {
     const tripId  = useTripStore(state => state.id);
     const startDate = useTripStore(state => state.startDate);
     const endDate = useTripStore(state => state.endDate);
+    const setTripData = useTripStore(state => state.setTripData);
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [datesWithActivities, setDatesWithActivities] = useState<Date[]>([]);
@@ -69,12 +72,13 @@ export const DatesSetter = () => {
 
     const saveDatesDirectly = async () => {
       if (dateRange?.from && dateRange?.to) {
-        // TODO: Update trip dates in the store/API
         try {
-            await tripsApi.update(tripId, {
+            const response = await tripsApi.update(tripId, {
             startDate: dateToLocalDateString(dateRange.from),
             endDate: dateToLocalDateString(dateRange.to)
           });
+          setTripData(response.data);
+          notifySuccess("Trip dates updated successfully");
         } catch (error) {
           console.error("Error saving dates:", error);
         }
