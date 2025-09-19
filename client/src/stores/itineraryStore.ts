@@ -14,7 +14,9 @@ interface ItineraryStore extends Itinerary {
   isLoading: boolean;
   error: string | null;
   selectedDayId: string | null;
-  setItineraryData: (itineraryId: string) => Promise<void>;
+  setItineraryData: (itinerary: Itinerary) => Promise<void>;
+  setIsLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
   setActivities: (day: TripDay, activities: Activity[]) => void;
   selectDay: (dayId: string) => void;
   addActivity: (dayId: string, activity: Activity) => void;
@@ -29,21 +31,11 @@ export const useItineraryStore = create<ItineraryStore>()(
       id: " ",
       isLoading: false,
       error: null,
-      setItineraryData: async (itineraryId: string) => {
-        try {
-          set({ isLoading: true, error: null });
-          const response = await itinerariesApi.getItinerary(itineraryId);
-          // Convert API response (ISO strings) to store format (Date objects)
-          const itineraryData = formatItineraryFromAPI(response.data);
-          set({ ...itineraryData, isLoading: false });
-        } catch (error) {
-          console.error("Error fetching itinerary data:", error);
-          set({ 
-            error: "Failed to load itinerary data", 
-            isLoading: false 
-          });
-        }
+      setItineraryData: async (itinerary: Itinerary) => {
+        set({ ...itinerary });
       },
+      setIsLoading: (isLoading: boolean) => set({ isLoading }),
+      setError: (error: string | null) => set({ error }),
       setActivities: (day : TripDay, activities: Activity[]) => set(state => ({
         days: state.days.map(d => 
           d.id === day.id ? { ...d, activities } : d

@@ -3,13 +3,19 @@ import { useItineraryStore } from "@/stores/itineraryStore";
 import { useEffect } from "react";
 import { DateCard } from "./components/DateCard";
 import { TripDayPage } from "../tripday/TripDayPage";
+import { itinerariesApi } from "./services/api"; 
+import { format, set } from "date-fns";
+import { formatItineraryFromAPI } from "@/lib/utils";
+import type { Itinerary } from "@/types/itinerary";
 
 export function TripItineraryPage() {
   const itineraryId = useTripStore(state => state.itinerary.id);
   const { 
     days, 
-    isLoading, 
-    error, 
+    isLoading,
+    setIsLoading,
+    error,
+    setError,
     setItineraryData, 
     selectedDayId, 
     selectDay 
@@ -18,12 +24,26 @@ export function TripItineraryPage() {
   
   const selectedDay = selectedDayId ? days.find(day => day.id === selectedDayId) || null : null;
 
-  useEffect(() => {
-    if (itineraryId) {
-      console.log("Fetching itinerary for ID:", itineraryId);
-      setItineraryData(itineraryId);
-    }
+   useEffect(() => {
+    const fetchItineraryData = async () => {
+      if (itineraryId) {
+        try {
+          setIsLoading(true);
+          const response = await itinerariesApi.getItinerary(itineraryId);
+          const itineraryData = formatItineraryFromAPI(response.data) as Itinerary;
+          setItineraryData(itineraryData);
+        } catch (error) {
+          setError("Failed to load itinerary data.");
+          console.error("Error fetching itinerary:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchItineraryData();
   }, [itineraryId, setItineraryData]);
+
 
   return (
     <div>
