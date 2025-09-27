@@ -59,6 +59,7 @@ io.on("connection", onConnection);
 // Make socket server available to Express routes
 app.set('io', io);
 
+
 app.use('/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/trips/invite', invitationRoutes);

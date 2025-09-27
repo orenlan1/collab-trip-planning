@@ -179,5 +179,5 @@ model Message {
   senderId  String
   sender    User     @relation(fields: [senderId], references: [id])
   content   String
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
 }

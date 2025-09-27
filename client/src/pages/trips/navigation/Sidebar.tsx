@@ -1,10 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import { DollarSignIcon, Map, LayoutDashboard, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
+import { useTripSocket } from "@/context/TripSocketContext";
 
 export function Sidebar() {
   const { tripId } = useParams();
   const [activeLink, setActiveLink] = useState("overview");
+  const { unreadCount } = useTripSocket();
 
   return (
     <aside className="w-64 bg-white/80 h-screen border-r border-neutral-200/40 dark:border-neutral-800/60">
@@ -44,8 +46,19 @@ export function Sidebar() {
              ${activeLink === "chat" ? "bg-neutral-200/60 dark:bg-neutral-800/60" : ""}`}
           onClick={() => setActiveLink("chat")}
         >
-          <MessageSquareIcon className="inline-block mr-2" />
-          Chat
+          <div className="flex justify-between items-center">
+            <div>
+              <MessageSquareIcon className="inline-block mr-2" />
+              Chat
+            </div>
+            <div>
+              {unreadCount > 0 && (
+                <span className="bg-indigo-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
         </Link>
       </nav>
     </aside>

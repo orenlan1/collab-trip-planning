@@ -7,8 +7,6 @@ router.get("/:tripId", isAuthenticated, messageController.getMessages);
 
 
 
-router.post("/:tripId", isAuthenticated, (req, res) => {
-
-});
+router.post("/:tripId", isAuthenticated, messageController.createMessage);
 
 export default router;
