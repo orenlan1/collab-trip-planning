@@ -7,7 +7,7 @@ import { getExcludedDates, checkIfDateHasActivities } from "@/lib/utils";
 import { tripsApi } from "../services/api";
 import { dateToLocalDateString } from "@/lib/utils";
 import { ToastContainer, toast } from "react-toastify";
-import { notifySuccess } from "@/layouts/SidebarLayout";
+import { notifySuccess } from "@/layouts/TripLayout";
 
 export const DatesSetter = () => {
     const tripId  = useTripStore(state => state.id);

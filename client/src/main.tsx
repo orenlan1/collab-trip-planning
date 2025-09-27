@@ -18,7 +18,7 @@ import { TripBudgetPage } from './pages/trips/TripBudgetPage.tsx'
 import { TripChatPage } from './pages/chat/TripChatPage.tsx'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
-import { SidebarLayout } from './layouts/SidebarLayout.tsx'
+import { TripLayout } from './layouts/TripLayout.tsx'
 import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
 import { SearchingLayout } from './layouts/SearchingLayout.tsx'
 import { FlightResults } from './pages/flights/components/FlightResults.tsx'
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
     
   {
     path: 'trips',
-    element: <SidebarLayout />,
+    element: <TripLayout />,
     children: [
       {
         path: ':tripId',

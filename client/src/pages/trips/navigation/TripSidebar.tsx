@@ -1,12 +1,24 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { DollarSignIcon, Map, LayoutDashboard, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
 import { useTripSocket } from "@/context/TripSocketContext";
+import { get } from "react-hook-form";
 
-export function Sidebar() {
+function getActiveLink(pathname: string, tripId?: string) {
+  if (!tripId) return "";
+  if (pathname.includes(`/trips/${tripId}/overview`)) return "overview";
+  if (pathname.includes(`/trips/${tripId}/itinerary`)) return "itinerary";
+  if (pathname.includes(`/trips/${tripId}/budget`)) return "budget";
+  if (pathname.includes(`/trips/${tripId}/chat`)) return "chat";
+  return "";
+}
+
+export function TripSidebar() {
   const { tripId } = useParams();
-  const [activeLink, setActiveLink] = useState("overview");
+  const location = useLocation();
+  const activeLink = getActiveLink(location.pathname, tripId);
   const { unreadCount } = useTripSocket();
+
 
   return (
     <aside className="w-64 bg-white/80 h-screen border-r border-neutral-200/40 dark:border-neutral-800/60">
@@ -15,7 +27,6 @@ export function Sidebar() {
           to={`/trips/${tripId}/overview`} 
           className={`text-slate-500 font-semibold py-2 px-4 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition
              ${activeLink === "overview" ? "bg-neutral-200/60 dark:bg-neutral-800/60" : ""}`}
-          onClick={() => setActiveLink("overview")}
         >
           <LayoutDashboard className="inline-block mr-2" />
           <div className="inline-block">
@@ -26,7 +37,6 @@ export function Sidebar() {
           to={`/trips/${tripId}/itinerary`} 
           className={`text-slate-500 font-semibold py-2 px-4 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition
              ${activeLink === "itinerary" ? "bg-neutral-200/60 dark:bg-neutral-800/60" : ""}`}
-          onClick={() => setActiveLink("itinerary")}
         >
           <Map className="inline-block mr-2" />
           Itinerary
@@ -35,7 +45,6 @@ export function Sidebar() {
           to={`/trips/${tripId}/budget`} 
           className={`text-slate-500 font-semibold py-2 px-4 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition
              ${activeLink === "budget" ? "bg-neutral-200/60 dark:bg-neutral-800/60" : ""}`}
-          onClick={() => setActiveLink("budget")}
         >
           <DollarSignIcon className="inline-block mr-2" />
           Budget
@@ -44,7 +53,6 @@ export function Sidebar() {
           to={`/trips/${tripId}/chat`} 
           className={`text-slate-500 font-semibold py-2 px-4 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition
              ${activeLink === "chat" ? "bg-neutral-200/60 dark:bg-neutral-800/60" : ""}`}
-          onClick={() => setActiveLink("chat")}
         >
           <div className="flex justify-between items-center">
             <div>
