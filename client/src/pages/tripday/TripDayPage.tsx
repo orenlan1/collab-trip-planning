@@ -6,7 +6,7 @@ import { tripDaysApi } from "./services/api";
 import CreateActivityModal from "./components/CreateActivityModal";
 import { useItineraryStore } from "@/stores/itineraryStore";
 import { se } from "date-fns/locale";
-
+import { useTripDayStore } from "@/stores/tripDayStore";
 
 interface TripDayPageProps {
     id: string;
@@ -18,9 +18,8 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 
 export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [tripDay, setTripDay] = useState<TripDay | null>(null);
-    const { addActivity } = useItineraryStore();
-    
+    const { tripDay, setTripDay, addActivity, removeActivity } = useTripDayStore();
+
     useEffect(() => {
         const fetchTripDayData = async () => {
             try {
@@ -42,7 +41,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
         try {
             const response = await tripDaysApi.addNewActivity(id, { name: placeName, address });
             console.log("Activity added for place:", placeName, response);
-            addActivity(id, response.data);
+            addActivity(response.data);
             setIsModalOpen(false);
             
         } catch (error) {

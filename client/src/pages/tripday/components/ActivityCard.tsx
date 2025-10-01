@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import { tripDaysApi } from "../services/api";
 import { AutoSaveInputStatusRender } from "@/components/AutoSaveInputStatusRender";
 import { FaTrash } from "react-icons/fa";
-import { useItineraryStore } from "@/stores/itineraryStore";
 import type { Activity } from "@/types/activity";
 import {
   Popover,
@@ -13,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TimeSetter } from "./TimeSetter";
-
+import { useTripDayStore } from "@/stores/tripDayStore";
 
 interface ActivityCardProps {
   activity: Activity;
@@ -77,9 +76,16 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
     initialValue: displayActivity.description || "",
   });
 
-  const deleteActivity = useItineraryStore(state => state.deleteActivity);
-
+  const removeActivity = useTripDayStore(state => state.removeActivity);
   
+  const handleDeleteActivity = async () => {
+  try {
+    await tripDaysApi.deleteActivity(displayActivity.id);
+    removeActivity(displayActivity.id); 
+  } catch (error) {
+    console.error('Failed to delete activity:', error);
+  }
+};
 
 
 
@@ -105,7 +111,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
               </div>
             </div>
             <div>
-                <FaTrash onClick={() => deleteActivity(displayActivity.id!)} className="text-slate-400 hover:text-red-500 cursor-pointer" />
+                <FaTrash onClick={handleDeleteActivity} className="text-slate-400 hover:text-red-500 cursor-pointer" />
             </div>
           </div>
           <div className="pt-4 pr-4 pb-4 mr-4">
