@@ -1,8 +1,7 @@
 import { Link, useParams, useLocation } from "react-router-dom";
 import { DollarSignIcon, Map, LayoutDashboard, MessageSquareIcon } from "lucide-react";
-import { useState } from "react";
 import { useTripSocket } from "@/context/TripSocketContext";
-import { get } from "react-hook-form";
+
 
 function getActiveLink(pathname: string, tripId?: string) {
   if (!tripId) return "";

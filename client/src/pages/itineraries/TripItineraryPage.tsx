@@ -67,7 +67,7 @@ export function TripItineraryPage() {
 
           {selectedDay && (
             <div>
-              <TripDayPage day={selectedDay} />
+              <TripDayPage id={selectedDay.id} />
             </div>
           )}
         </div>

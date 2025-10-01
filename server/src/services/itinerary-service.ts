@@ -3,6 +3,18 @@ import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../co
 import { fetchImageURL } from '../apiClients/unsplash/images.js';
 import { normalizeDate, formatTripDayForAPI } from '../lib/utils.js';
 
+const formatActivityTime = (date: Date | null): string | null => {
+    if (!date) return null;
+    return date.toISOString().replace(/\.\d{3}Z$/, ''); // "2025-09-12T07:00:00.000Z" → "2025-09-12T07:00:00"
+};
+
+const formatActivityForAPI = (activity: any) => {
+    return {
+        ...activity,
+        startTime: formatActivityTime(activity.startTime),
+        endTime: formatActivityTime(activity.endTime)
+    };
+};
 
 const createItineraryDays = async (itineraryId: string, startDate: Date | string, endDate: Date | string) => {
     const days = [];
@@ -66,10 +78,27 @@ const getById = async (itineraryId: string) => {
     
     if (!itinerary) return null;
     
-    return {
+   return {
         ...itinerary,
-        days: itinerary.days.map(formatTripDayForAPI)
+        days: itinerary.days.map(day => ({
+            ...formatTripDayForAPI(day),
+            activities: day.activities.map(formatActivityForAPI)
+        }))
     };
+};
+
+const getTripDay = async (tripDayId: string) => {
+    const tripDay = await prisma.tripDay.findUnique({
+        where: { id: tripDayId },
+        include: {
+            activities: true
+        }
+    });
+
+    if (!tripDay) return null;
+
+    tripDay.activities = tripDay.activities.map(formatActivityForAPI);
+    return formatTripDayForAPI(tripDay);
 };
 
 const addTripDay = async (itineraryId: string, data: TripDayFormData) => {
@@ -101,18 +130,21 @@ const addActivity = async (tripDayId: string, data: ActivityFormData) => {
 };
 
 const updateActivity = async (activityId: string, data: Partial<ActivityFormData>) => {
-    return prisma.activity.update({
+    console.log("Updating activity:", data);
+    const activity = await prisma.activity.update({
         where: { id: activityId },
         data: {
             ...(data.title !== undefined && { title: data.title }),
             ...(data.description !== undefined && { description: data.description }),
-            ...(data.startTime !== undefined && { startTime: data.startTime }),
-            ...(data.endTime !== undefined && { endTime: data.endTime }),
+            ...(data.startTime !== undefined && { startTime: data.startTime ? new Date(data.startTime + 'Z') : null }),
+            ...(data.endTime !== undefined && { endTime: data.endTime ? new Date(data.endTime + 'Z') : null }),
             ...(data.name !== undefined && { name: data.name }),
             ...(data.address !== undefined && { address: data.address }),
             ...(data.image !== undefined && { image: data.image })
         }
     });
+
+    return formatActivityForAPI(activity);
 };
 
 const deleteActivity = async (activityId: string) => {
@@ -138,6 +170,7 @@ const getActivities = async (tripDayId: string) => {
 
 export default {
     getById,
+    getTripDay,
     addTripDay,
     addActivity,
     updateActivity,

@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/:itineraryId", isAuthenticated, itineraryController.getItinerary);
 
 // Trip day routes
+router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);
 router.post("/:itineraryId/days", isAuthenticated, itineraryController.addTripDay);
 router.delete("/days/:tripDayId", isAuthenticated, itineraryController.deleteTripDay);
 

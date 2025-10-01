@@ -1,28 +1,62 @@
 import { GrLocationPin } from "react-icons/gr";
-import {  IoLocationOutline } from "react-icons/io5";
+import { MdAccessTimeFilled } from "react-icons/md";
 import { useAutoSaveInput } from "@/hooks/useAutoSaveInput";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { tripDaysApi } from "../services/api";
 import { AutoSaveInputStatusRender } from "@/components/AutoSaveInputStatusRender";
 import { FaTrash } from "react-icons/fa";
 import { useItineraryStore } from "@/stores/itineraryStore";
 import type { Activity } from "@/types/activity";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { TimeSetter } from "./TimeSetter";
+
 
 interface ActivityCardProps {
-  activity?: Activity;
+  activity: Activity;
+  date: Date;
 }
 
-export const ActivityCard = ({ activity }: ActivityCardProps) => {
-  const displayActivity = activity || {
-    id: "",
-    title: "",
-    description: "",
-    startTime: "",
-    endTime: "",
-    name: "",
-    address: "",
-    image: null,
+export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
+  const [displayActivity, setDisplayActivity] = useState<Activity>(activity);
+
+  // Helper function to format time from ISO string to HH:MM (exact time, no timezone conversion)
+  const formatTimeFromISO = (isoString: string): string => {
+    // Extract time directly from ISO string: "2025-09-12T07:00:00.000Z" -> "7:00"
+    const timePart = isoString.split('T')[1].split('.')[0]; // Gets "07:00:00"
+    const [hours, minutes] = timePart.split(':');
+    const hour24 = parseInt(hours, 10);
+    const formattedHour = hour24.toString(); // Remove leading zero: "07" -> "7"
+    return `${formattedHour}:${minutes}`;
   };
+
+  // Helper function to display time range
+  const formatTimeDisplay = (startTime?: string, endTime?: string): string => {
+    if (!startTime) return "Add time";
+    
+    const formattedStart = formatTimeFromISO(startTime);
+    
+    if (endTime) {
+      const formattedEnd = formatTimeFromISO(endTime);
+      return `${formattedStart} - ${formattedEnd}`;
+    }
+    
+    return formattedStart;
+  };
+
+  const handleTimeSave = async (startTime?: string | null, endTime?: string | null) => {
+
+    console.log("Saving time:", startTime, endTime);
+    const response = await tripDaysApi.updateActivity(displayActivity.id!, { startTime, endTime });
+    
+    console.log("Time updated:", response.data);
+    
+    // Update the local state with the response data
+    setDisplayActivity(response.data,);
+  }
 
   const saveDescription = useCallback(async (description: string) => {
     if (!displayActivity.id) throw new Error('Activity ID is required');
@@ -65,8 +99,8 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         <div className="flex-grow">
           <div className="pl-4 pr-4 pt-4 border-gray-200 flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-semibold">{displayActivity.name}</h1>
-              <div className="ml-2">
+              <h1 className="text-lg font-semibold inline-block">{displayActivity.name}</h1>
+              <div className="ml-2 inline-block">
                 <AutoSaveInputStatusRender hasUnsavedChanges={hasUnsavedChanges} saveState={saveState} />
               </div>
             </div>
@@ -77,9 +111,26 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
           <div className="pt-4 pr-4 pb-4 mr-4">
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add any important notes" className="p-4 w-full" />
           </div>
-          <div className="px-4 pb-4 flex items-center text-sm text-gray-600">
-            <GrLocationPin className="text-gray-500 " />
-            <span className="ml-1">{displayActivity.address || "No address provided"}</span>
+          <div className="px-4 pb-4 flex gap-4 items-center text-sm text-slate-500 font-semibold">
+            <div className="flex items-center hover:text-slate-800 cursor-pointer">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="flex items-center">
+                    <MdAccessTimeFilled className="hover:text-slate-800" />
+                    <span className="ml-1">
+                      {formatTimeDisplay(displayActivity.startTime, displayActivity.endTime)}
+                    </span>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent side='bottom' align='start' className='w-auto p-0'>
+                  <TimeSetter date={date} onTimeSave={handleTimeSave} startTime={displayActivity.startTime} endTime={displayActivity.endTime} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex items-center">
+              <GrLocationPin className="text-gray-500 " />
+              <span className="ml-1">{displayActivity.address || "No address provided"}</span>
+            </div>
           </div>
         </div>
       </div>

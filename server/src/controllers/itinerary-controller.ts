@@ -12,8 +12,8 @@ export interface TripDayFormData {
 export interface ActivityFormData {
     title: string;
     description?: string;
-    startTime?: Date;
-    endTime?: Date;
+    startTime?: string;
+    endTime?: string;
     name?: string;
     address?: string;
     image?: string;
@@ -37,6 +37,27 @@ const getItinerary = async (req: Request, res: Response) => {
         res.status(200).json(itinerary);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch itinerary" });
+    }
+};
+
+const getTripDay = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { tripDayId } = req.params;
+
+    if (!tripDayId) {
+        return res.status(400).json({ error: "Trip Day ID is required" });
+    }
+
+    try {
+        const tripDay = await itineraryService.getTripDay(tripDayId);
+        if (!tripDay) {
+            return res.status(404).json({ error: "Trip Day not found" });
+        }
+        res.status(200).json(tripDay);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch trip day" });
     }
 };
 
@@ -149,6 +170,7 @@ const getActivities = async (req: Request, res: Response) => {
 
 export default {
     getItinerary,
+    getTripDay,
     addTripDay,
     addActivity,
     updateActivity,

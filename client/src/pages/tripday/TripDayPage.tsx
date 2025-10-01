@@ -1,34 +1,48 @@
 import { IoAdd } from "react-icons/io5";
 import type { TripDay } from "@/types/tripDay";
 import { ActivityCard } from "./components/ActivityCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { tripDaysApi } from "./services/api";
 import CreateActivityModal from "./components/CreateActivityModal";
 import { useItineraryStore } from "@/stores/itineraryStore";
+import { se } from "date-fns/locale";
 
 
 interface TripDayPageProps {
-    day: TripDay;  
+    id: string;
 }
 
 const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-export const TripDayPage = ({ day }: TripDayPageProps) => {
+export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [tripDay, setTripDay] = useState<TripDay | null>(null);
+    const { addActivity } = useItineraryStore();
     
-    const { addActivity, days, selectedDayId } = useItineraryStore();
-    
-    const currentDay = days.find(d => d.id === selectedDayId) || day;
-    const date = new Date(currentDay.date);
-    const activities = currentDay.activities || [];
+    useEffect(() => {
+        const fetchTripDayData = async () => {
+            try {
+                const response = await tripDaysApi.getTripDay(id);
+                const date = new Date(response.data.date);
+                date.setHours(0,0,0,0);
+                console.log("Fetched trip day data:", response.data);
+                setTripDay({...response.data, date});
+                
+            } catch (error) {
+                console.error("Failed to fetch trip day data:", error);
+            }
+        };
+
+        fetchTripDayData();   
+    }, [id]);
 
     const handleCreateActivity = async (placeName: string, address: string) => {
         try {
-            const response = await tripDaysApi.addNewActivity(currentDay.id, { name: placeName, address });
+            const response = await tripDaysApi.addNewActivity(id, { name: placeName, address });
             console.log("Activity added for place:", placeName, response);
-            addActivity(currentDay.id, response.data);
+            addActivity(id, response.data);
             setIsModalOpen(false);
             
         } catch (error) {
@@ -41,7 +55,7 @@ export const TripDayPage = ({ day }: TripDayPageProps) => {
         <div>
             <div className="flex justify-between items-center">
                 <div className="text-md font-semibold p-4">
-                    <h2>Day Itinerary - {date.getDate()} {monthNames[date.getMonth()]}, {date.getFullYear()}</h2>
+                  {tripDay?.date && (<>  <h2>Day Itinerary - {tripDay?.date.getDate()} {monthNames[tripDay?.date.getMonth()]}, {tripDay?.date.getFullYear()}</h2></>)}
                 </div>
                 <div>
                     <button 
@@ -56,8 +70,8 @@ export const TripDayPage = ({ day }: TripDayPageProps) => {
 
             <div className="grid grid-cols-3 gap-4 p-4">
                 <div className="col-span-2">
-                    {activities.map(activity => (
-                        <ActivityCard key={activity.id} activity={activity} />
+                    {tripDay?.activities.map(activity => (
+                        <ActivityCard key={activity.id} activity={activity} date={tripDay.date} />
                     ))}
                     <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 rounded-lg hover:bg-gray-50 cursor-pointer">
                         <div className="bg-gray-200 p-3 rounded-full mb-3">

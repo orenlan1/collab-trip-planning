@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "public"."Activity" ALTER COLUMN "startTime" SET DATA TYPE TIMESTAMP(0),
+ALTER COLUMN "endTime" SET DATA TYPE TIMESTAMP(0);
