@@ -1,11 +1,8 @@
 import { IoAdd } from "react-icons/io5";
-import type { TripDay } from "@/types/tripDay";
 import { ActivityCard } from "./components/ActivityCard";
 import { useEffect, useState } from "react";
 import { tripDaysApi } from "./services/api";
 import CreateActivityModal from "./components/CreateActivityModal";
-import { useItineraryStore } from "@/stores/itineraryStore";
-import { se } from "date-fns/locale";
 import { useTripDayStore } from "@/stores/tripDayStore";
 
 interface TripDayPageProps {
@@ -18,7 +15,7 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 
 export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { tripDay, setTripDay, addActivity, removeActivity } = useTripDayStore();
+    const { tripDay, setTripDay, addActivity } = useTripDayStore();
 
     useEffect(() => {
         const fetchTripDayData = async () => {
