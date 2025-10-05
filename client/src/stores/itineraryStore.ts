@@ -19,8 +19,6 @@ interface ItineraryStore extends Itinerary {
   setError: (error: string | null) => void;
   setActivities: (day: TripDay, activities: Activity[]) => void;
   selectDay: (dayId: string) => void;
-  addActivity: (dayId: string, activity: Activity) => void;
-  deleteActivity: (activityId: string) => void;
   reset: () => void;
 }
 
@@ -35,33 +33,16 @@ export const useItineraryStore = create<ItineraryStore>()(
         set({ ...itinerary });
       },
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
+      
       setError: (error: string | null) => set({ error }),
+
       setActivities: (day : TripDay, activities: Activity[]) => set(state => ({
         days: state.days.map(d => 
           d.id === day.id ? { ...d, activities } : d
         )
       })),
       selectDay: (dayId: string) => set({ selectedDayId: dayId }),
-      addActivity: (dayId: string, activity: Activity) => set(state => ({
-        days: state.days.map(day => 
-          day.id === dayId 
-          ? { ...day, activities: [...(day.activities || []), activity] } 
-          : day
-        )
-      })),
-      deleteActivity: async (activityId: string) => {
-        try {
-          await tripDaysApi.deleteActivity(activityId);
-          set(state => ({
-            days: state.days.map(day => ({
-              ...day,
-              activities: day.activities.filter(activity => activity.id !== activityId)
-            }))
-          }));
-        } catch (error) {
-          console.error("Error deleting activity:", error);
-        }
-      },
+
       reset: () => set({
         days: [],
         isLoading: false,

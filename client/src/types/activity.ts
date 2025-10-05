@@ -7,4 +7,5 @@ export interface Activity {
   name?: string;
   address?: string;
   image?: string;
+  createdAt: string;
 }

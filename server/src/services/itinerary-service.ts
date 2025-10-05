@@ -67,7 +67,11 @@ const getById = async (itineraryId: string) => {
         include: {
             days: {
                 include: {
-                    activities: true
+                    activities: {
+                        orderBy: {
+                            createdAt: 'asc'
+                        }
+                    }
                 },
                 orderBy: {
                     date: 'asc'
@@ -91,7 +95,12 @@ const getTripDay = async (tripDayId: string) => {
     const tripDay = await prisma.tripDay.findUnique({
         where: { id: tripDayId },
         include: {
-            activities: true
+            activities: {
+                orderBy: [
+                    { startTime: { sort: 'asc', nulls: 'first' } },
+                    { createdAt: 'asc' }
+                ]
+            }
         }
     });
 

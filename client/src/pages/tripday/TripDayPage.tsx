@@ -66,8 +66,12 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
 
             <div className="grid grid-cols-3 gap-4 p-4">
                 <div className="col-span-2">
-                    {tripDay?.activities.map(activity => (
-                        <ActivityCard key={activity.id} activity={activity} date={tripDay.date} />
+                    {tripDay?.activities.map((activity) => (
+                        <ActivityCard 
+                            key={activity.id} 
+                            activity={activity} 
+                            date={tripDay.date} 
+                        />
                     ))}
                     <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 rounded-lg hover:bg-gray-50 cursor-pointer">
                         <div className="bg-gray-200 p-3 rounded-full mb-3">
