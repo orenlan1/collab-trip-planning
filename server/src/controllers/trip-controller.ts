@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type { TypedSocket } from "../types/socket";
+import type { CreateTripInput, UpdateTripInput } from "../schemas/trip-schema.js";
 import tripService from "../services/trip-service";
 import userService from "../services/user-service";
 
@@ -7,17 +8,19 @@ import userService from "../services/user-service";
 
 export interface TripFormData {
     title: string;
-    destination?: string;
-    description?: string;
-    startDate?: Date;
-    endDate?: Date;
+    destination?: string | null;
+    description?: string | null;
+    startDate?: Date | null;
+    endDate?: Date | null;
 }
 
 const createTrip = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  const data: TripFormData = req.body;
+  
+  const data = req.body as CreateTripInput;
+  
   try {
     const trip = await tripService.create(data, req.user.id);
     res.status(201).json(trip);
@@ -79,7 +82,7 @@ const updateTrip = async (req: Request, res: Response) => {
     if (!id) {
         return res.status(400).json({ error: "Invalid trip ID" });
     }
-    const data : TripUpdateData = req.body;
+    const data : UpdateTripInput = req.body;
     try {
         const updatedTrip = await tripService.update(id, data);
         res.status(200).json(updatedTrip);

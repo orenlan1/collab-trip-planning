@@ -2,20 +2,15 @@ import {prisma} from '../prisma/client.js';
 import type {TripFormData, TripUpdateData } from '../controllers/trip-controller.js';
 import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
+import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
 
 
-const create = async (data: TripFormData, creatorId: string) => {
-  // Normalize dates using utility function
-  const normalizedStartDate = normalizeDate(data.startDate);
-  const normalizedEndDate = normalizeDate(data.endDate);
+
+const create = async (data: CreateTripInput, creatorId: string) => {
 
   const trip = await prisma.trip.create({
     data: {
-      title: data.title,
-      ...(data.destination !== undefined && { destination: data.destination }),
-      ...(data.description !== undefined && { description: data.description }),
-      ...(normalizedStartDate !== null && { startDate: normalizedStartDate }),
-      ...(normalizedEndDate !== null && { endDate: normalizedEndDate }),
+      ...data,
       createdById: creatorId,
       members: {
         create: {
@@ -33,11 +28,11 @@ const create = async (data: TripFormData, creatorId: string) => {
   });
 
   // Create itinerary days if dates are provided
-  if (normalizedStartDate && normalizedEndDate && trip.itinerary) {
+  if (data.startDate && data.endDate && trip.itinerary) {
     await itineraryService.createItineraryDays(
       trip.itinerary.id, 
-      normalizedStartDate, 
-      normalizedEndDate
+      data.startDate, 
+      data.endDate
     );
   }
   
@@ -90,7 +85,7 @@ const getTripById = async (id: string) => {
 };
 
 
-const update = async (id: string, data: TripUpdateData) => {
+const update = async (id: string, data: UpdateTripInput) => {
   // Use transaction to ensure atomicity
   return await prisma.$transaction(async (tx) => {
     // First, get the current trip to check existing dates
@@ -114,15 +109,12 @@ const update = async (id: string, data: TripUpdateData) => {
       throw new Error('Trip not found');
     }
 
-    // Normalize dates using utility function
-    const normalizedStartDate = normalizeDate(data.startDate);
-    const normalizedEndDate = normalizeDate(data.endDate);
 
     // Handle date range changes and excluded days
-    if ((normalizedStartDate || normalizedEndDate) && currentTrip.startDate && currentTrip.endDate) {
-      const newStartDate = normalizedStartDate || currentTrip.startDate;
-      const newEndDate = normalizedEndDate || currentTrip.endDate;
-      
+    if ((data.startDate || data.endDate) && currentTrip.startDate && currentTrip.endDate) {
+      const newStartDate = data.startDate || currentTrip.startDate;
+      const newEndDate = data.endDate || currentTrip.endDate;
+
       // Get dates that will be excluded from the new range
       const excludedDates = getExcludedDates(
         currentTrip.startDate,
@@ -191,6 +183,7 @@ const update = async (id: string, data: TripUpdateData) => {
         }
       }
     }
+  
 
     // Update the trip with new data
     const trip = await tx.trip.update({
@@ -198,10 +191,10 @@ const update = async (id: string, data: TripUpdateData) => {
       data: {
           ...(data.title !== undefined && { title: data.title }),
           ...(data.destination !== undefined && { destination: data.destination }),
-          ...(normalizedStartDate !== null && { startDate: normalizedStartDate }),
-          ...(normalizedEndDate !== null && { endDate: normalizedEndDate }),
+          ...(data.startDate !== undefined && { startDate: data.startDate }),
+          ...(data.endDate !== undefined && { endDate: data.endDate }),
           ...(data.description !== undefined && { description: data.description }),
-      }
+      },
     });
 
     return formatTripForAPI(trip);
