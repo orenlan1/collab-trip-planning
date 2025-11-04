@@ -71,6 +71,7 @@ model Trip {
   flights   Flight[]
   lodgings  Lodging[]
   messages  Message[]
+  budget    Budget?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,6 +145,7 @@ model Activity {
   address     String?
   image       String?
 
+  expense    Expense?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -180,4 +182,38 @@ model Message {
   sender    User     @relation(fields: [senderId], references: [id])
   content   String
   createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
+
+
+model Budget {
+  id        String   @id @default(cuid())
+  tripId    String   @unique
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  totalPerPerson Float
+  currency  String @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  expenses  Expense[]
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  budgetId    String
+  budget      Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  description String
+  cost        Float
+  category    ExpenseCategory
+  activity    Activity? @relation(fields: [activityId], references: [id])
+  activityId  String? @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ExpenseCategory {
+  TRANSPORTATION
+  ACCOMMODATION
+  ACTIVITIES
+  FOOD
+  MISCELLANEOUS
 }

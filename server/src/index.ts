@@ -10,6 +10,7 @@ import flightRoutes from './routes/flight.js';
 import lodgingRoutes from './routes/lodging.js';
 import invitationRoutes from './routes/invitation.js';
 import messageRoutes from './routes/message.js';
+import budgetRoutes from './routes/budget.js';
 import cors from 'cors';
 import { Server } from "socket.io" 
 import { createServer} from "http"
@@ -68,6 +69,7 @@ app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/lodgings', lodgingRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api', budgetRoutes);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
