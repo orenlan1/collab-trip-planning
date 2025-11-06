@@ -1,6 +1,5 @@
 import { Navbar } from '../components/navigation/top/Navbar';
 import { TripSidebar } from '../pages/trips/navigation/TripSidebar';
-import { Footer } from '../components/navigation/top/Footer';
 import { Outlet } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { TripSocketProvider } from '@/context/TripSocketContext';
@@ -12,9 +11,9 @@ export function TripLayout() {
     <div className="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased">
       <Navbar />
       <TripSocketProvider>
-      <div className="flex">
+      <div className="flex relative">
         <TripSidebar />
-        <main className="flex-1 max-w-[1200px] mx-auto py-8 px-6">
+        <main className="flex-1 w-full lg:max-w-[1200px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
           <ToastContainer 
             position="top-right"
             autoClose={5000}
@@ -24,7 +23,6 @@ export function TripLayout() {
         </main>
       </div>
     </TripSocketProvider>
-      <Footer />
     </div>
   );
 }
