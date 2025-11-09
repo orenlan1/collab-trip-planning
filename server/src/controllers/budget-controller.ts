@@ -89,6 +89,34 @@ const addExpense = async (req: Request, res: Response) => {
     }
 };
 
+// PATCH /api/budget/expenses/:expenseId - Update an expense
+const updateExpense = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { expenseId } = req.params;
+    
+    if (!expenseId) {
+        return res.status(400).json({ error: "Expense ID is required" });
+    }
+
+    const data = req.body as Partial<CreateExpenseInput>;
+
+    try {
+        const expense = await budgetService.updateExpense(expenseId, data);
+        res.status(200).json(expense);
+    } catch (error: any) {
+        console.error("Error updating expense:", error);
+        
+        if (error.message === 'Expense not found') {
+            return res.status(404).json({ error: error.message });
+        }
+        
+        res.status(500).json({ error: "Failed to update expense" });
+    }
+};
+
 // DELETE /api/budget/expenses/:expenseId - Delete an expense
 const deleteExpense = async (req: Request, res: Response) => {
     if (!req.user) {
@@ -145,6 +173,7 @@ export default {
     createOrUpdateBudget,
     getBudget,
     addExpense,
+    updateExpense,
     deleteExpense,
     getSummary
 };

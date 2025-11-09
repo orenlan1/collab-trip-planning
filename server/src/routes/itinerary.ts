@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Itinerary routes
 router.get("/:itineraryId", isAuthenticated, itineraryController.getItinerary);
+router.get("/:itineraryId/activities", isAuthenticated, itineraryController.getActivitiesForItinerary);
 
 // Trip day routes
 router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);

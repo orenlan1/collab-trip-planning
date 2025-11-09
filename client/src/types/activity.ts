@@ -7,5 +7,13 @@ export interface Activity {
   name?: string;
   address?: string;
   image?: string;
+  // Optional expense object returned from the server (may be null)
+  expense?: {
+    id: string;
+    cost: number;
+    description?: string | null;
+    category?: string | null;
+    createdAt?: string;
+  } | null;
   createdAt: string;
 }

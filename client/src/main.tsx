@@ -14,7 +14,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
 import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
 import { TripOverviewPage } from './pages/trips/TripOverviewPage.tsx'
 import { TripItineraryPage } from './pages/itineraries/TripItineraryPage.tsx'
-import { TripBudgetPage } from './pages/trips/TripBudgetPage.tsx'
+import { TripBudgetPage } from './pages/budget/TripBudgetPage.tsx'
 import { TripChatPage } from './pages/chat/TripChatPage.tsx'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'

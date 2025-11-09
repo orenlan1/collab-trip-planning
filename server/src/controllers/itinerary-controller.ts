@@ -168,6 +168,23 @@ const getActivities = async (req: Request, res: Response) => {
     }
 };
 
+const getActivitiesForItinerary = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { itineraryId } = req.params;
+    if (!itineraryId) {
+        return res.status(400).json({ error: "Itinerary ID is required" });
+    }
+
+    try {
+        const activities = await itineraryService.getActivitiesByItinerary(itineraryId);
+        res.status(200).json(activities);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch activities for itinerary" });
+    }
+};
+
 export default {
     getItinerary,
     getTripDay,
@@ -176,5 +193,6 @@ export default {
     updateActivity,
     deleteActivity,
     deleteTripDay,
-    getActivities
+    getActivities,
+    getActivitiesForItinerary
 };

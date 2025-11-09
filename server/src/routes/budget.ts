@@ -40,6 +40,14 @@ router.get(
     budgetController.getSummary
 );
 
+// PATCH /api/budget/expenses/:expenseId - Update an expense
+router.patch(
+    "/budget/expenses/:expenseId",
+    isAuthenticated,
+    isExpenseTripMember,
+    budgetController.updateExpense
+);
+
 // DELETE /api/budget/expenses/:expenseId - Delete an expense
 router.delete(
     "/budget/expenses/:expenseId",

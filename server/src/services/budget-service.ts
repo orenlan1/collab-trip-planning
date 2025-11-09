@@ -124,15 +124,6 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         if (activity.tripDay.itinerary.tripId !== tripId) {
             throw new Error('Activity does not belong to this trip');
         }
-
-        // Check if activity already has an expense
-        const existingExpense = await prisma.expense.findUnique({
-            where: { activityId: data.activityId }
-        });
-
-        if (existingExpense) {
-            throw new Error('This activity already has an associated expense');
-        }
     }
 
     // Create the expense
@@ -150,6 +141,31 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
     });
 
     return expense;
+};
+
+// Update an existing expense
+const updateExpense = async (expenseId: string, data: Partial<CreateExpenseInput>) => {
+    const expense = await prisma.expense.findUnique({
+        where: { id: expenseId }
+    });
+
+    if (!expense) {
+        throw new Error('Expense not found');
+    }
+
+    const updatedExpense = await prisma.expense.update({
+        where: { id: expenseId },
+        data: {
+            ...(data.description !== undefined && { description: data.description }),
+            ...(data.cost !== undefined && { cost: data.cost }),
+            ...(data.category !== undefined && { category: data.category }),
+        },
+        include: {
+            activity: true
+        }
+    });
+
+    return updatedExpense;
 };
 
 // Delete an expense
@@ -233,6 +249,7 @@ export default {
     createOrUpdate,
     getBudgetByTripId,
     addExpense,
+    updateExpense,
     deleteExpense,
     getSummary
 };

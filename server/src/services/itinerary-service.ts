@@ -98,8 +98,11 @@ const getTripDay = async (tripDayId: string) => {
             activities: {
                 orderBy: [
                     { startTime: { sort: 'asc', nulls: 'first' } },
-                    { createdAt: 'asc' }
-                ]
+                    { createdAt: 'asc' } 
+                ],
+                include: {
+                    expense: true
+                }
             }
         }
     });
@@ -177,6 +180,26 @@ const getActivities = async (tripDayId: string) => {
     })
 }
 
+const getActivitiesByItinerary = async (itineraryId: string) => {
+    // Find activities across all trip days for the given itinerary
+    const activities = await prisma.activity.findMany({
+        where: {
+            tripDay: {
+                itineraryId
+            }
+        },
+        include: {
+            expense: true
+        },
+        orderBy: [
+            { startTime: { sort: 'asc', nulls: 'first' } },
+            { createdAt: 'asc' }
+        ]
+    });
+
+    return activities.map(formatActivityForAPI);
+}
+
 export default {
     getById,
     getTripDay,
@@ -186,5 +209,6 @@ export default {
     deleteActivity,
     deleteTripDay,
     createItineraryDays,
-    getActivities
+    getActivities,
+    getActivitiesByItinerary
 };
