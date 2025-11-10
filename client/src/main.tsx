@@ -12,6 +12,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { Register } from './components/Register.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
 import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
+import { MyTripsPage } from './pages/trips/MyTripsPage.tsx'
 import { TripOverviewPage } from './pages/trips/TripOverviewPage.tsx'
 import { TripItineraryPage } from './pages/itineraries/TripItineraryPage.tsx'
 import { TripBudgetPage } from './pages/budget/TripBudgetPage.tsx'
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <ProtectedRoute><DashboardPage /></ProtectedRoute>
+      },
+      {
+        path: 'my-trips',
+        element: <ProtectedRoute><MyTripsPage /></ProtectedRoute>
       },
       {
         path: 'trips/create',

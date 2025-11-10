@@ -46,7 +46,28 @@ const getAllTripsByUserId = async (userId: string) => {
     include: {
         memberships: {
             include: {
-                trip: true
+                trip: {
+                  include: {
+                    members: {
+                      select: {
+                        userId: true,
+                        role: true,
+                        user: {
+                          select: {
+                            id: true,
+                            email: true,
+                            name: true,
+                          }
+                        }
+                      }
+                    },
+                    itinerary: {
+                      select: {
+                        id: true
+                      }
+                    }
+                  }
+                }
             }
         }
     }

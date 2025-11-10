@@ -9,7 +9,7 @@ export function Navbar() {
 
   return (
     <header className="flex bg-neutral-900/8 dark:bg-neutral-900/50 border-neutral-200/40 dark:border-neutral-800/60 border-b pt-4 pr-6 pb-4 pl-6 backdrop-blur-sm items-center justify-between">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-md bg-white/80 dark:bg-black/80 flex items-center justify-center text-indigo-600 font-semibold tracking-tight">
@@ -20,6 +20,16 @@ export function Navbar() {
             <span className="text-xs text-slate-600 dark:text-slate-400">Collaborative trip planning</span>
           </div>
         </Link>
+
+        {/* My Trips Link */}
+        {user && (
+          <Link
+            to="/my-trips"
+            className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+          >
+            My Trips
+          </Link>
+        )}
       </div>
 
       <nav className="flex items-center gap-4">
