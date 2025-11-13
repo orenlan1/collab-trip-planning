@@ -1,13 +1,18 @@
 import { create } from "zustand";
-import { tripsApi } from "@/pages/trips/services/api";
 import { persist } from "zustand/middleware";
-import { formatTripFromAPI } from "@/lib/utils";
 import type { Trip } from "@/types/trip";
+import { flightsApi, type Flight } from "@/pages/flights/services/api";
 
 
 interface TripStore extends Trip {
+  flights: Flight[];
   setTripData: (trip: Trip) => Promise<void>;
   setDescription: (description: string) => void;
+  setFlights: (flights: Flight[]) => void;
+  addFlight: (flight: Flight) => void;
+  updateFlight: (flightId: string, updatedFlight: Flight) => void;
+  deleteFlight: (flightId: string) => void;
+  fetchFlights: (tripId: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -26,10 +31,29 @@ export const useTripStore = create<TripStore>()(
     itinerary: {
       id: '',
     },
+    flights: [],
     setTripData: async (trip: Trip) => {
       set({ ...trip });
     },
     setDescription: (description: string) => set({ description }),
+    setFlights: (flights: Flight[]) => set({ flights }),
+    addFlight: (flight: Flight) => set((state) => ({ flights: [...state.flights, flight] })),
+    updateFlight: (flightId: string, updatedFlight: Flight) => set((state) => ({
+      flights: state.flights.map(flight => 
+        flight.id === flightId ? updatedFlight : flight
+      )
+    })),
+    deleteFlight: (flightId: string) => set((state) => ({
+      flights: state.flights.filter(flight => flight.id !== flightId)
+    })),
+    fetchFlights: async (tripId: string) => {
+      try {
+        const response = await flightsApi.getAll(tripId);
+        set({ flights: response.data });
+      } catch (error) {
+        console.error('Failed to fetch flights:', error);
+      }
+    },
     reset: () => set({
       id: '',
       title: '',
@@ -42,7 +66,8 @@ export const useTripStore = create<TripStore>()(
       members: [],
       itinerary: {
         id: '',
-      }
+      },
+      flights: [],
     })
   }),
   {

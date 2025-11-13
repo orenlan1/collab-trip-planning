@@ -1,4 +1,4 @@
-import { useState, useEffect} from 'react';
+import { useEffect} from 'react';
 import { useParams } from 'react-router-dom';
 import { FlightsCard } from './components/FlightsCard';
 import { ParticipantsCard } from './components/ParticipantsCard';
@@ -24,6 +24,7 @@ export const TripOverviewPage = () => {
   const startDate = useTripStore(state => state.startDate);
   const endDate = useTripStore(state => state.endDate);
   const setTripData = useTripStore(state => state.setTripData);
+  const fetchFlights = useTripStore(state => state.fetchFlights);
 
     useEffect(() => {
     const fetchTripData = async () => {
@@ -31,6 +32,8 @@ export const TripOverviewPage = () => {
         try {
           const response = await tripsApi.getById(tripId);
           setTripData(response.data);
+          // Fetch flights after trip data is loaded
+          await fetchFlights(tripId);
         } catch (error) {
           console.error("Error fetching trip data:", error);
         }
@@ -38,7 +41,7 @@ export const TripOverviewPage = () => {
     };
 
     fetchTripData();
-  }, [tripId, setTripData]);
+  }, [tripId, setTripData, fetchFlights]);
 
 
   return (

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import flightService from "../services/flight-service";
 import { searchFlightsOffers } from "../apiClients/amadeus/flights.js";
+import type { CreateFlightInput, UpdateFlightInput } from "../schemas/flight-schema";
 
 export interface FlightFormData {
     tripId: string;
@@ -16,9 +17,15 @@ const addFlight = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const data: FlightFormData = req.body;
+
+    const tripId = req.params.tripId;
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    const data: CreateFlightInput = req.body;
     try {
-        const flight = await flightService.create(data);
+        const flight = await flightService.create(tripId, data);
         res.status(201).json(flight);
     } catch (error) {
         res.status(500).json({ error: "Failed to add flight" });
@@ -53,7 +60,7 @@ const updateFlight = async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Flight ID is required" });
     }
 
-    const data: Partial<FlightFormData> = req.body;
+    const data: UpdateFlightInput = req.body;
     try {
         const flight = await flightService.update(flightId, data);
         res.status(200).json(flight);
@@ -67,13 +74,18 @@ const deleteFlight = async (req: Request, res: Response) => {
         return res.status(401).json({ error: "Unauthorized" });
     }
     const { flightId } = req.params;
+    const { tripId } = req.params;
+
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
 
     if (!flightId) {
         return res.status(400).json({ error: "Flight ID is required" });
     }
 
     try {
-        await flightService.delete(flightId);
+        await flightService.delete(flightId, tripId);
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Failed to delete flight" });

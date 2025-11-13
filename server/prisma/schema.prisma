@@ -158,7 +158,9 @@ model Flight {
   flightNumber String
   airline     String
   departure   DateTime
+  departureTimezoneId String // IANA timezone identifier for departure location
   arrival     DateTime
+  arrivalTimezoneId String // IANA timezone identifier for arrival location
   from        String
   to          String
 }
@@ -216,4 +218,23 @@ enum ExpenseCategory {
   ACTIVITIES
   FOOD
   MISCELLANEOUS
+}
+
+
+model Airport {
+  id         Int   @id @default(autoincrement())
+  name       String
+  city       String?
+  country    String?
+  iata       String? @unique
+  tzDatabase String?
+}
+
+
+model Airline {
+  id         Int   @id @default(autoincrement())
+  name       String
+  alias      String?
+  country    String?
+  callsign   String?
 }

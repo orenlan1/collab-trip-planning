@@ -119,3 +119,25 @@
   }
 }
 
+/* Fix antd TimePicker scrolling */
+.ant-picker-dropdown .ant-picker-time-panel-column {
+  overflow-y: auto !important;
+  max-height: 224px !important;
+}
+
+.ant-picker-dropdown .ant-picker-time-panel-column::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ant-picker-dropdown .ant-picker-time-panel-column::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.ant-picker-dropdown .ant-picker-time-panel-column::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.time-picker-dropdown {
+  z-index: 9999 !important;
+}
