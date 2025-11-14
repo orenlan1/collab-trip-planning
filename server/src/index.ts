@@ -13,6 +13,7 @@ import messageRoutes from './routes/message.js';
 import budgetRoutes from './routes/budget.js';
 import airportRoutes from './routes/airport.js';
 import airlineRoutes from './routes/airline.js';
+import destinationRoutes from './routes/destination.js';
 import cors from 'cors';
 import { Server } from "socket.io" 
 import { createServer} from "http"
@@ -73,6 +74,7 @@ app.use('/api/lodgings', lodgingRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/airports', airportRoutes);
 app.use('/api/airlines', airlineRoutes);
+app.use('/api/destinations', destinationRoutes);
 app.use('/api', budgetRoutes);
 
 const PORT = process.env.PORT || 3000;

@@ -8,6 +8,7 @@ interface TripStore extends Trip {
   flights: Flight[];
   setTripData: (trip: Trip) => Promise<void>;
   setDescription: (description: string) => void;
+  setDestination: (destination: string) => void;
   setFlights: (flights: Flight[]) => void;
   addFlight: (flight: Flight) => void;
   updateFlight: (flightId: string, updatedFlight: Flight) => void;
@@ -36,6 +37,7 @@ export const useTripStore = create<TripStore>()(
       set({ ...trip });
     },
     setDescription: (description: string) => set({ description }),
+    setDestination: (destination: string) => set({ destination }),
     setFlights: (flights: Flight[]) => set({ flights }),
     addFlight: (flight: Flight) => set((state) => ({ flights: [...state.flights, flight] })),
     updateFlight: (flightId: string, updatedFlight: Flight) => set((state) => ({

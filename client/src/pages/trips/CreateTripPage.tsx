@@ -3,7 +3,7 @@ import { FiMapPin } from "react-icons/fi";
 import { BsCalendar4 } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { dateToLocalDateString } from "@/lib/utils";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/popover";
 import { tripsApi } from "./services/api";
 import { useNavigate } from "react-router-dom";
+import { destinationsApi, type Destination } from "./services/destinations-api";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export interface CreateTripRequest {
     title: string;
@@ -28,8 +30,46 @@ export const CreateTripPage = () => {
     const [startDate, setStartDate] = useState<Date>();
     const [endDate, setEndDate] = useState<Date>();
     const [dateError, setDateError] = useState<string>("");
-    const { register, handleSubmit, formState: { errors } } = useForm<CreateTripRequest>();
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<CreateTripRequest>();
 
+    // Destination autocomplete
+    const [destination, setDestination] = useState('');
+    const [destinationSuggestions, setDestinationSuggestions] = useState<Destination[]>([]);
+    const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
+    const destinationRef = useRef<HTMLDivElement>(null);
+    const debouncedDestination = useDebounce(destination, 300);
+
+    // Search destinations
+    useEffect(() => {
+      if (debouncedDestination.length >= 2) {
+        destinationsApi.search(debouncedDestination)
+          .then(res => setDestinationSuggestions(res.data))
+          .catch(err => console.error('Failed to search destinations:', err));
+      } else {
+        setDestinationSuggestions([]);
+      }
+    }, [debouncedDestination]);
+
+    // Click outside handler
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) {
+          setShowDestinationSuggestions(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleDestinationSelect = (dest: Destination) => {
+      const displayText = dest.type === 'city' 
+        ? `${dest.name}, ${dest.country}`
+        : dest.name;
+      setDestination(displayText);
+      setValue('destination', displayText);
+      setShowDestinationSuggestions(false);
+    };
 
   const onSubmit = async (data: CreateTripRequest) => {
     // Validate that both dates are provided or both are empty
@@ -82,11 +122,35 @@ export const CreateTripPage = () => {
                 <input {...register("title", { required: "Title is required" })} type="text" placeholder="e.g., Kyoto Spring Getaway" className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-4"/>
                 <p className="text-xs text-slate-500 mt-2">This is required to create the trip. You can add more details later.</p>
             </div>
-            <div>
+            <div ref={destinationRef}>
                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="">Destination</label>
                  <div className="relative">
                     <FiMapPin className="absolute top-1/2 left-3 -translate-y-1/2 text-indigo-500"/>
-                    <input {...register("destination")} type="text" placeholder="City, region or country" className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"/>
+                    <input 
+                      type="text" 
+                      placeholder="City, region or country" 
+                      className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      onFocus={() => setShowDestinationSuggestions(true)}
+                      autoComplete="off"
+                    />
+                    {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {destinationSuggestions.map((dest) => (
+                          <div
+                            key={`${dest.type}-${dest.id}`}
+                            className="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                            onClick={() => handleDestinationSelect(dest)}
+                          >
+                            <div className="font-medium">{dest.name}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {dest.type === 'city' ? `${dest.country} • City` : 'Country'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                  </div>
                 <p className="text-xs text-slate-500 mt-2">Optional. Add a location to help participants know where the trip will take place.</p>
             </div>

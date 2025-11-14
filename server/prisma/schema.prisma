@@ -238,3 +238,18 @@ model Airline {
   country    String?
   callsign   String?
 }
+
+model Country {
+  id          Int      @id @default(autoincrement())
+  name        String
+  tzDatabase  String?
+  cities      City[]
+}
+
+model City {
+  id          Int      @id @default(autoincrement())
+  name        String
+  country     Country  @relation(fields: [countryId], references: [id])
+  countryId   Int
+  tzDatabase  String?
+}
