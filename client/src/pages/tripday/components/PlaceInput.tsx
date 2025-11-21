@@ -1,6 +1,4 @@
-import { fi } from "date-fns/locale";
 import React, { useState, useEffect, useRef } from "react";
-
 
 export interface Place {
   id: string;
@@ -12,50 +10,72 @@ interface PlaceInputProps {
   value: string | null;
   onChange: (val: string) => void;
   onPlaceSelect?: (place: Place) => void;
+  includedTypes?: string[]; // Filter by place types (e.g., ['lodging', 'hotel'])
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string; // Allow custom styling from parent
 }
 
-const PlaceInput: React.FC<PlaceInputProps> = ({ value, onChange, onPlaceSelect }) => {
+const PlaceInput: React.FC<PlaceInputProps> = ({ 
+  value, 
+  onChange, 
+  onPlaceSelect, 
+  includedTypes,
+  placeholder = "Enter a place",
+  disabled = false,
+  className = ""
+}) => {
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const debounceTimeout = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
 
-  // Initialize geocoder
   useEffect(() => {
-    if (window.google && window.google.maps) {
-      geocoderRef.current = new window.google.maps.Geocoder();
-    }
-  }, []);
-
-    useEffect(() => {
-      if (!value || !window.google || !window.google.maps || !window.google.maps.places || !isTyping) {
-        setSuggestions([]);
-        return;
+    if (!value || !window.google || !window.google.maps || !window.google.maps.places || !isTyping) {
+      setSuggestions([]);
+      return;
     }
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = window.setTimeout(() => {
-        setLoading(true);
-        google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({input: value})
-          .then(predictions => {
-            setSuggestions(predictions.suggestions || []);
-          })
-          .catch(error => {
-            console.error('Error fetching autocomplete suggestions:', error);
-            setSuggestions([]);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      }, 500);
-
-      return () => {
-        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+      setLoading(true);
+      
+      const requestOptions: any = {
+        input: value
       };
-    }, [value, isTyping]);
+
+      // Add type filtering if provided
+      // Note: includedPrimaryTypes might not work with all Google Maps API versions
+      // If filtering doesn't work, suggestions will show all place types
+      if (includedTypes && includedTypes.length > 0) {
+        requestOptions.includedPrimaryTypes = includedTypes;
+      }
+
+      console.log('Fetching suggestions with options:', requestOptions);
+
+      google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(requestOptions)
+        .then(predictions => {
+          console.log('Received predictions:', predictions);
+          const fetchedSuggestions = predictions.suggestions || [];
+          console.log('Number of suggestions:', fetchedSuggestions.length);
+          setSuggestions(fetchedSuggestions);
+        })
+        .catch(error => {
+          console.error('Error fetching autocomplete suggestions:', error);
+          console.error('Error details:', error.message, error.stack);
+          setSuggestions([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, 500);
+
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+  }, [value, isTyping, includedTypes]);
 
 
 
@@ -98,18 +118,31 @@ const PlaceInput: React.FC<PlaceInputProps> = ({ value, onChange, onPlaceSelect 
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
-      <input className="text-base bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+      <input 
+        className={className}
         value={value || ""}
         onChange={e => {
           setIsTyping(true);
           onChange(e.target.value)
         }}
-        placeholder="Enter a place"
-        style={{ width: "100%", padding: "8px" }}
+        placeholder={placeholder}
+        disabled={disabled}
+        style={{ width: "100%" }}
         autoComplete="off"
       />
-      {loading && <div style={{ position: "absolute", background: "white", zIndex: 2, width: "100%" }}>Loading...</div>}
-      {suggestions.length > 0 && (
+      {loading && (
+        <div style={{ 
+          position: "absolute", 
+          background: "white", 
+          zIndex: 10, 
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc"
+        }}>
+          Loading...
+        </div>
+      )}
+      {!loading && suggestions.length > 0 && (
         <ul style={{
           position: "absolute",
           background: "white",
@@ -118,22 +151,46 @@ const PlaceInput: React.FC<PlaceInputProps> = ({ value, onChange, onPlaceSelect 
           margin: 0,
           padding: 0,
           listStyle: "none",
-          zIndex: 2,
+          zIndex: 10,
           maxHeight: "200px",
-          overflowY: "auto"
+          overflowY: "auto",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
         }}>
-          {suggestions.map(s => (
+          {suggestions.map((s, index) => (
             <li
-              key={s.placePrediction?.placeId}
+              key={s.placePrediction?.placeId || index}
               onClick={() => {   
                 handleSuggestionSelect(s.placePrediction!);
               }}
-              style={{ padding: "8px", cursor: "pointer" }}
+              style={{ 
+                padding: "8px", 
+                cursor: "pointer",
+                borderBottom: index < suggestions.length - 1 ? "1px solid #eee" : "none"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#f0f0f0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "white";
+              }}
             >
               {s.placePrediction?.text.text}
             </li>
           ))}
         </ul>
+      )}
+      {!loading && isTyping && suggestions.length === 0 && value && value.length > 2 && (
+        <div style={{ 
+          position: "absolute", 
+          background: "white", 
+          zIndex: 10, 
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc",
+          color: "#666"
+        }}>
+          No results found
+        </div>
       )}
     </div>
   );

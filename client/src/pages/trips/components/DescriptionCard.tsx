@@ -34,7 +34,7 @@ export function DescriptionCard() {
 
 
     return (
-        <div className="border-1 rounded-xl py-3 h-full bg-white/80 shadow-sm">
+        <div className="border-1 rounded-xl py-3 h-full bg-white/80 dark:bg-slate-800 shadow-sm">
             <div className="flex px-4 gap-3 items-center justify-between">
                 <div className="flex items-center gap-3">
                     <IoDocumentTextOutline className="text-xl text-indigo-500" />
@@ -44,9 +44,9 @@ export function DescriptionCard() {
                 </div>
             </div>
             
-            <div className="relative p-4">
+            <div className="relative p-4 ">
                 <textarea
-                    className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8 resize-none"
+                    className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 dark:bg-slate-700 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8 resize-none"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Add a description for your trip..."

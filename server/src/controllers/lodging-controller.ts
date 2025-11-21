@@ -1,22 +1,23 @@
 import type { Request, Response } from "express";
 import lodgingService from "../services/lodging-service";
+import type { CreateLodgingInput, UpdateLodgingInput } from "../schemas/lodging-schema.js";
 
-export interface LodgingFormData {
-    tripId: string;
-    name: string;
-    address: string;
-    checkIn: Date;
-    checkOut: Date;
-    guests: number;
-}
+
 
 const addLodging = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const data: LodgingFormData = req.body;
+
+    const { tripId } = req.params;
+
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    const data: CreateLodgingInput = req.body;
     try {
-        const lodging = await lodgingService.create(data);
+        const lodging = await lodgingService.create(data, tripId);
         res.status(201).json(lodging);
     } catch (error) {
         res.status(500).json({ error: "Failed to add lodging" });
@@ -51,7 +52,7 @@ const updateLodging = async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Lodging ID is required" });
     }
 
-    const data: Partial<LodgingFormData> = req.body;
+    const data: UpdateLodgingInput = req.body;
     try {
         const lodging = await lodgingService.update(lodgingId, data);
         res.status(200).json(lodging);

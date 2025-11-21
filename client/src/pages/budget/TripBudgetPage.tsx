@@ -81,19 +81,12 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, expenseId?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string) => {
     if (!tripId) return;
 
     try {
-      if (expenseId) {
-        // Update existing expense
-        await budgetApi.updateExpense(expenseId, { description, cost, category });
-        toast.success('Expense updated successfully!');
-      } else {
-        // Add new expense
-        await budgetApi.addExpense(tripId, { description, cost, category, activityId });
-        toast.success('Expense added successfully!');
-      }
+      await budgetApi.addExpense(tripId, { description, cost, category, activityId });
+      toast.success('Expense added successfully!');
       
       await fetchBudgetSummary();
       await fetchActivities();
@@ -125,7 +118,10 @@ export function TripBudgetPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <BudgetOverviewCards summary={summary} />
+      <BudgetOverviewCards 
+        summary={summary} 
+        onEditBudget={() => setShowSetBudgetDialog(true)}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -143,6 +139,7 @@ export function TripBudgetPage() {
         onOpenChange={setShowSetBudgetDialog}
         onSubmit={handleSetBudget}
         defaultCurrency={summary.currency}
+        defaultTotalPerPerson={summary.totalPerPerson}
       />
 
       <AddExpenseDialog

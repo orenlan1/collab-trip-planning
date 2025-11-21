@@ -9,13 +9,20 @@ import type { CreateFlightInput, UpdateFlightInput } from "@/pages/flights/servi
 import { toast } from "react-toastify";
 import { useTripStore } from "@/stores/tripStore";
 import { format } from "date-fns";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit, FaMoneyBillWave } from "react-icons/fa";
+import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
+import { EditExpenseDialog, type Expense } from "@/pages/budget/components/EditExpenseDialog";
+import { budgetApi } from "@/pages/budget/services/budgetApi";
+import type { ExpenseCategory } from "@/pages/budget/types/budget";
+import { DatesSetter } from "./DatesSetter";
 
 
 export function FlightsCard() {
   const navigate = useNavigate();
   const { tripId } = useParams<{ tripId: string }>();
   const flights = useTripStore(state => state.flights);
+  const startDate = useTripStore(state => state.startDate);
+  const endDate = useTripStore(state => state.endDate);
   const addFlight = useTripStore(state => state.addFlight);
   const updateFlight = useTripStore(state => state.updateFlight);
   const deleteFlight = useTripStore(state => state.deleteFlight);
@@ -23,6 +30,12 @@ export function FlightsCard() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
+  const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
+  const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
+  const [expenseFlight, setExpenseFlight] = useState<Flight | null>(null);
+  const [showDatesSetter, setShowDatesSetter] = useState(false);
+
+  const hasNoTripDates = !startDate || !endDate;
 
   const formatToISO = (date: Date, time: string): string => {
     // Combine date and time into ISO format (YYYY-MM-DDTHH:mm:ssZ)
@@ -136,8 +149,72 @@ export function FlightsCard() {
     }
   };
 
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory) => {
+    if (!tripId || !expenseFlight?.activityId) return;
+
+    try {
+      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: expenseFlight.activityId });
+      const expense = response.data;
+      toast.success('Expense added successfully!');
+
+      // Update flight in store to include the new expense
+      const updatedFlight = {
+        ...expenseFlight,
+        activity: {
+          ...expenseFlight.activity,
+          id: expenseFlight.activityId!,
+          expense
+        }
+      } as Flight;
+      updateFlight(expenseFlight.id, updatedFlight);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory) => {
+    if (!expenseFlight) return;
+
+    try {
+      const response = await budgetApi.updateExpense(expenseId, { description, cost, category });
+      const expense = response.data;
+      toast.success('Expense updated successfully!');
+
+      // Update flight in store with the updated expense
+      const updatedFlight = {
+        ...expenseFlight,
+        activity: {
+          ...expenseFlight.activity,
+          id: expenseFlight.activityId!,
+          expense
+        }
+      } as Flight;
+      updateFlight(expenseFlight.id, updatedFlight);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleOpenExpenseDialog = (flight: Flight) => {
+    setExpenseFlight(flight);
+    if (flight.activity?.expense) {
+      setShowEditExpenseDialog(true);
+    } else {
+      setShowAddExpenseDialog(true);
+    }
+  };
+
+  const formatCost = (cost?: number) => {
+    if (cost === undefined || cost === null) return '';
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(cost);
+    } catch (e) {
+      return `$${cost}`;
+    }
+  };
+
   return (
-    <div className="border-1 rounded-xl py-3 bg-white/80 shadow-sm">
+    <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
       <div className="flex px-4 gap-3 items-center justify-between mb-4">
         <div className="flex gap-3 items-center">
           <IoAirplaneOutline className="text-xl text-indigo-500" />
@@ -151,6 +228,27 @@ export function FlightsCard() {
         </button>
       </div>
       
+      {/* Show message when trip has no dates */}
+      {hasNoTripDates && flights.length > 0 && (
+        <div className="px-4 py-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800 mb-2">
+            Your trip has no dates. Add trip dates to display flights in the itinerary.
+          </p>
+          {!showDatesSetter ? (
+            <button
+              onClick={() => setShowDatesSetter(true)}
+              className="text-sm bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+            >
+              Set Trip Dates
+            </button>
+          ) : (
+            <div className="mt-2">
+              <DatesSetter />
+            </div>
+          )}
+        </div>
+      )}
+
       {flights.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
           <div className="text-indigo-500 mb-4">
@@ -169,7 +267,7 @@ export function FlightsCard() {
           {flights.map((flight) => (
             <div 
               key={flight.id} 
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-gray-200 dark:bg-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -178,6 +276,20 @@ export function FlightsCard() {
                   <span className="text-sm text-gray-500">#{flight.flightNumber}</span>
                 </div>
                 <div className="flex items-center gap-3">
+                  {flight.activityId && (
+                    <button
+                      onClick={() => handleOpenExpenseDialog(flight)}
+                      className="text-green-600 hover:text-green-700 transition"
+                      title={flight.activity?.expense ? "Edit expense" : "Add expense"}
+                    >
+                      <FaMoneyBillWave className="w-4 h-4" />
+                      {flight.activity?.expense && (
+                        <span className="ml-1 text-xs font-semibold">
+                          {formatCost(flight.activity.expense.cost)}
+                        </span>
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={() => handleEditFlight(flight)}
                     className="text-indigo-500 hover:text-indigo-700 transition"
@@ -187,7 +299,7 @@ export function FlightsCard() {
                   </button>
                   <button
                     onClick={() => handleDeleteFlight(flight.id)}
-                    className="text-red-500 hover:text-red-700 transition"
+                    className="text-slate-400 hover:text-red-700 transition"
                     title="Delete flight"
                   >
                     <FaTrash className="w-4 h-4" />
@@ -235,6 +347,27 @@ export function FlightsCard() {
         onFlightUpdated={handleUpdateFlight}
         flight={editingFlight}
       />
+
+      {expenseFlight?.activityId && (
+        <>
+          <AddExpenseDialog
+            open={showAddExpenseDialog}
+            activity={{
+              id: expenseFlight.activityId,
+              name: `Flight to ${expenseFlight.to}`,
+            } as any}
+            onOpenChange={setShowAddExpenseDialog}
+            onSubmit={handleAddExpense}
+          />
+
+          <EditExpenseDialog
+            open={showEditExpenseDialog}
+            expense={expenseFlight.activity?.expense as Expense | null}
+            onOpenChange={setShowEditExpenseDialog}
+            onSubmit={handleEditExpense}
+          />
+        </>
+      )}
     </div>
   );
 }

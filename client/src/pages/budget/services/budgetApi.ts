@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { Budget, BudgetSummary, CreateBudgetInput, CreateExpenseInput } from '../types/budget';
+import type { Currency } from '@/types/currency';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
@@ -58,5 +59,11 @@ export const budgetApi = {
   getSummary: (tripId: string) => {
     console.log('API: Getting summary for trip:', tripId);
     return api.get<BudgetSummary>(`/trips/${tripId}/budget/summary`);
+  },
+
+  // Get all available currencies
+  getCurrencies: () => {
+    console.log('API: Getting currencies');
+    return api.get<{ success: boolean; data: Currency[] }>('/currencies');
   },
 };

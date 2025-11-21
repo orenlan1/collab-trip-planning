@@ -15,7 +15,7 @@ export function ParticipantsCard({ tripId }: ParticipantCardProps) {
   const members = useTripStore(state => state.members);
 
   return (
-    <div className="border-1 rounded-xl py-3 bg-white/80 shadow-sm">
+    <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
         <div className="flex px-4 gap-3 items-center">
             <FiUsers className="text-xl text-indigo-500" />
             <h1 className="font-semibold text-xl">Participants</h1>

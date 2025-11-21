@@ -1,14 +1,22 @@
 import { prisma } from '../prisma/client.js';
-import type { LodgingFormData } from '../controllers/lodging-controller.js';
+import type { CreateLodgingInput, UpdateLodgingInput } from '../schemas/lodging-schema.js';
 
-const create = async (data: LodgingFormData) => {
+const create = async (data: CreateLodgingInput, tripId: string) => {
+    const isTripExists = await prisma.trip.findUnique({
+        where: { id: tripId }
+    });
+
+    if (!isTripExists) {
+        throw new Error("Trip not found");
+    }
+
     return prisma.lodging.create({
         data: {
-            tripId: data.tripId,
+            tripId: tripId,
             name: data.name,
             address: data.address,
-            checkIn: data.checkIn,
-            checkOut: data.checkOut,
+            checkIn: data.checkIn!,
+            checkOut: data.checkOut!,
             guests: data.guests
         }
     });
@@ -23,7 +31,15 @@ const getByTripId = async (tripId: string) => {
     });
 };
 
-const update = async (lodgingId: string, data: Partial<LodgingFormData>) => {
+const update = async (lodgingId: string, data: UpdateLodgingInput) => {
+    const isLodgingExists = await prisma.lodging.findUnique({
+        where: { id: lodgingId }
+    });
+
+    if (!isLodgingExists) {
+        throw new Error("Lodging not found");
+    }
+
     return prisma.lodging.update({
         where: { id: lodgingId },
         data: {

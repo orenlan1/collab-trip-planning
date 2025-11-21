@@ -1,15 +1,31 @@
 import type { BudgetSummary } from '../types/budget';
+import { formatCurrencyAmount } from '@/lib/currency';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface BudgetOverviewCardsProps {
   summary: BudgetSummary;
+  onEditBudget?: () => void;
 }
 
-export function BudgetOverviewCards({ summary }: BudgetOverviewCardsProps) {
+export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCardsProps) {
   const spentPercentage = (summary.totalSpent / summary.totalBudget) * 100;
   const remainingPercentage = (summary.remaining / summary.totalBudget) * 100;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+    <div className="space-y-4 mb-8">
+      {/* Header with Edit Button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Budget Overview</h2>
+        {onEditBudget && (
+          <Button onClick={onEditBudget} variant="outline" size="sm">
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Budget
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {/* Total Budget */}
       <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
@@ -18,7 +34,7 @@ export function BudgetOverviewCards({ summary }: BudgetOverviewCardsProps) {
           </div>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900">
-          {summary.currency} {summary.totalBudget.toLocaleString()}
+          {formatCurrencyAmount(summary.totalBudget, summary.currency)}
         </div>
         <div className="text-sm text-gray-500">Total Budget</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
@@ -39,9 +55,11 @@ export function BudgetOverviewCards({ summary }: BudgetOverviewCardsProps) {
           </span>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900">
-          {summary.currency} {summary.totalSpent.toLocaleString()}
+          {formatCurrencyAmount(summary.totalSpent, summary.currency)}
         </div>
-        <div className="text-sm text-gray-500">Spent ({summary.currency} {summary.totalSpent / summary.numberOfMembers} per person)</div>
+        <div className="text-sm text-gray-500">
+          Spent ({formatCurrencyAmount(summary.totalSpent / summary.numberOfMembers, summary.currency)} per person)
+        </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div 
             className={`h-1 rounded-full ${
@@ -65,7 +83,7 @@ export function BudgetOverviewCards({ summary }: BudgetOverviewCardsProps) {
           </span>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900">
-          {summary.currency} {summary.remaining.toLocaleString()}
+          {formatCurrencyAmount(summary.remaining, summary.currency)}
         </div>
         <div className="text-sm text-gray-500">
           {summary.remaining < 0 ? 'Over Budget' : 'Remaining'}
@@ -91,13 +109,14 @@ export function BudgetOverviewCards({ summary }: BudgetOverviewCardsProps) {
           </span>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900">
-          {summary.currency} {summary.totalPerPerson.toLocaleString()}
+          {formatCurrencyAmount(summary.totalPerPerson, summary.currency)}
         </div>
         <div className="text-sm text-gray-500">Per Person</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div className="bg-purple-500 h-1 rounded-full" style={{ width: '100%' }}></div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

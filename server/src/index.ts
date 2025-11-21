@@ -11,6 +11,7 @@ import lodgingRoutes from './routes/lodging.js';
 import invitationRoutes from './routes/invitation.js';
 import messageRoutes from './routes/message.js';
 import budgetRoutes from './routes/budget.js';
+import currencyRoutes from './routes/currency.js';
 import airportRoutes from './routes/airport.js';
 import airlineRoutes from './routes/airline.js';
 import destinationRoutes from './routes/destination.js';
@@ -76,6 +77,7 @@ app.use('/api/airports', airportRoutes);
 app.use('/api/airlines', airlineRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api', budgetRoutes);
+app.use('/api', currencyRoutes);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

@@ -1,15 +1,19 @@
 import { useTripStore } from "@/stores/tripStore";
 import { useItineraryStore } from "@/stores/itineraryStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DateCard } from "./components/DateCard";
 import { TripDayPage } from "../tripday/TripDayPage";
 import { itinerariesApi } from "./services/api"; 
-import { format, set } from "date-fns";
 import { formatItineraryFromAPI } from "@/lib/utils";
 import type { Itinerary } from "@/types/itinerary";
+import { DatesSetter } from "../trips/components/DatesSetter";
 
 export function TripItineraryPage() {
   const itineraryId = useTripStore(state => state.itinerary.id);
+  const startDate = useTripStore(state => state.startDate);
+  const endDate = useTripStore(state => state.endDate);
+  const [showDatesSetter, setShowDatesSetter] = useState(false);
+  
   const { 
     days, 
     isLoading,
@@ -21,12 +25,12 @@ export function TripItineraryPage() {
     selectDay 
   } = useItineraryStore();
 
-  
   const selectedDay = selectedDayId ? days.find(day => day.id === selectedDayId) || null : null;
+  const hasNoTripDates = !startDate || !endDate;
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchItineraryData = async () => {
-      if (itineraryId) {
+      if (itineraryId && !hasNoTripDates) {
         try {
           setIsLoading(true);
           const response = await itinerariesApi.getItinerary(itineraryId);
@@ -42,8 +46,33 @@ export function TripItineraryPage() {
     };
 
     fetchItineraryData();
-  }, [itineraryId, setItineraryData]);
+  }, [itineraryId,startDate, endDate, setItineraryData, setIsLoading, setError]);
 
+  if (hasNoTripDates) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <div className="text-center mb-6 max-w-md">
+          <h2 className="text-xl font-semibold mb-3">Your trip has no dates</h2>
+          <p className="text-gray-600">
+            Add trip dates to start working on your itinerary.
+          </p>
+        </div>
+        
+        {!showDatesSetter ? (
+          <button
+            onClick={() => setShowDatesSetter(true)}
+            className="bg-indigo-500 hover:bg-indigo-600 transition text-white px-6 py-3 rounded-md"
+          >
+            Set Trip Dates
+          </button>
+        ) : (
+          <div className="mt-4">
+            <DatesSetter />
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>

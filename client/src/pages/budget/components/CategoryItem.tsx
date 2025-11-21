@@ -5,6 +5,7 @@ import { PiForkKnifeFill } from "react-icons/pi";
 import { FaCamera } from "react-icons/fa6";
 import { FaShoppingBag } from "react-icons/fa";
 import type { ReactElement } from 'react';
+import { formatCurrencyAmount } from '@/lib/currency';
 
 interface CategoryItemProps {
   category: ExpenseCategory;
@@ -72,12 +73,12 @@ export function CategoryItem({ category, spent, currency, totalSpent, numberOfMe
         <div className="text-right">
           <div className="text-sm text-gray-500">Spent</div>
           <div className="font-medium text-lg">
-            {currency} {spent.toLocaleString()}
+            {formatCurrencyAmount(spent, currency)}
           </div>
           <div>
             {numberOfMembers && numberOfMembers > 0 && (
               <span className="text-xs text-gray-500">
-                ({currency} {(spent / numberOfMembers).toLocaleString()} per person)
+                ({formatCurrencyAmount(spent / numberOfMembers, currency)} per person)
               </span>
             )}
           </div>

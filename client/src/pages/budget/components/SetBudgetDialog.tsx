@@ -1,21 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { budgetApi } from '../services/budgetApi';
+import type { Currency } from '@/types/currency';
+import { getCurrencySymbol } from '@/lib/currency';
 
 interface SetBudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (totalPerPerson: number, currency: string) => Promise<void>;
   defaultCurrency?: string;
+  defaultTotalPerPerson?: number;
 }
 
-export function SetBudgetDialog({ open, onOpenChange, onSubmit, defaultCurrency = 'USD' }: SetBudgetDialogProps) {
-  const [totalPerPerson, setTotalPerPerson] = useState('');
+export function SetBudgetDialog({ 
+  open, 
+  onOpenChange, 
+  onSubmit, 
+  defaultCurrency = 'USD',
+  defaultTotalPerPerson
+}: SetBudgetDialogProps) {
+  const [totalPerPerson, setTotalPerPerson] = useState(defaultTotalPerPerson?.toString() || '');
   const [currency, setCurrency] = useState(defaultCurrency);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Load currencies when dialog opens
+  useEffect(() => {
+    if (open && currencies.length === 0) {
+      loadCurrencies();
+    }
+  }, [open]);
+
+  // Update form when defaults change
+  useEffect(() => {
+    if (open) {
+      setTotalPerPerson(defaultTotalPerPerson?.toString() || '');
+      setCurrency(defaultCurrency);
+    }
+  }, [open, defaultTotalPerPerson, defaultCurrency]);
+
+  const loadCurrencies = async (): Promise<void> => {
+    setIsLoadingCurrencies(true);
+    try {
+      const response = await budgetApi.getCurrencies();
+      // Add symbols to currencies on the client side
+      const currenciesWithSymbols = response.data.data.map(curr => ({
+        ...curr,
+        symbol: getCurrencySymbol(curr.code)
+      }));
+      setCurrencies(currenciesWithSymbols);
+    } catch (err) {
+      console.error('Failed to load currencies:', err);
+      setError('Failed to load currencies. Using default options.');
+    } finally {
+      setIsLoadingCurrencies(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,15 +106,30 @@ export function SetBudgetDialog({ open, onOpenChange, onSubmit, defaultCurrency 
             </div>
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Input
-                id="currency"
-                type="text"
-                maxLength={3}
-                placeholder="USD"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                required
-              />
+              {isLoadingCurrencies ? (
+                <div className="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                  Loading currencies...
+                </div>
+              ) : (
+                <select
+                  id="currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                  disabled={isSubmitting}
+                >
+                  {currencies.length === 0 ? (
+                    <option value="USD">USD - United States Dollar</option>
+                  ) : (
+                    currencies.map((curr) => (
+                      <option key={curr.code} value={curr.code}>
+                        {curr.symbol} {curr.code} - {curr.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              )}
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
           </div>

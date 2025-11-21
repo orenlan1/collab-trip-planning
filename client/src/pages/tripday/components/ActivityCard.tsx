@@ -15,6 +15,7 @@ import {
 import { TimeSetter } from "./TimeSetter";
 import { useTripDayStore } from "@/stores/tripDayStore";
 import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
+import { EditExpenseDialog, type Expense } from "@/pages/budget/components/EditExpenseDialog";
 import { useParams } from "react-router-dom";
 import { budgetApi } from '../../budget/services/budgetApi';
 import type { ExpenseCategory } from '../../budget/types/budget';
@@ -30,6 +31,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
   const updateActivity = useTripDayStore(state => state.updateActivity);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
+  const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
 
   // Helper function to format time from ISO string to HH:MM (exact time, no timezone conversion)
   const formatTimeFromISO = (isoString: string): string => {
@@ -97,29 +99,31 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
   }
 };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, _activityId?: string, expenseId?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory) => {
     if (!tripId) return;
 
     try {
-      let expense;
-      
-      if (expenseId) {
-        // Update existing expense
-        const response = await budgetApi.updateExpense(expenseId, { description, cost, category });
-        expense = response.data;
-        toast.success('Expense updated successfully!');
-      } else {
-        // Add new expense
-        const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: activity.id });
-        expense = response.data;
-        toast.success('Expense added successfully!');
-      }
+      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: activity.id });
+      const expense = response.data;
+      toast.success('Expense added successfully!');
 
-      // Update activity in store to include the new/updated expense
-      if (expense) {
-        const updatedActivity = { ...activity, expense } as any;
-        updateActivity(activity.id!, updatedActivity);
-      }
+      // Update activity in store to include the new expense
+      const updatedActivity = { ...activity, expense } as any;
+      updateActivity(activity.id!, updatedActivity);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory) => {
+    try {
+      const response = await budgetApi.updateExpense(expenseId, { description, cost, category });
+      const expense = response.data;
+      toast.success('Expense updated successfully!');
+
+      // Update activity in store with the updated expense
+      const updatedActivity = { ...activity, expense } as any;
+      updateActivity(activity.id!, updatedActivity);
     } catch (error: any) {
       throw error;
     }
@@ -212,7 +216,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
                 {activity.expense ? (
                   <span 
                     className="ml-2 font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-800 cursor-pointer"
-                    onClick={() => setShowAddExpenseDialog(true)}
+                    onClick={() => setShowEditExpenseDialog(true)}
                   >
                     {formatCost(activity.expense.cost)}
                   </span>
@@ -226,9 +230,15 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
               <AddExpenseDialog
                 open={showAddExpenseDialog}
                 activity={activity}
-                expense={activity.expense || undefined}
                 onOpenChange={setShowAddExpenseDialog}
                 onSubmit={handleAddExpense}
+              />
+
+              <EditExpenseDialog
+                open={showEditExpenseDialog}
+                expense={activity.expense as Expense | null}
+                onOpenChange={setShowEditExpenseDialog}
+                onSubmit={handleEditExpense}
               />
 
               <div className="flex items-center hover:text-slate-800 cursor-pointer">

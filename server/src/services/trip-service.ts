@@ -3,8 +3,40 @@ import type {TripFormData, TripUpdateData } from '../controllers/trip-controller
 import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
 import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
+import { createActivityForFlight, findTripDayForFlight } from './flight-service.js';
 
+const MAX_TRIP_DURATION_DAYS = 365;
 
+/**
+ * Generate array of dates between start and end date (inclusive)
+ * @param startDate - Trip start date
+ * @param endDate - Trip end date
+ * @returns Array of Date objects representing each day in the range
+ * @throws Error if date range is invalid or exceeds maximum duration
+ */
+const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
+  if (endDate < startDate) {
+    throw new Error('End date must be after start date');
+  }
+
+  const dates: Date[] = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
+  let dayCount = 0;
+  
+  while (current <= end && dayCount < MAX_TRIP_DURATION_DAYS) {
+    const dateStr = current.toISOString().split('T')[0];
+    dates.push(new Date(`${dateStr}T00:00:00.000Z`));
+    current.setUTCDate(current.getUTCDate() + 1);
+    dayCount++;
+  }
+  
+  if (dayCount >= MAX_TRIP_DURATION_DAYS) {
+    throw new Error(`Trip duration exceeds maximum allowed length of ${MAX_TRIP_DURATION_DAYS} days`);
+  }
+  
+  return dates;
+};
 
 const create = async (data: CreateTripInput, creatorId: string) => {
 
@@ -130,9 +162,55 @@ const update = async (id: string, data: UpdateTripInput) => {
       throw new Error('Trip not found');
     }
 
+    // Case 1: Initial date setting - trip has no dates yet but dates are being added
+    if (!currentTrip.startDate && !currentTrip.endDate && data.startDate && data.endDate) {
+      if (!currentTrip.itinerary) {
+        throw new Error('Trip itinerary not found');
+      }
 
-    // Handle date range changes and excluded days
-    if ((data.startDate || data.endDate) && currentTrip.startDate && currentTrip.endDate) {
+      // Generate date range with validation
+      const newDates = generateDateRange(data.startDate, data.endDate);
+
+      if (newDates.length > 0) {
+        const newDaysData = newDates.map(date => ({
+          itineraryId: currentTrip.itinerary!.id,
+          date: date
+        }));
+
+        await tx.tripDay.createMany({
+          data: newDaysData
+        });
+      }
+
+      // Create activities for existing flights that fall within trip dates
+      const flights = await tx.flight.findMany({
+        where: { 
+          tripId: id,
+          activityId: null // Only flights without activities
+        }
+      });
+
+      if (flights.length > 0) {
+        for (const flight of flights) {
+          // Find the trip day that matches the flight departure date
+          const tripDay = await findTripDayForFlight(currentTrip.itinerary.id, new Date(flight.departure), tx);
+          
+          if (tripDay) {
+            // Create activity for the flight
+            const activity = await createActivityForFlight(flight, tripDay.id, tx);
+            
+            // Link the activity to the flight
+            await tx.flight.update({
+              where: { id: flight.id },
+              data: { activityId: activity.id }
+            });
+          }
+          // If tripDay is null, the flight date is outside trip dates - no activity created (correct behavior)
+        }
+      }
+    }
+    // Case 2: Date range modification - trip has existing dates and they're being changed
+    else if ((data.startDate || data.endDate) && currentTrip.startDate && currentTrip.endDate) {
       const newStartDate = data.startDate || currentTrip.startDate;
       const newEndDate = data.endDate || currentTrip.endDate;
 
@@ -177,19 +255,14 @@ const update = async (id: string, data: UpdateTripInput) => {
           day.date.toISOString().split('T')[0]
         );
 
-        // Generate all dates in the new range
-        const newDates: Date[] = [];
-        const current = new Date(newStartDate);
-        while (current <= newEndDate) {
-          const dateStr = current.toISOString().split('T')[0];
-          
-          // Only add dates that don't already exist
-          if (!currentDayDates.includes(dateStr)) {
-            newDates.push(new Date(`${dateStr}T00:00:00.000Z`));
-          }
-          
-          current.setUTCDate(current.getUTCDate() + 1);
-        }
+        // Generate all dates in the new range with validation
+        const allDatesInRange = generateDateRange(newStartDate, newEndDate);
+        
+        // Filter to only include dates that don't already exist
+        const newDates = allDatesInRange.filter(date => {
+          const dateStr = date.toISOString().split('T')[0];
+          return !currentDayDates.includes(dateStr);
+        });
 
         // Create new trip days for expanded dates
         if (newDates.length > 0) {

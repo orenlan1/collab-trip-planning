@@ -79,7 +79,7 @@ export function DestinationCard() {
 
 
   return (
-    <div className="border-1 rounded-xl py-3 h-full bg-white/80 shadow-sm">
+    <div className="border-1 rounded-xl py-3 h-full bg-white/80 dark:bg-slate-800 shadow-sm">
       <div className="flex px-4 gap-3 items-center">
         <FiMapPin className="text-xl text-indigo-500" />
         <h1 className="font-semibold text-xl">Destination</h1>
@@ -100,7 +100,7 @@ export function DestinationCard() {
         <input
           type="text"
           value={destination ?? ""}
-          className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"
+          className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 dark:bg-slate-700 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"
           onChange={(e) => handleDestinationChange(e.target.value)}
           onFocus={() => setShowDestinationSuggestions(true)}
           autoComplete="off"

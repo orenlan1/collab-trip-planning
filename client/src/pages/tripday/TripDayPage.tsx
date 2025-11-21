@@ -2,8 +2,9 @@ import { IoAdd } from "react-icons/io5";
 import { ActivityCard } from "./components/ActivityCard";
 import { useEffect, useState } from "react";
 import { tripDaysApi } from "./services/api";
-import CreateActivityModal from "./components/CreateActivityModal";
+import AddActivityDialog from "./components/AddActivityDialog";
 import { useTripDayStore } from "@/stores/tripDayStore";
+import { ChooseActivityTypeDialog } from "./components/ChooseActivityTypeDialog";
 
 interface TripDayPageProps {
     id: string;
@@ -14,7 +15,8 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 ];
 
 export const TripDayPage = ({ id }: TripDayPageProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showAddActivityDialog, setShowAddActivityDialog] = useState(false);
+    const [showCreateActivityModal, setShowCreateActivityModal] = useState(false);
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
 
     useEffect(() => {
@@ -34,12 +36,19 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
         fetchTripDayData();   
     }, [id]);
 
+    const handleActivityTypeSelected = (type: string) => {
+        if (type === 'ACTIVITIES') {
+            setShowCreateActivityModal(true);
+        }
+        // Other types will be implemented later
+    };
+
     const handleCreateActivity = async (placeName: string, address: string) => {
         try {
             const response = await tripDaysApi.addNewActivity(id, { name: placeName, address });
             console.log("Activity added for place:", placeName, response);
             addActivity(response.data);
-            setIsModalOpen(false);
+            setShowCreateActivityModal(false);
             
         } catch (error) {
             console.error("Failed to add activity:", error);
@@ -56,7 +65,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                 <div>
                     <button 
                         className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-md"
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => setShowAddActivityDialog(true)}
                     >
                         New Activity
                     </button>
@@ -81,7 +90,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                         <p className="text-gray-500 text-sm text-center mt-1">Create another activity for this day</p>
                         <button 
                             className="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-md"
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => setShowAddActivityDialog(true)}
                         >
                             Create Activity
                         </button>
@@ -95,10 +104,17 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                 </div>
             
             </div>
+
             
-            <CreateActivityModal
-                isOpen={isModalOpen}
-                onOpenChange={setIsModalOpen}
+            <ChooseActivityTypeDialog
+                open={showAddActivityDialog}
+                onOpenChange={setShowAddActivityDialog}
+                onActivityTypeSelected={handleActivityTypeSelected}
+            />
+
+            <AddActivityDialog
+                isOpen={showCreateActivityModal}
+                onOpenChange={setShowCreateActivityModal}
                 onSubmit={handleCreateActivity}
             />
         </div>
