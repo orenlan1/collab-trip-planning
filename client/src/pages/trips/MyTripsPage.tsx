@@ -3,15 +3,19 @@ import { Link } from 'react-router-dom';
 import { tripsApi } from './services/api';
 import type { Trip } from '@/types/trip';
 import { format } from 'date-fns';
-import { FaUsers, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaUsers, FaMapMarkerAlt, FaCalendarAlt, FaTrash } from 'react-icons/fa';
+import { DeleteTripDialog } from './components/DeleteTripDialog';
+import { toast } from 'react-toastify';
 
 export function MyTripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [deletingTripId, setDeletingTripId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const fetchTrips = async () => {
+    const fetchTrips = async (): Promise<void> => {
       try {
         const response = await tripsApi.getAll();
         console.log('API Response:', response.data);
@@ -26,6 +30,39 @@ export function MyTripsPage() {
 
     fetchTrips();
   }, []);
+
+  const handleDeleteClick = (e: React.MouseEvent, tripId: string): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeletingTripId(tripId);
+  };
+
+  const handleDeleteConfirm = async (): Promise<void> => {
+    if (!deletingTripId) return;
+
+    setIsDeleting(true);
+    try {
+      await tripsApi.delete(deletingTripId);
+      setTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== deletingTripId));
+      toast.success('Trip deleted successfully');
+      setDeletingTripId(null);
+    } catch (error) {
+      console.error('Failed to delete trip:', error);
+      toast.error('Failed to delete trip. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDialogClose = (): void => {
+    if (!isDeleting) {
+      setDeletingTripId(null);
+    }
+  };
+
+  const getTripToDelete = (): Trip | undefined => {
+    return trips.find((trip) => trip.id === deletingTripId);
+  };
 
   if (isLoading) {
     return (
@@ -152,18 +189,36 @@ export function MyTripsPage() {
                     </p>
                   )}
 
-                  {/* Members Count */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-gray-200 dark:border-slate-700">
-                    <FaUsers className="text-gray-500 dark:text-slate-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                      {trip.members?.length || 0} {trip.members?.length === 1 ? 'member' : 'members'}
-                    </span>
+                  {/* Members Count and Delete Button */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <FaUsers className="text-gray-500 dark:text-slate-400" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                        {trip.members?.length || 0} {trip.members?.length === 1 ? 'member' : 'members'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={(e) => handleDeleteClick(e, trip.id)}
+                      className="p-2 text-gray-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-500 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
+                      aria-label="Delete trip"
+                    >
+                      <FaTrash className="text-sm" />
+                    </button>
                   </div>
                 </div>
               </div>
             </Link>
           ))}
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <DeleteTripDialog
+          open={deletingTripId !== null}
+          tripTitle={getTripToDelete()?.title || ''}
+          isDeleting={isDeleting}
+          onOpenChange={handleDialogClose}
+          onConfirm={handleDeleteConfirm}
+        />
       </div>
     </div>
   );
