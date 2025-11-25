@@ -211,6 +211,8 @@ model Expense {
   description String
   cost        Float
   category    ExpenseCategory
+  currency    String @default("USD")
+  date        DateTime @db.Date
   activity    Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
   activityId  String? @unique
   createdAt   DateTime @default(now())

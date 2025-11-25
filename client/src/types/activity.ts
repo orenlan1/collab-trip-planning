@@ -13,6 +13,7 @@ export interface Activity {
     cost: number;
     description?: string | null;
     category?: string | null;
+    currency: string;
     createdAt?: string;
   } | null;
   createdAt: string;

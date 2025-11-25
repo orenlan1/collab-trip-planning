@@ -3,9 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { budgetApi } from '../services/budgetApi';
-import type { Currency } from '@/types/currency';
-import { getCurrencySymbol } from '@/lib/currency';
+import { useFetchCurrencies } from '../hooks/useFetchCurrencies';
 
 interface SetBudgetDialogProps {
   open: boolean;
@@ -24,17 +22,10 @@ export function SetBudgetDialog({
 }: SetBudgetDialogProps) {
   const [totalPerPerson, setTotalPerPerson] = useState(defaultTotalPerPerson?.toString() || '');
   const [currency, setCurrency] = useState(defaultCurrency);
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
-  const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  // Load currencies when dialog opens
-  useEffect(() => {
-    if (open && currencies.length === 0) {
-      loadCurrencies();
-    }
-  }, [open]);
+  
+  const { currencies, isLoading: isLoadingCurrencies } = useFetchCurrencies();
 
   // Update form when defaults change
   useEffect(() => {
@@ -43,24 +34,6 @@ export function SetBudgetDialog({
       setCurrency(defaultCurrency);
     }
   }, [open, defaultTotalPerPerson, defaultCurrency]);
-
-  const loadCurrencies = async (): Promise<void> => {
-    setIsLoadingCurrencies(true);
-    try {
-      const response = await budgetApi.getCurrencies();
-      // Add symbols to currencies on the client side
-      const currenciesWithSymbols = response.data.data.map(curr => ({
-        ...curr,
-        symbol: getCurrencySymbol(curr.code)
-      }));
-      setCurrencies(currenciesWithSymbols);
-    } catch (err) {
-      console.error('Failed to load currencies:', err);
-      setError('Failed to load currencies. Using default options.');
-    } finally {
-      setIsLoadingCurrencies(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

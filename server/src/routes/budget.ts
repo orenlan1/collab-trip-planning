@@ -40,6 +40,14 @@ router.get(
     budgetController.getSummary
 );
 
+// GET /api/trips/:tripId/budget/expenses - Get paginated expenses
+router.get(
+    "/trips/:tripId/budget/expenses",
+    isAuthenticated,
+    isTripMember,
+    budgetController.getExpenses
+);
+
 // PATCH /api/budget/expenses/:expenseId - Update an expense
 router.patch(
     "/budget/expenses/:expenseId",

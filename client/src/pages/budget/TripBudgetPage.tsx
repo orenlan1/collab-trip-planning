@@ -12,12 +12,22 @@ import { BudgetCategories } from './components/BudgetCategories';
 import { BudgetSummaryChart } from './components/BudgetSummaryChart';
 import { SetBudgetDialog } from './components/SetBudgetDialog';
 import { AddExpenseDialog } from './components/AddExpenseDialog';
+import { ExpensesList } from './components/ExpensesList';
+import type { Expense } from '@/types/expense';
+
 
 export function TripBudgetPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expensesPagination, setExpensesPagination] = useState({
+    page: 1,
+    hasMore: false,
+    total: 0
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [showSetBudgetDialog, setShowSetBudgetDialog] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
 
@@ -33,6 +43,37 @@ export function TripBudgetPage() {
     } catch (error) {
       console.error('Error fetching activities by itinerary:', error);
     }
+  };
+
+  const fetchExpenses = async (page: number = 1, append: boolean = false) => {
+    if (!tripId) return;
+
+    try {
+      setIsLoadingExpenses(true);
+      const response = await budgetApi.getExpenses(tripId, page, 5);
+      
+      if (append) {
+        setExpenses(prev => [...prev, ...response.data.expenses]);
+      } else {
+        setExpenses(response.data.expenses);
+      }
+      
+      setExpensesPagination({
+        page: response.data.pagination.page,
+        hasMore: response.data.pagination.hasMore,
+        total: response.data.pagination.total
+      });
+    } catch (error: any) {
+      console.error('Error fetching expenses:', error);
+      toast.error('Failed to load expenses');
+    } finally {
+      setIsLoadingExpenses(false);
+    }
+  };
+
+  const handleLoadMoreExpenses = () => {
+    const nextPage = expensesPagination.page + 1;
+    fetchExpenses(nextPage, true);
   };
 
   const fetchBudgetSummary = async () => {
@@ -66,6 +107,7 @@ export function TripBudgetPage() {
     console.log('TripBudgetPage mounted, tripId:', tripId);
     fetchBudgetSummary();
     fetchActivities();
+    fetchExpenses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
@@ -81,15 +123,16 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string) => {
     if (!tripId) return;
 
     try {
-      await budgetApi.addExpense(tripId, { description, cost, category, activityId });
+      await budgetApi.addExpense(tripId, { description, cost, category, activityId, currency, date });
       toast.success('Expense added successfully!');
       
       await fetchBudgetSummary();
       await fetchActivities();
+      await fetchExpenses(); // Refresh expenses list
     } catch (error: any) {
       throw error;
     }
@@ -124,10 +167,17 @@ export function TripBudgetPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <BudgetCategories 
             summary={summary} 
             onAddExpense={() => setShowAddExpenseDialog(true)}
+          />
+          
+          <ExpensesList 
+            expenses={expenses}
+            hasMore={expensesPagination.hasMore}
+            isLoading={isLoadingExpenses}
+            onLoadMore={handleLoadMoreExpenses}
           />
         </div>
 

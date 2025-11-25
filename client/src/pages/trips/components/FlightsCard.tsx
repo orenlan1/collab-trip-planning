@@ -15,6 +15,7 @@ import { EditExpenseDialog, type Expense } from "@/pages/budget/components/EditE
 import { budgetApi } from "@/pages/budget/services/budgetApi";
 import type { ExpenseCategory } from "@/pages/budget/types/budget";
 import { DatesSetter } from "./DatesSetter";
+import { formatCurrencyAmount } from "@/lib/currency";
 
 
 export function FlightsCard() {
@@ -149,11 +150,18 @@ export function FlightsCard() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string) => {
     if (!tripId || !expenseFlight?.activityId) return;
 
+    // Format flight departure date as YYYY-MM-DD in local time
+    const flightDate = new Date(expenseFlight.departure);
+    const year = flightDate.getFullYear();
+    const month = String(flightDate.getMonth() + 1).padStart(2, '0');
+    const day = String(flightDate.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
     try {
-      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: expenseFlight.activityId });
+      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: expenseFlight.activityId, currency, date: dateString });
       const expense = response.data;
       toast.success('Expense added successfully!');
 
@@ -172,11 +180,11 @@ export function FlightsCard() {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory) => {
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string) => {
     if (!expenseFlight) return;
 
     try {
-      const response = await budgetApi.updateExpense(expenseId, { description, cost, category });
+      const response = await budgetApi.updateExpense(expenseId, { description, cost, category, currency });
       const expense = response.data;
       toast.success('Expense updated successfully!');
 
@@ -204,14 +212,6 @@ export function FlightsCard() {
     }
   };
 
-  const formatCost = (cost?: number) => {
-    if (cost === undefined || cost === null) return '';
-    try {
-      return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(cost);
-    } catch (e) {
-      return `$${cost}`;
-    }
-  };
 
   return (
     <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
@@ -285,7 +285,7 @@ export function FlightsCard() {
                       <FaMoneyBillWave className="w-4 h-4" />
                       {flight.activity?.expense && (
                         <span className="ml-1 text-xs font-semibold">
-                          {formatCost(flight.activity.expense.cost)}
+                          {formatCurrencyAmount(flight.activity.expense.cost, flight.activity.expense.currency)}
                         </span>
                       )}
                     </button>
@@ -315,7 +315,7 @@ export function FlightsCard() {
                     {format(new Date(flight.departure), 'MMM dd, yyyy')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {format(new Date(flight.departure), 'HH:mm')}
+                    {flight.departure.split('T')[1].substring(0, 5)}
                   </p>
                 </div>
                 
@@ -326,7 +326,7 @@ export function FlightsCard() {
                     {format(new Date(flight.arrival), 'MMM dd, yyyy')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {format(new Date(flight.arrival), 'HH:mm')}
+                    {flight.arrival.split('T')[1].substring(0, 5)}
                   </p>
                 </div>
               </div>

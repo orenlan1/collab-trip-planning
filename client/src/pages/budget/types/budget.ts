@@ -22,11 +22,16 @@ export interface Expense {
   description: string;
   cost: number;
   category: ExpenseCategory;
+  currency: string;
+  date: string;
   activityId: string | null;
   activity?: {
     id: string;
     name: string | null;
     description: string | null;
+    tripDay?: {
+      date: string;
+    } | null;
   } | null;
   createdAt: string;
   updatedAt: string;
@@ -55,5 +60,7 @@ export interface CreateExpenseInput {
   description: string;
   cost: number;
   category: ExpenseCategory;
+  currency?: string;
   activityId?: string | null;
+  date?: string;
 }

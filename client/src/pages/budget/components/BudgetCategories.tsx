@@ -18,10 +18,10 @@ const categoryOrder: Array<keyof Pick<BudgetSummary, 'ACCOMMODATION' | 'TRANSPOR
 
 export function BudgetCategories({ summary, onAddExpense }: BudgetCategoriesProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border">
       <div className="p-4 md:p-6 border-b">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">Spending by Category</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Spending by Category</h2>
           <Button onClick={onAddExpense} size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Expense

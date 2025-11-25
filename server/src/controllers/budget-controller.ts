@@ -169,11 +169,44 @@ const getSummary = async (req: Request, res: Response) => {
     }
 };
 
+// GET /api/trips/:tripId/budget/expenses - Get paginated expenses
+const getExpenses = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { tripId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    if (page < 1 || limit < 1 || limit > 50) {
+        return res.status(400).json({ error: "Invalid pagination parameters" });
+    }
+
+    try {
+        const result = await budgetService.getExpenses(tripId, page, limit);
+        res.status(200).json(result);
+    } catch (error: any) {
+        console.error("Error fetching expenses:", error);
+        
+        if (error.message === 'Budget not found for this trip') {
+            return res.status(404).json({ error: error.message });
+        }
+        
+        res.status(500).json({ error: "Failed to fetch expenses" });
+    }
+};
+
 export default {
     createOrUpdateBudget,
     getBudget,
     addExpense,
     updateExpense,
     deleteExpense,
-    getSummary
+    getSummary,
+    getExpenses
 };

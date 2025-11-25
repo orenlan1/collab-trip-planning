@@ -1,13 +1,21 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import type { ExpenseCategory } from '../types/budget';
 import type { Activity } from '@/types/activity';
+import { useFetchCurrencies } from '../hooks/useFetchCurrencies';
 
 export interface ExpenseFormData {
   description: string;
   cost: string;
   category: ExpenseCategory;
+  currency: string;
   selectedActivityId?: string;
+  date?: Date;
 }
 
 interface ExpenseFormProps {
@@ -17,6 +25,8 @@ interface ExpenseFormProps {
   linkToActivity?: boolean;
   onLinkToActivityChange?: (linked: boolean) => void;
   showActivitySelector?: boolean;
+  showCurrencySelector?: boolean;
+  showDatePicker?: boolean; // Control date picker visibility externally
   error?: string;
 }
 
@@ -35,11 +45,20 @@ export function ExpenseForm({
   linkToActivity = false,
   onLinkToActivityChange,
   showActivitySelector = false,
+  showCurrencySelector = false,
+  showDatePicker,
   error,
 }: ExpenseFormProps) {
-  const handleChange = (field: keyof ExpenseFormData, value: string) => {
+  const { currencies, isLoading: isLoadingCurrencies } = useFetchCurrencies();
+
+  const handleChange = (field: keyof ExpenseFormData, value: string | Date) => {
     onFormDataChange({ [field]: value });
   };
+
+  // Show date picker based on prop, or calculate from linkToActivity state
+  const shouldShowDatePicker = showDatePicker !== undefined 
+    ? showDatePicker 
+    : (!linkToActivity || !formData.selectedActivityId);
 
   return (
     <div className="space-y-4 py-4">
@@ -127,6 +146,71 @@ export function ExpenseForm({
           ))}
         </select>
       </div>
+
+      {/* Date picker - only shown when not linked to activity */}
+      {shouldShowDatePicker && (
+        <div className="space-y-2">
+          <Label htmlFor="date">Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant="outline"
+                className="w-full justify-start text-left font-normal"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.date ? format(formData.date, 'PPP') : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={formData.date}
+                onSelect={(date) => handleChange('date', date || new Date())}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <p className="text-xs text-gray-500">
+            Select the date when this expense occurred.
+          </p>
+        </div>
+      )}
+
+      {/* Helper text for activity-linked expenses */}
+      {linkToActivity && formData.selectedActivityId && (
+        <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-3">
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            The expense date will automatically match the activity's scheduled day.
+          </p>
+        </div>
+      )}
+
+      {showCurrencySelector && (
+        <div className="space-y-2">
+          <Label htmlFor="currency">Currency</Label>
+          {isLoadingCurrencies ? (
+            <div className="flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+              Loading currencies...
+            </div>
+          ) : (
+            <select
+              id="currency"
+              value={formData.currency}
+              onChange={(e) => handleChange('currency', e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              required
+            >
+              <option value="">Select currency...</option>
+              {currencies.map((curr) => (
+                <option key={curr.code} value={curr.code}>
+                  {curr.symbol} {curr.code} - {curr.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
 
       {error && <p className="text-sm text-red-500">{error}</p>}
     </div>

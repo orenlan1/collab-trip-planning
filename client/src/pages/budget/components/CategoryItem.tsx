@@ -66,18 +66,18 @@ export function CategoryItem({ category, spent, currency, totalSpent, numberOfMe
             {config.icon}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{config.name}</h3>
-            <p className="text-sm text-gray-500">{config.description}</p>
+            <h3 className="font-medium text-gray-900 dark:text-white">{config.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-300">{config.description}</p>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500">Spent</div>
+          <div className="text-sm text-gray-500 dark:text-gray-300">Spent</div>
           <div className="font-medium text-lg">
             {formatCurrencyAmount(spent, currency)}
           </div>
           <div>
             {numberOfMembers && numberOfMembers > 0 && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-300">
                 ({formatCurrencyAmount(spent / numberOfMembers, currency)} per person)
               </span>
             )}
@@ -87,7 +87,7 @@ export function CategoryItem({ category, spent, currency, totalSpent, numberOfMe
 
       {/* Percentage bar showing proportion of total spending */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-300">
           <span>{percentage.toFixed(1)}% of total spending</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">

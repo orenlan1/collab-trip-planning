@@ -9,6 +9,9 @@ export interface Expense {
   description?: string | null;
   cost: number;
   category?: string | null;
+  currency?: string | null;
+  date?: string;
+  activityId?: string | null;
   createdAt?: string;
 }
 
@@ -16,7 +19,7 @@ interface EditExpenseDialogProps {
   open: boolean;
   expense: Expense | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (expenseId: string, description: string, cost: number, category: ExpenseCategory) => Promise<void>;
+  onSubmit: (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string, date?: string) => Promise<void>;
 }
 
 export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: EditExpenseDialogProps) {
@@ -24,9 +27,13 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
     description: expense?.description || '',
     cost: expense?.cost?.toString() || '',
     category: (expense?.category as ExpenseCategory) || 'FOOD',
+    currency: expense?.currency || '',
+    date: expense?.date ? new Date(expense.date) : new Date(),
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  
+  const isLinkedToActivity = !!expense?.activityId;
 
   const handleFormDataChange = (data: Partial<ExpenseFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -52,9 +59,29 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       return;
     }
 
+    if (!formData.currency.trim()) {
+      setError('Please select a currency');
+      return;
+    }
+
+    // Validate date for non-activity expenses
+    if (!isLinkedToActivity && !formData.date) {
+      setError('Please select a date');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await onSubmit(expense.id, formData.description, amount, formData.category);
+      // Only pass date if expense is not linked to activity, format in local time
+      let dateString: string | undefined;
+      if (!isLinkedToActivity && formData.date) {
+        const year = formData.date.getFullYear();
+        const month = String(formData.date.getMonth() + 1).padStart(2, '0');
+        const day = String(formData.date.getDate()).padStart(2, '0');
+        dateString = `${year}-${month}-${day}`;
+      }
+      
+      await onSubmit(expense.id, formData.description, amount, formData.category, formData.currency, dateString);
       onOpenChange(false);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update expense');
@@ -71,6 +98,8 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
         description: expense.description || '',
         cost: expense.cost?.toString() || '',
         category: (expense.category as ExpenseCategory) || 'FOOD',
+        currency: expense.currency || '',
+        date: expense.date ? new Date(expense.date) : new Date(),
       });
     }
     setError('');
@@ -82,6 +111,8 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       description: expense.description || '',
       cost: expense.cost?.toString() || '',
       category: (expense.category as ExpenseCategory) || 'FOOD',
+      currency: expense.currency || '',
+      date: expense.date ? new Date(expense.date) : new Date(),
     });
   }
 
@@ -92,9 +123,19 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
           <DialogTitle>Edit Expense</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
+          {isLinkedToActivity && (
+            <div className="mb-4 rounded-md bg-blue-50 dark:bg-blue-950 p-3">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                This expense is linked to an activity. The date cannot be changed and is automatically set to the activity's scheduled day.
+              </p>
+            </div>
+          )}
           <ExpenseForm
             formData={formData}
             onFormDataChange={handleFormDataChange}
+            showCurrencySelector={true}
+            linkToActivity={isLinkedToActivity}
+            showDatePicker={!isLinkedToActivity} // Hide date picker for activity-linked expenses
             error={error}
           />
           <DialogFooter>

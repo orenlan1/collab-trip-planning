@@ -20,6 +20,7 @@ import { useParams } from "react-router-dom";
 import { budgetApi } from '../../budget/services/budgetApi';
 import type { ExpenseCategory } from '../../budget/types/budget';
 import { toast } from "react-toastify";
+import { formatCurrencyAmount } from "@/lib/currency";
 
 interface ActivityCardProps {
   activity: Activity;
@@ -33,24 +34,20 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
   const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
 
-  // Helper function to format time from ISO string to HH:MM (exact time, no timezone conversion)
-  const formatTimeFromISO = (isoString: string): string => {
-    // Extract time directly from ISO string: "2025-09-12T07:00:00.000Z" -> "7:00"
-    const timePart = isoString.split('T')[1].split('.')[0]; // Gets "07:00:00"
-    const [hours, minutes] = timePart.split(':');
-    const hour24 = parseInt(hours, 10);
-    const formattedHour = hour24.toString(); // Remove leading zero: "07" -> "7"
-    return `${formattedHour}:${minutes}`;
-  };
-
-  // Helper function to display time range
+  // Helper function to display time range from backend-formatted ISO strings
   const formatTimeDisplay = (startTime?: string, endTime?: string): string => {
     if (!startTime) return "Add time";
     
-    const formattedStart = formatTimeFromISO(startTime);
+    // Backend sends "2025-09-12T07:00:00" (no milliseconds, no Z)
+    // Extract time: "07:00:00" -> "7:00"
+    const startTimePart = startTime.split('T')[1]; // "07:00:00"
+    const [hours, minutes] = startTimePart.split(':');
+    const formattedStart = `${parseInt(hours, 10)}:${minutes}`;
     
     if (endTime) {
-      const formattedEnd = formatTimeFromISO(endTime);
+      const endTimePart = endTime.split('T')[1];
+      const [endHours, endMinutes] = endTimePart.split(':');
+      const formattedEnd = `${parseInt(endHours, 10)}:${endMinutes}`;
       return `${formattedStart} - ${formattedEnd}`;
     }
     
@@ -99,11 +96,17 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
   }
 };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string) => {
     if (!tripId) return;
 
+    // Format tripDay date as YYYY-MM-DD in local time (date is the tripDay date prop)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
     try {
-      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: activity.id });
+      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: activity.id, currency, date: dateString });
       const expense = response.data;
       toast.success('Expense added successfully!');
 
@@ -115,9 +118,9 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory) => {
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string) => {
     try {
-      const response = await budgetApi.updateExpense(expenseId, { description, cost, category });
+      const response = await budgetApi.updateExpense(expenseId, { description, cost, category, currency });
       const expense = response.data;
       toast.success('Expense updated successfully!');
 
@@ -126,15 +129,6 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
       updateActivity(activity.id!, updatedActivity);
     } catch (error: any) {
       throw error;
-    }
-  };
-
-  const formatCost = (cost?: number) => {
-    if (cost === undefined || cost === null) return '';
-    try {
-      return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(cost);
-    } catch (e) {
-      return `$${cost}`;
     }
   };
 
@@ -218,7 +212,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
                     className="ml-2 font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-800 cursor-pointer"
                     onClick={() => setShowEditExpenseDialog(true)}
                   >
-                    {formatCost(activity.expense.cost)}
+                    {formatCurrencyAmount(activity.expense.cost, activity.expense.currency)}
                   </span>
                 ) : (
                   <button className="ml-2 text-sm hover:text-slate-800 cursor-pointer" onClick={() => setShowAddExpenseDialog(true)}>

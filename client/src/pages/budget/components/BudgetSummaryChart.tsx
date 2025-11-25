@@ -46,9 +46,9 @@ export function BudgetSummaryChart({ summary }: BudgetSummaryChartProps) {
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border">
       <div className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Spending Distribution</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Spending Distribution</h3>
         
         {totalSpent > 0 ? (
           <>
@@ -102,9 +102,9 @@ export function BudgetSummaryChart({ summary }: BudgetSummaryChartProps) {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: config.color }}
                       ></div>
-                      <span className="text-sm text-gray-700">{config.name}</span>
+                      <span className="text-sm text-gray-700 dark:text-white">{config.name}</span>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {cat.percentage.toFixed(1)}%
                     </span>
                   </div>

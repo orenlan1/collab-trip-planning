@@ -1,6 +1,76 @@
 import { prisma } from '../prisma/client.js';
 import type { CreateOrUpdateBudgetInput, CreateExpenseInput } from '../schemas/budget-schema.js';
 import type { ExpenseCategory } from '@prisma/client';
+import { convertCurrency } from '../apiClients/unirate/unirate.js';
+
+/**
+ * Group expenses by currency and category, then aggregate totals with minimal API calls
+ * @param expenses - Array of expenses with cost, currency, and category
+ * @param targetCurrency - Currency to convert all amounts to
+ * @returns Promise resolving to expenses aggregated by category in target currency
+ */
+const aggregateExpensesByCategoryWithConversion = async (
+    expenses: Array<{ cost: number; currency: string; category: ExpenseCategory }>,
+    targetCurrency: string
+): Promise<Record<ExpenseCategory, number>> => {
+    // Initialize result with all categories at 0
+    const expensesByCategory: Record<ExpenseCategory, number> = {
+        TRANSPORTATION: 0,
+        ACCOMMODATION: 0,
+        ACTIVITIES: 0,
+        FOOD: 0,
+        MISCELLANEOUS: 0
+    };
+
+    // Group expenses by currency and category: { currency: { category: totalAmount } }
+    const groupedByCurrencyAndCategory: Record<string, Record<ExpenseCategory, number>> = {};
+    
+    for (const expense of expenses) {
+        if (!groupedByCurrencyAndCategory[expense.currency]) {
+            groupedByCurrencyAndCategory[expense.currency] = {
+                TRANSPORTATION: 0,
+                ACCOMMODATION: 0,
+                ACTIVITIES: 0,
+                FOOD: 0,
+                MISCELLANEOUS: 0
+            };
+        }
+        const categoryTotals = groupedByCurrencyAndCategory[expense.currency];
+        if (categoryTotals) {
+            categoryTotals[expense.category] += expense.cost;
+        }
+    }
+
+    // Convert each currency group to target currency (one API call per unique currency)
+    for (const [currency, categoryTotals] of Object.entries(groupedByCurrencyAndCategory)) {
+        // Skip conversion if already in target currency
+        if (currency === targetCurrency) {
+            for (const category of Object.keys(categoryTotals) as ExpenseCategory[]) {
+                expensesByCategory[category] += categoryTotals[category];
+            }
+        } else {
+            // Get exchange rate for this currency (1 API call per unique currency)
+            try {
+                // Convert 1 unit to get the rate
+                const response = await convertCurrency(currency, targetCurrency, 1);
+                const rate = response.result as number;
+                
+                // Apply rate to all categories for this currency
+                for (const category of Object.keys(categoryTotals) as ExpenseCategory[]) {
+                    expensesByCategory[category] += categoryTotals[category] * rate;
+                }
+            } catch (error) {
+                console.error(`Failed to convert from ${currency} to ${targetCurrency}:`, error);
+                // Use original amounts if conversion fails
+                for (const category of Object.keys(categoryTotals) as ExpenseCategory[]) {
+                    expensesByCategory[category] += categoryTotals[category];
+                }
+            }
+        }
+    }
+
+    return expensesByCategory;
+};
 
 // Create or update a budget for a trip
 const createOrUpdate = async (tripId: string, data: CreateOrUpdateBudgetInput) => {
@@ -66,26 +136,18 @@ const getBudgetByTripId = async (tripId: string) => {
         return null;
     }
 
-    // Aggregate expenses by category using SQL groupBy
-    const aggregatedExpenses = await prisma.expense.groupBy({
-        by: ['category'],
-        _sum: { cost: true },
-        where: { budgetId: budget.id }
+    // Get all expenses with their currencies
+    const expenses = await prisma.expense.findMany({
+        where: { budgetId: budget.id },
+        select: {
+            category: true,
+            cost: true,
+            currency: true
+        }
     });
 
-    // Convert to record format
-    const expensesByCategory: Record<ExpenseCategory, number> = {} as Record<ExpenseCategory, number>;
-    
-    // Ensure all categories are present
-    const allCategories: ExpenseCategory[] = ['TRANSPORTATION', 'ACCOMMODATION', 'ACTIVITIES', 'FOOD', 'MISCELLANEOUS'];
-    allCategories.forEach(category => {
-        expensesByCategory[category] = 0;
-    });
-
-    // Fill in actual values
-    aggregatedExpenses.forEach(item => {
-        expensesByCategory[item.category] = item._sum.cost || 0;
-    });
+    // Use optimized aggregation with minimal API calls
+    const expensesByCategory = await aggregateExpensesByCategoryWithConversion(expenses, budget.currency);
 
     return {
         ...budget,
@@ -104,14 +166,21 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         throw new Error('Budget does not exist for this trip. Please create a budget first.');
     }
 
-    // Validate activityId if provided
+    let expenseDate: Date;
+
+    // Validate activityId if provided and get date from trip day
     if (data.activityId) {
         const activity = await prisma.activity.findUnique({
             where: { id: data.activityId },
             include: {
                 tripDay: {
-                    include: {
-                        itinerary: true
+                    select: {
+                        date: true,
+                        itinerary: {
+                            select: {
+                                tripId: true
+                            }
+                        }
                     }
                 }
             }
@@ -124,6 +193,19 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         if (activity.tripDay.itinerary.tripId !== tripId) {
             throw new Error('Activity does not belong to this trip');
         }
+
+        // Use the trip day's date (already a Date object, strip time component)
+        const dateStr = activity.tripDay.date.toISOString().split('T')[0] as string;
+        expenseDate = new Date(dateStr);
+    } else {
+        // If no activity, date must be provided or use current date
+        if (data.date) {
+            expenseDate = new Date(data.date);
+        } else {
+            // Default to today's date if not provided
+            const todayStr = new Date().toISOString().split('T')[0] as string;
+            expenseDate = new Date(todayStr);
+        }
     }
 
     // Create the expense
@@ -132,11 +214,24 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
             budgetId: budget.id,
             description: data.description,
             cost: data.cost,
+            currency: data.currency,
             category: data.category,
+            date: expenseDate,
             activityId: data.activityId || null
         },
         include: {
-            activity: true
+            activity: {
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    tripDay: {
+                        select: {
+                            date: true
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -153,15 +248,34 @@ const updateExpense = async (expenseId: string, data: Partial<CreateExpenseInput
         throw new Error('Expense not found');
     }
 
+    const updateData: any = {
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.cost !== undefined && { cost: data.cost }),
+        ...(data.category !== undefined && { category: data.category }),
+        ...(data.currency !== undefined && { currency: data.currency }),
+    };
+
+    // Only update date if provided and expense is not linked to an activity
+    if (data.date && !expense.activityId) {
+        updateData.date = new Date(data.date);
+    }
+
     const updatedExpense = await prisma.expense.update({
         where: { id: expenseId },
-        data: {
-            ...(data.description !== undefined && { description: data.description }),
-            ...(data.cost !== undefined && { cost: data.cost }),
-            ...(data.category !== undefined && { category: data.category }),
-        },
+        data: updateData,
         include: {
-            activity: true
+            activity: {
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    tripDay: {
+                        select: {
+                            date: true
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -203,29 +317,21 @@ const getSummary = async (tripId: string) => {
         throw new Error('Budget not found for this trip');
     }
 
-    // Aggregate expenses by category using SQL groupBy
-    const aggregatedExpenses = await prisma.expense.groupBy({
-        by: ['category'],
-        _sum: { cost: true },
-        where: { budgetId: budget.id }
+    // Get all expenses with their currencies
+    const expenses = await prisma.expense.findMany({
+        where: { budgetId: budget.id },
+        select: {
+            category: true,
+            cost: true,
+            currency: true
+        }
     });
 
-    // Convert to record format
-    const expensesByCategory: Record<ExpenseCategory, number> = {} as Record<ExpenseCategory, number>;
-    
-    // Ensure all categories are present
-    const allCategories: ExpenseCategory[] = ['TRANSPORTATION', 'ACCOMMODATION', 'ACTIVITIES', 'FOOD', 'MISCELLANEOUS'];
-    allCategories.forEach(category => {
-        expensesByCategory[category] = 0;
-    });
+    // Use optimized aggregation with minimal API calls
+    const expensesByCategory = await aggregateExpensesByCategoryWithConversion(expenses, budget.currency);
 
-    // Fill in actual values and calculate total spent
-    let totalSpent = 0;
-    aggregatedExpenses.forEach(item => {
-        const cost = item._sum.cost || 0;
-        expensesByCategory[item.category] = cost;
-        totalSpent += cost;
-    });
+    // Calculate total spent from all categories
+    const totalSpent = Object.values(expensesByCategory).reduce((sum, amount) => sum + amount, 0);
 
     // Calculate total budget (per person * number of members)
     const numberOfMembers = budget.trip.members.length;
@@ -245,11 +351,89 @@ const getSummary = async (tripId: string) => {
     };
 };
 
+// Get paginated expenses for a trip
+const getExpenses = async (tripId: string, page: number, limit: number): Promise<{
+    expenses: Array<{
+        id: string;
+        description: string;
+        cost: number;
+        currency: string;
+        category: ExpenseCategory;
+        date: Date;
+        activityId: string | null;
+        activity: { id: string; name: string | null; description: string | null; tripDay: { date: Date } | null } | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasMore: boolean;
+    };
+}> => {
+    const budget = await prisma.budget.findUnique({
+        where: { tripId }
+    });
+
+    if (!budget) {
+        throw new Error('Budget not found for this trip');
+    }
+
+    // Calculate offset for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count of expenses
+    const total = await prisma.expense.count({
+        where: { budgetId: budget.id }
+    });
+
+    // Get paginated expenses
+    const expenses = await prisma.expense.findMany({
+        where: { budgetId: budget.id },
+        include: {
+            activity: {
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    tripDay: {
+                        select: {
+                            date: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            date: 'desc' // Order by expense date, not createdAt
+        },
+        skip,
+        take: limit
+    });
+
+    const totalPages = Math.ceil(total / limit);
+    const hasMore = page < totalPages;
+
+    return {
+        expenses,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasMore
+        }
+    };
+};
+
 export default {
     createOrUpdate,
     getBudgetByTripId,
     addExpense,
     updateExpense,
     deleteExpense,
-    getSummary
+    getSummary,
+    getExpenses
 };

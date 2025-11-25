@@ -27,23 +27,23 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {/* Total Budget */}
-      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-green-100 rounded-lg">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
           </div>
         </div>
-        <div className="text-2xl md:text-3xl font-bold text-gray-900">
+        <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           {formatCurrencyAmount(summary.totalBudget, summary.currency)}
         </div>
-        <div className="text-sm text-gray-500">Total Budget</div>
+        <div className="text-sm text-gray-500 dark:text-gray-300">Total Budget</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div className="bg-green-500 h-1 rounded-full" style={{ width: '100%' }}></div>
         </div>
       </div>
 
       {/* Spent */}
-      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-blue-100 rounded-lg">
             <div className="w-4 h-4 bg-blue-500 rounded"></div>
@@ -54,10 +54,10 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
             {spentPercentage.toFixed(1)}%
           </span>
         </div>
-        <div className="text-2xl md:text-3xl font-bold text-gray-900">
+        <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           {formatCurrencyAmount(summary.totalSpent, summary.currency)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-300">
           Spent ({formatCurrencyAmount(summary.totalSpent / summary.numberOfMembers, summary.currency)} per person)
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
@@ -71,7 +71,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       </div>
 
       {/* Remaining */}
-      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-orange-100 rounded-lg">
             <div className="w-4 h-4 bg-orange-500 rounded"></div>
@@ -82,10 +82,10 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
             {remainingPercentage.toFixed(1)}%
           </span>
         </div>
-        <div className="text-2xl md:text-3xl font-bold text-gray-900">
+        <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           {formatCurrencyAmount(summary.remaining, summary.currency)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-300">
           {summary.remaining < 0 ? 'Over Budget' : 'Remaining'}
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
@@ -99,19 +99,19 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       </div>
 
       {/* Per Person */}
-      <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-purple-100 rounded-lg">
             <div className="w-4 h-4 bg-purple-500 rounded"></div>
           </div>
-          <span className="text-gray-500 text-sm font-medium">
+          <span className="text-gray-500 dark:text-gray-300 text-sm font-medium">
             {summary.numberOfMembers} {summary.numberOfMembers === 1 ? 'Person' : 'People'}
           </span>
         </div>
-        <div className="text-2xl md:text-3xl font-bold text-gray-900">
+        <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           {formatCurrencyAmount(summary.totalPerPerson, summary.currency)}
         </div>
-        <div className="text-sm text-gray-500">Per Person</div>
+        <div className="text-sm text-gray-500 dark:text-gray-300">Per Person</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div className="bg-purple-500 h-1 rounded-full" style={{ width: '100%' }}></div>
         </div>

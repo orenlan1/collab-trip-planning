@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { Budget, BudgetSummary, CreateBudgetInput, CreateExpenseInput } from '../types/budget';
 import type { Currency } from '@/types/currency';
+import type { Expense } from '@/types/expense';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
@@ -59,6 +60,22 @@ export const budgetApi = {
   getSummary: (tripId: string) => {
     console.log('API: Getting summary for trip:', tripId);
     return api.get<BudgetSummary>(`/trips/${tripId}/budget/summary`);
+  },
+
+  // Get paginated expenses
+  getExpenses: (tripId: string, page: number = 1, limit: number = 5) => {
+    return api.get<{
+      expenses: Array<Expense>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasMore: boolean;
+      };
+    }>(`/trips/${tripId}/budget/expenses`, {
+      params: { page, limit }
+    });
   },
 
   // Get all available currencies

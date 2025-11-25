@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Expense } from '@/types/expense';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -17,12 +18,7 @@ export interface Flight {
   activityId?: string | null;
   activity?: {
     id: string;
-    expense?: {
-      id: string;
-      description: string;
-      cost: number;
-      category: string;
-    } | null;
+    expense?: Expense | null;
   } | null;
 }
 

@@ -10,7 +10,7 @@ interface AddExpenseDialogProps {
   activity?: Activity; // Single activity (from itinerary page)
   activities?: Activity[]; // List of activities (from budget page)
   onOpenChange: (open: boolean) => void;
-  onSubmit: (description: string, cost: number, category: ExpenseCategory, activityId?: string) => Promise<void>;
+  onSubmit: (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string) => Promise<void>;
 }
 
 export function AddExpenseDialog({ open, activity, activities, onOpenChange, onSubmit }: AddExpenseDialogProps) {
@@ -18,7 +18,9 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
     description: activity?.name || '',
     cost: '',
     category: 'FOOD',
+    currency: '',
     selectedActivityId: '',
+    date: new Date(),
   });
   const [linkToActivity, setLinkToActivity] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,18 +55,42 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       return;
     }
 
+    if (!formData.currency.trim()) {
+      setError('Please select a currency');
+      return;
+    }
+
+    // Validate date for non-activity expenses
+    const showDatePicker = !linkToActivity || !formData.selectedActivityId;
+    if (showDatePicker && !formData.date) {
+      setError('Please select a date');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Use selectedActivityId if in activities mode, otherwise use activity?.id
       const activityId = activities ? (formData.selectedActivityId || undefined) : activity?.id;
-      await onSubmit(formData.description, amount, formData.category, activityId);
+      
+      // Format date as YYYY-MM-DD in local time, only pass if not linked to activity
+      let dateString: string | undefined;
+      if (!activityId && formData.date) {
+        const year = formData.date.getFullYear();
+        const month = String(formData.date.getMonth() + 1).padStart(2, '0');
+        const day = String(formData.date.getDate()).padStart(2, '0');
+        dateString = `${year}-${month}-${day}`;
+      }
+      
+      await onSubmit(formData.description, amount, formData.category, activityId, formData.currency, dateString);
       
       // Reset form
       setFormData({
         description: activity?.name || '',
         cost: '',
         category: 'FOOD',
+        currency: '',
         selectedActivityId: '',
+        date: new Date(),
       });
       setLinkToActivity(false);
       onOpenChange(false);
@@ -81,7 +107,9 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       description: activity?.name || '',
       cost: '',
       category: 'FOOD',
+      currency: '',
       selectedActivityId: '',
+      date: new Date(),
     });
     setLinkToActivity(false);
     setError('');
@@ -101,6 +129,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
             linkToActivity={linkToActivity}
             onLinkToActivityChange={setLinkToActivity}
             showActivitySelector={!!activities && activities.length > 0}
+            showCurrencySelector={true}
+            showDatePicker={!activity} // Hide date picker when single activity is provided
             error={error}
           />
           <DialogFooter>
