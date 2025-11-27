@@ -7,6 +7,8 @@ export interface Activity {
   name?: string;
   address?: string;
   image?: string;
+  latitude?: number;
+  longitude?: number;
   // Optional expense object returned from the server (may be null)
   expense?: {
     id: string;

@@ -17,6 +17,8 @@ export interface ActivityFormData {
     name?: string;
     address?: string;
     image?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 

@@ -140,7 +140,7 @@ const create = async (tripId: string, data: CreateFlightInput): Promise<any> => 
         throw new Error("Trip not found");
     }
 
-    const shouldCreateActivity = trip.startDate && trip.endDate && trip.itinerary;
+    const shouldCreateActivity = trip.startDate && trip.endDate;
     let activityId: string | null = null;
 
     if (shouldCreateActivity) {

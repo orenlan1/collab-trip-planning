@@ -144,6 +144,8 @@ model Activity {
   name      String?
   address     String?
   image       String?
+  latitude    Float?
+  longitude   Float?
 
   expense    Expense?
   flight     Flight?

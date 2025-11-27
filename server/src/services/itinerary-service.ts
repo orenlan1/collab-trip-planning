@@ -136,7 +136,9 @@ const addActivity = async (tripDayId: string, data: ActivityFormData) => {
             endTime: data.endTime || null,
             name: data.name || null,
             address: data.address || null,
-            image: data.image || null
+            image: data.image || null,
+            latitude: data.latitude ?? null,
+            longitude: data.longitude ?? null
         }
     });
 };
@@ -152,7 +154,9 @@ const updateActivity = async (activityId: string, data: Partial<ActivityFormData
             ...(data.endTime !== undefined && { endTime: data.endTime ? new Date(data.endTime + 'Z') : null }),
             ...(data.name !== undefined && { name: data.name }),
             ...(data.address !== undefined && { address: data.address }),
-            ...(data.image !== undefined && { image: data.image })
+            ...(data.image !== undefined && { image: data.image }),
+            ...(data.latitude !== undefined && { latitude: data.latitude }),
+            ...(data.longitude !== undefined && { longitude: data.longitude })
         }
     });
 

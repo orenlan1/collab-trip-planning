@@ -4,6 +4,10 @@ export interface Place {
   id: string;
   name: string;
   address: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 interface PlaceInputProps {
@@ -52,9 +56,9 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
       if (includedTypes && includedTypes.length > 0) {
         requestOptions.includedPrimaryTypes = includedTypes;
       }
-
+      
       console.log('Fetching suggestions with options:', requestOptions);
-
+      
       google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(requestOptions)
         .then(predictions => {
           console.log('Received predictions:', predictions);
@@ -98,13 +102,18 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
     setIsTyping(false);
     onChange(suggestion.text.text || "");
 
-    suggestion.toPlace().fetchFields({fields: ['formattedAddress']})
+    suggestion.toPlace().fetchFields({fields: ['formattedAddress', 'location']})
     .then(place => {
         const selectedPlace: Place = {
             id: suggestion.placeId || "",
             name: suggestion.mainText?.text || "",
             address: place.place?.formattedAddress || "",
-        };
+            location: {
+              lat: place.place?.location?.lat() || 0,
+              lng: place.place?.location?.lng() || 0
+            }
+          };
+        console.log('Selected place details:', selectedPlace);
         onPlaceSelect?.(selectedPlace);
     })
     .catch(error => {
@@ -143,38 +152,23 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
         </div>
       )}
       {!loading && suggestions.length > 0 && (
-        <ul style={{
-          position: "absolute",
-          background: "white",
-          border: "1px solid #ccc",
-          width: "100%",
-          margin: 0,
-          padding: 0,
-          listStyle: "none",
-          zIndex: 10,
-          maxHeight: "200px",
-          overflowY: "auto",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-        }}>
+        <ul className="absolute bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 w-full m-0 p-0 list-none z-10 max-h-[200px] overflow-y-auto shadow-md rounded-md">
           {suggestions.map((s, index) => (
             <li
+              className="p-2 cursor-pointer border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white"
               key={s.placePrediction?.placeId || index}
               onClick={() => {   
                 handleSuggestionSelect(s.placePrediction!);
               }}
-              style={{ 
-                padding: "8px", 
-                cursor: "pointer",
-                borderBottom: index < suggestions.length - 1 ? "1px solid #eee" : "none"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#f0f0f0";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "white";
-              }}
+            
+              // onMouseEnter={(e) => {
+              //   e.currentTarget.style.backgroundColor = "#f0f0f0";
+              // }}
+              // onMouseLeave={(e) => {
+              //   e.currentTarget.style.backgroundColor = "white";
+              // }}
             >
-              {s.placePrediction?.text.text}
+              {s.placePrediction?.text.text }
             </li>
           ))}
         </ul>

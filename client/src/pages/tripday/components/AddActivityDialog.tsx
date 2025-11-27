@@ -5,13 +5,13 @@ import { Label } from '@/components/ui/label';
 import PlaceInput from "./PlaceInput";
 import type { Place } from "./PlaceInput";
 
-interface CreateActivityModalProps {
+interface AddActivityDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (placeName: string, address: string) => void;
+  onSubmit: (placeName: string, address: string, latitude?: number, longitude?: number) => void;
 }
 
-const AddActivityDialog: React.FC<CreateActivityModalProps> = ({
+const AddActivityDialog: React.FC<AddActivityDialogProps> = ({
   isOpen,
   onOpenChange,
   onSubmit
@@ -34,7 +34,9 @@ const AddActivityDialog: React.FC<CreateActivityModalProps> = ({
     if (placeName.trim() && selectedPlace) {
       setIsSubmitting(true);
       try {
-        await onSubmit(selectedPlace.name || placeName, selectedPlace.address || "");
+        await onSubmit(selectedPlace.name || placeName, selectedPlace.address || "",
+            selectedPlace.location?.lat, selectedPlace.location?.lng
+        );
       } catch (error) {
         console.error("Failed to create activity:", error);
       } finally {

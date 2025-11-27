@@ -38,16 +38,6 @@ export function ChooseActivityTypeDialog({ open, onOpenChange, onActivityTypeSel
                     <div className="text-sm">Transportation</div>
                 </button>
                 <button
-                  onClick={() => handleActivityTypeClick('ACCOMMODATION')}
-                  className='flex flex-col items-center p-4 rounded-lg cursor-pointer group'
-                  type="button"
-                >
-                    <div className='mb-2 bg-gray-300 p-2 rounded-xl transition-all duration-300 group-hover:bg-purple-500 group-hover:scale-110'>
-                        <FaBed className='w-5 h-5 text-slate-500 transition-all duration-300 group-hover:text-white group-hover:scale-110' />
-                    </div>
-                    <div className="text-sm">Accommodation</div>
-                </button>
-                <button
                   onClick={() => handleActivityTypeClick('DINING')}
                   className='flex flex-col items-center p-4 rounded-lg cursor-pointer group'
                   type="button"
@@ -66,16 +56,6 @@ export function ChooseActivityTypeDialog({ open, onOpenChange, onActivityTypeSel
                         <FaCamera className='w-5 h-5 text-slate-500 transition-all duration-300 group-hover:text-white group-hover:scale-110' />
                     </div>
                     <div className="text-sm">Activities & Tours</div>
-                </button>
-                <button
-                  onClick={() => handleActivityTypeClick('MISCELLANEOUS')}
-                  className='flex flex-col items-center p-4 rounded-lg cursor-pointer group'
-                  type="button"
-                >
-                    <div className='mb-2 bg-gray-300 p-2 rounded-xl transition-all duration-300 group-hover:bg-pink-500 group-hover:scale-110'>
-                        <FaShoppingBag className='w-5 h-5 text-slate-500 transition-all duration-300 group-hover:text-white group-hover:scale-110' />
-                    </div>
-                    <div className="text-sm">Miscellaneous</div>
                 </button>
             </div>
         <DialogFooter>
