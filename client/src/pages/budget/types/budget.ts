@@ -33,6 +33,7 @@ export interface Expense {
       date: string;
     } | null;
   } | null;
+  flightId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -62,5 +63,6 @@ export interface CreateExpenseInput {
   category: ExpenseCategory;
   currency?: string;
   activityId?: string | null;
+  flightId?: string | null;
   date?: string;
 }

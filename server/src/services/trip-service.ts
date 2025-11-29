@@ -3,7 +3,6 @@ import type {TripFormData, TripUpdateData } from '../controllers/trip-controller
 import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
 import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
-import { createActivityForFlight, findTripDayForFlight } from './flight-service.js';
 
 const MAX_TRIP_DURATION_DAYS = 365;
 
@@ -180,33 +179,6 @@ const update = async (id: string, data: UpdateTripInput) => {
         await tx.tripDay.createMany({
           data: newDaysData
         });
-      }
-
-      // Create activities for existing flights that fall within trip dates
-      const flights = await tx.flight.findMany({
-        where: { 
-          tripId: id,
-          activityId: null // Only flights without activities
-        }
-      });
-
-      if (flights.length > 0) {
-        for (const flight of flights) {
-          // Find the trip day that matches the flight departure date
-          const tripDay = await findTripDayForFlight(currentTrip.itinerary.id, new Date(flight.departure), tx);
-          
-          if (tripDay) {
-            // Create activity for the flight
-            const activity = await createActivityForFlight(flight, tripDay.id, tx);
-            
-            // Link the activity to the flight
-            await tx.flight.update({
-              where: { id: flight.id },
-              data: { activityId: activity.id }
-            });
-          }
-          // If tripDay is null, the flight date is outside trip dates - no activity created (correct behavior)
-        }
       }
     }
     // Case 2: Date range modification - trip has existing dates and they're being changed

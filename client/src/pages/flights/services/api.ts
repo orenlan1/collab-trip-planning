@@ -15,11 +15,7 @@ export interface Flight {
   arrival: string;   // ISO 8601 format: "2025-10-30T14:45:00Z"
   from: string;
   to: string;
-  activityId?: string | null;
-  activity?: {
-    id: string;
-    expense?: Expense | null;
-  } | null;
+  expense?: Expense | null;
 }
 
 export interface CreateFlightInput {

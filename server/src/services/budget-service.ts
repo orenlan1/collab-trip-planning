@@ -217,7 +217,8 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
             currency: data.currency,
             category: data.category,
             date: expenseDate,
-            activityId: data.activityId || null
+            activityId: data.activityId || null,
+            flightId: data.flightId || null
         },
         include: {
             activity: {
@@ -230,6 +231,15 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
                             date: true
                         }
                     }
+                }
+            },
+            flight: {
+                select: {
+                    id: true,
+                    airline: true,
+                    flightNumber: true,
+                    from: true,
+                    to: true
                 }
             }
         }
