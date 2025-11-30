@@ -64,6 +64,8 @@ model Trip {
   createdBy   User      @relation(fields: [createdById], references: [id])
   createdById String
   image       String?
+  latitude    Float?
+  longitude   Float?
 
   members TripMember[]
   invitations Invitation[]
@@ -254,6 +256,9 @@ model Country {
   id          Int      @id @default(autoincrement())
   name        String
   tzDatabase  String?
+  latitude    Float?
+  longitude   Float?
+
   cities      City[]
 }
 
@@ -263,4 +268,6 @@ model City {
   country     Country  @relation(fields: [countryId], references: [id])
   countryId   Int
   tzDatabase  String?
+  latitude    Float?
+  longitude   Float?
 }

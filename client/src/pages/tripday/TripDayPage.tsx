@@ -7,6 +7,7 @@ import { useTripDayStore } from "@/stores/tripDayStore";
 import { ChooseActivityTypeDialog } from "./components/ChooseActivityTypeDialog";
 import AddDiningActivityDialog from "./components/AddDiningActivityDialog";
 import { GoogleMaps } from "@/components/GoogleMaps";
+import { useTripStore } from "@/stores/tripStore";
 
 interface TripDayPageProps {
     id: string;
@@ -21,6 +22,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [showAddActivityDialog, setShowAddActivityDialog] = useState(false);
     const [showAddDiningActivityDialog, setShowAddDiningActivityDialog] = useState(false);
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
+    const { latitude, longitude } = useTripStore();
 
     useEffect(() => {
         const fetchTripDayData = async () => {
@@ -100,6 +102,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                         <h2 className="text-lg font-medium mb-4">Map Overview</h2>    
                         <div className="w-full h-64 rounded-md overflow-hidden">
                             <GoogleMaps 
+                                center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined}
                                 markers={tripDay?.activities.map(activity => ({
                                     lat: activity.latitude || 0,
                                     lng: activity.longitude || 0

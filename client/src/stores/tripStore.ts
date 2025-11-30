@@ -25,7 +25,9 @@ export const useTripStore = create<TripStore>()(
     destination: undefined,      // Optional: undefined shows it's not set yet
     description: undefined,      // Optional: undefined shows it's not set yet
     startDate: undefined,        // Optional: undefined for dates that are not set
-    endDate: undefined,          // Optional: undefined for dates that are not set
+    endDate: undefined,
+    latitude: null,
+    longitude: null,
     createdBy: '',
     image: null,                 // null is appropriate for image fields that might be null in API
     members: [],
@@ -63,6 +65,8 @@ export const useTripStore = create<TripStore>()(
       description: undefined,
       startDate: undefined,
       endDate: undefined,
+      latitude: null,
+      longitude: null,
       createdBy: '',
       image: null,
       members: [],

@@ -62,4 +62,48 @@ export const destinationService = {
     // Return cities first, then countries, limited to 10 total
     return [...cityResults, ...countryResults].slice(0, 10);
   },
+
+  async getDestinationLatLng(destination : string): Promise<{ latitude: number | null; longitude: number | null } | null> {
+    // Try to find the destination as a city first
+    if (destination.includes(',')) {
+      const cityName = destination.split(',')[0]?.trim();
+      if (cityName) {
+        const city = await prisma.city.findFirst({
+          where: {
+            name: cityName,
+          },
+          select: {
+            latitude: true,
+            longitude: true
+          }
+        });
+
+        if (city) {
+          return {
+            latitude: city.latitude,
+            longitude: city.longitude
+          };
+        }
+      }  
+    } else {   
+        const country = await prisma.country.findFirst({
+          where: {
+            name: destination
+          },
+          select: {
+            latitude: true,
+            longitude: true
+          }
+        });
+
+        if (country) {
+          return {
+            latitude: country.latitude,
+            longitude: country.longitude
+          };
+        }
+    }
+    // If not found as either, return null
+    return null;
+  }
 };

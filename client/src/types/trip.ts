@@ -10,6 +10,8 @@ export interface Trip {
   createdBy: string;
   image: string | null;
   members: Array<TripMember>;
+  latitude: number | null;
+  longitude: number | null;
   itinerary: {
     id: string;
   }; 

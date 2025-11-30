@@ -3,7 +3,7 @@ import type {TripFormData, TripUpdateData } from '../controllers/trip-controller
 import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
 import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
-
+import { destinationService } from './destination-service.js';
 const MAX_TRIP_DURATION_DAYS = 365;
 
 /**
@@ -37,11 +37,18 @@ const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
   return dates;
 };
 
+
 const create = async (data: CreateTripInput, creatorId: string) => {
+  let location: { latitude: number | null; longitude: number | null } = { latitude: null, longitude: null };
+  if (data.destination) {
+    location = await destinationService.getDestinationLatLng(data.destination) || { latitude: null, longitude: null };
+  }
 
   const trip = await prisma.trip.create({
     data: {
       ...data,
+      latitude: location.latitude,
+      longitude: location.longitude,
       createdById: creatorId,
       members: {
         create: {
@@ -249,7 +256,11 @@ const update = async (id: string, data: UpdateTripInput) => {
         }
       }
     }
-  
+
+    let location: { latitude: number | null; longitude: number | null } = { latitude: null, longitude: null };
+    if (data.destination) {
+      location = await destinationService.getDestinationLatLng(data.destination) || { latitude: null, longitude: null };
+    }
 
     // Update the trip with new data
     const trip = await tx.trip.update({
@@ -260,6 +271,8 @@ const update = async (id: string, data: UpdateTripInput) => {
           ...(data.startDate !== undefined && { startDate: data.startDate }),
           ...(data.endDate !== undefined && { endDate: data.endDate }),
           ...(data.description !== undefined && { description: data.description }),
+          latitude: location.latitude && location.latitude,
+          longitude: location.longitude && location.longitude,
       },
     });
 
