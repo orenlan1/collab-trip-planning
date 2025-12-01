@@ -11,7 +11,8 @@ import { useTripStore } from "@/stores/tripStore";
 import { format } from "date-fns";
 import { FaTrash, FaEdit, FaMoneyBillWave } from "react-icons/fa";
 import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
-import { EditExpenseDialog, type Expense } from "@/pages/budget/components/EditExpenseDialog";
+import { EditExpenseDialog } from "@/pages/budget/components/EditExpenseDialog";
+import type { Expense } from "@/types/expense";
 import { budgetApi } from "@/pages/budget/services/budgetApi";
 import type { ExpenseCategory } from "@/pages/budget/types/budget";
 import { formatCurrencyAmount } from "@/lib/currency";
@@ -173,7 +174,7 @@ export function FlightsCard() {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string) => {
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
     if (!expenseFlight) return;
 
     try {
@@ -181,7 +182,8 @@ export function FlightsCard() {
         description, 
         cost, 
         category, 
-        currency 
+        currency,
+        date
       });
       
       toast.success('Expense updated successfully!');

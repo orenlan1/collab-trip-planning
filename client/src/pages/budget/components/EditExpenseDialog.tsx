@@ -1,39 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { ExpenseCategory } from '../types/budget';
+import type { Expense } from '@/types/expense';
 import { ExpenseForm, type ExpenseFormData } from './ExpenseForm';
-
-export interface Expense {
-  id: string;
-  description?: string | null;
-  cost: number;
-  category?: string | null;
-  currency?: string | null;
-  date?: string;
-  activityId?: string | null;
-  createdAt?: string;
-}
 
 interface EditExpenseDialogProps {
   open: boolean;
   expense: Expense | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string, date?: string) => Promise<void>;
+  onSubmit: (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => Promise<void>;
 }
 
 export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: EditExpenseDialogProps) {
   const [formData, setFormData] = useState<ExpenseFormData>({
-    description: expense?.description || '',
-    cost: expense?.cost?.toString() || '',
-    category: (expense?.category as ExpenseCategory) || 'FOOD',
-    currency: expense?.currency || '',
-    date: expense?.date ? new Date(expense.date) : new Date(),
+    description: '',
+    cost: '',
+    category: 'FOOD',
+    currency: '',
+    selectedActivityId: '',
+    date: new Date(),
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
-  const isLinkedToActivity = !!expense?.activityId;
+
+  useEffect(() => {
+    if (expense) {
+      setFormData({
+        description: expense.description,
+        cost: expense.cost.toString(),
+        category: expense.category as ExpenseCategory,
+        currency: expense.currency,
+        selectedActivityId: expense.activityId || '',
+        date: new Date(expense.date),
+      });
+      setError('');
+    }
+  }, [expense]);
 
   const handleFormDataChange = (data: Partial<ExpenseFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -41,12 +44,9 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!expense || isSubmitting) return;
+    
     setError('');
-
-    if (!expense) {
-      setError('No expense selected');
-      return;
-    }
 
     const amount = parseFloat(formData.cost);
     if (isNaN(amount) || amount <= 0) {
@@ -64,25 +64,19 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       return;
     }
 
-    // Validate date for non-activity expenses
-    if (!isLinkedToActivity && !formData.date) {
+    if (!formData.date) {
       setError('Please select a date');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Only pass date if expense is not linked to activity, format in local time
-      let dateString: string | undefined;
-      if (!isLinkedToActivity && formData.date) {
-        const year = formData.date.getFullYear();
-        const month = String(formData.date.getMonth() + 1).padStart(2, '0');
-        const day = String(formData.date.getDate()).padStart(2, '0');
-        dateString = `${year}-${month}-${day}`;
-      }
+      const year = formData.date.getFullYear();
+      const month = String(formData.date.getMonth() + 1).padStart(2, '0');
+      const day = String(formData.date.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
       
       await onSubmit(expense.id, formData.description, amount, formData.category, formData.currency, dateString);
-      onOpenChange(false);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update expense');
     } finally {
@@ -90,31 +84,14 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
     }
   };
 
-  const handleDialogClose = () => {
-    onOpenChange(false);
-    // Reset form to expense data
-    if (expense) {
-      setFormData({
-        description: expense.description || '',
-        cost: expense.cost?.toString() || '',
-        category: (expense.category as ExpenseCategory) || 'FOOD',
-        currency: expense.currency || '',
-        date: expense.date ? new Date(expense.date) : new Date(),
-      });
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setError('');
     }
-    setError('');
+    onOpenChange(open);
   };
 
-  // Update form when expense changes
-  if (open && expense && formData.description !== (expense.description || '')) {
-    setFormData({
-      description: expense.description || '',
-      cost: expense.cost?.toString() || '',
-      category: (expense.category as ExpenseCategory) || 'FOOD',
-      currency: expense.currency || '',
-      date: expense.date ? new Date(expense.date) : new Date(),
-    });
-  }
+  const isLinkedToActivity = !!expense?.activityId;
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -126,16 +103,17 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
           {isLinkedToActivity && (
             <div className="mb-4 rounded-md bg-blue-50 dark:bg-blue-950 p-3">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                This expense is linked to an activity. The date cannot be changed and is automatically set to the activity's scheduled day.
+                This expense is linked to the activity: <span className="font-semibold">{expense?.activity?.name}</span>
               </p>
             </div>
           )}
           <ExpenseForm
             formData={formData}
             onFormDataChange={handleFormDataChange}
+            linkToActivity={false}
+            showActivitySelector={false}
             showCurrencySelector={true}
-            linkToActivity={isLinkedToActivity}
-            showDatePicker={!isLinkedToActivity} // Hide date picker for activity-linked expenses
+            showDatePicker={true}
             error={error}
           />
           <DialogFooter>
@@ -147,8 +125,11 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Expense'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>

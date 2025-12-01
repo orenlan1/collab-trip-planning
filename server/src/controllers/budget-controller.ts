@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import budgetService from "../services/budget-service.js";
-import type { CreateOrUpdateBudgetInput, CreateExpenseInput } from "../schemas/budget-schema.js";
+import type { CreateOrUpdateBudgetInput, CreateExpenseInput, UpdateExpenseInput } from "../schemas/budget-schema.js";
 
 // POST /api/trips/:tripId/budget - Create or update a trip's budget
 const createOrUpdateBudget = async (req: Request, res: Response) => {
@@ -101,7 +101,7 @@ const updateExpense = async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Expense ID is required" });
     }
 
-    const data = req.body as Partial<CreateExpenseInput>;
+    const data = req.body as UpdateExpenseInput;
 
     try {
         const expense = await budgetService.updateExpense(expenseId, data);

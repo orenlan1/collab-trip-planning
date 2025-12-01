@@ -1,5 +1,5 @@
 import { prisma } from '../prisma/client.js';
-import type { CreateOrUpdateBudgetInput, CreateExpenseInput } from '../schemas/budget-schema.js';
+import type { CreateOrUpdateBudgetInput, CreateExpenseInput, UpdateExpenseInput } from '../schemas/budget-schema.js';
 import type { ExpenseCategory } from '@prisma/client';
 import { convertCurrency } from '../apiClients/unirate/unirate.js';
 
@@ -249,7 +249,7 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
 };
 
 // Update an existing expense
-const updateExpense = async (expenseId: string, data: Partial<CreateExpenseInput>) => {
+const updateExpense = async (expenseId: string, data: UpdateExpenseInput): Promise<any> => {
     const expense = await prisma.expense.findUnique({
         where: { id: expenseId }
     });
@@ -263,12 +263,8 @@ const updateExpense = async (expenseId: string, data: Partial<CreateExpenseInput
         ...(data.cost !== undefined && { cost: data.cost }),
         ...(data.category !== undefined && { category: data.category }),
         ...(data.currency !== undefined && { currency: data.currency }),
+        ...(data.date !== undefined && { date: new Date(data.date) }),
     };
-
-    // Only update date if provided and expense is not linked to an activity
-    if (data.date && !expense.activityId) {
-        updateData.date = new Date(data.date);
-    }
 
     const updatedExpense = await prisma.expense.update({
         where: { id: expenseId },

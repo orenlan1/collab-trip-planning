@@ -1,7 +1,7 @@
 import express from 'express';
 import { isAuthenticated, isTripMember, isExpenseTripMember } from '../middleware/auth.js';
 import validateResource from '../middleware/validateResource.js';
-import { createOrUpdateBudgetSchema, createExpenseSchema } from '../schemas/budget-schema.js';
+import { createOrUpdateBudgetSchema, createExpenseSchema, updateExpenseSchema } from '../schemas/budget-schema.js';
 import budgetController from '../controllers/budget-controller.js';
 
 const router = express.Router();
@@ -53,6 +53,7 @@ router.patch(
     "/budget/expenses/:expenseId",
     isAuthenticated,
     isExpenseTripMember,
+    validateResource(updateExpenseSchema),
     budgetController.updateExpense
 );
 

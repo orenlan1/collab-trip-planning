@@ -15,7 +15,8 @@ import {
 import { TimeSetter } from "./TimeSetter";
 import { useTripDayStore } from "@/stores/tripDayStore";
 import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
-import { EditExpenseDialog, type Expense } from "@/pages/budget/components/EditExpenseDialog";
+import { EditExpenseDialog } from "@/pages/budget/components/EditExpenseDialog";
+import type { Expense } from "@/types/expense"; 
 import { useParams } from "react-router-dom";
 import { budgetApi } from '../../budget/services/budgetApi';
 import type { ExpenseCategory } from '../../budget/types/budget';
@@ -96,7 +97,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
   }
 };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, _activityId?: string, currency?: string) => {
     if (!tripId) return;
 
     // Format tripDay date as YYYY-MM-DD in local time (date is the tripDay date prop)
@@ -118,13 +119,12 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency: string) => {
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
     try {
-      const response = await budgetApi.updateExpense(expenseId, { description, cost, category, currency });
+      const response = await budgetApi.updateExpense(expenseId, { description, cost, category, currency, date });
       const expense = response.data;
       toast.success('Expense updated successfully!');
 
-      // Update activity in store with the updated expense
       const updatedActivity = { ...activity, expense } as any;
       updateActivity(activity.id!, updatedActivity);
     } catch (error: any) {

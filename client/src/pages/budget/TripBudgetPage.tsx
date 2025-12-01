@@ -12,6 +12,8 @@ import { BudgetCategories } from './components/BudgetCategories';
 import { BudgetSummaryChart } from './components/BudgetSummaryChart';
 import { SetBudgetDialog } from './components/SetBudgetDialog';
 import { AddExpenseDialog } from './components/AddExpenseDialog';
+import { EditExpenseDialog } from './components/EditExpenseDialog';
+import { DeleteExpenseDialog } from './components/DeleteExpenseDialog';
 import { ExpensesList } from './components/ExpensesList';
 import type { Expense } from '@/types/expense';
 
@@ -30,6 +32,9 @@ export function TripBudgetPage() {
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [showSetBudgetDialog, setShowSetBudgetDialog] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
+  const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
+  const [showDeleteExpenseDialog, setShowDeleteExpenseDialog] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
   const itineraryId = useTripStore(state => state.itinerary.id);
 
@@ -132,10 +137,49 @@ export function TripBudgetPage() {
       
       await fetchBudgetSummary();
       await fetchActivities();
-      await fetchExpenses(); // Refresh expenses list
+      await fetchExpenses();
     } catch (error: any) {
       throw error;
     }
+  };
+
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+    try {
+      await budgetApi.updateExpense(expenseId, { description, cost, category, currency, date });
+      setShowEditExpenseDialog(false);
+      setSelectedExpense(null);
+      toast.success('Expense updated successfully!');
+      
+      await fetchBudgetSummary();
+      await fetchActivities();
+      await fetchExpenses();
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      await budgetApi.deleteExpense(expenseId);
+      toast.success('Expense deleted successfully!');
+      
+      await fetchBudgetSummary();
+      await fetchActivities();
+      await fetchExpenses();
+    } catch (error: any) {
+      toast.error('Failed to delete expense');
+      throw error;
+    }
+  };
+
+  const handleOpenEditDialog = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setShowEditExpenseDialog(true);
+  };
+
+  const handleOpenDeleteDialog = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setShowDeleteExpenseDialog(true);
   };
 
   if (isLoading) {
@@ -178,6 +222,8 @@ export function TripBudgetPage() {
             hasMore={expensesPagination.hasMore}
             isLoading={isLoadingExpenses}
             onLoadMore={handleLoadMoreExpenses}
+            onEdit={handleOpenEditDialog}
+            onDelete={handleOpenDeleteDialog}
           />
         </div>
 
@@ -197,6 +243,33 @@ export function TripBudgetPage() {
         activities={activities}
         onOpenChange={setShowAddExpenseDialog}
         onSubmit={handleAddExpense}
+      />
+
+      {showEditExpenseDialog && selectedExpense && (
+        <EditExpenseDialog
+          key={selectedExpense.id}
+          open={showEditExpenseDialog}
+          expense={selectedExpense}
+          onOpenChange={(open) => {
+            setShowEditExpenseDialog(open);
+            if (!open) {
+              setSelectedExpense(null);
+            }
+          }}
+          onSubmit={handleEditExpense}
+        />
+      )}
+
+      <DeleteExpenseDialog
+        open={showDeleteExpenseDialog}
+        expense={selectedExpense}
+        onOpenChange={(open) => {
+          setShowDeleteExpenseDialog(open);
+          if (!open) {
+            setSelectedExpense(null);
+          }
+        }}
+        onConfirm={handleDeleteExpense}
       />
     </div>
   );

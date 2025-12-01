@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { formatCurrencyAmount } from '@/lib/currency';
 import { format } from 'date-fns';
+import { FaTrash, FaEdit } from "react-icons/fa";
 import type { Expense } from '@/types/expense';
 
 interface ExpensesListProps {
@@ -8,6 +9,8 @@ interface ExpensesListProps {
   hasMore: boolean;
   isLoading: boolean;
   onLoadMore: () => void;
+  onEdit: (expense: Expense) => void;
+  onDelete: (expense: Expense) => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -26,7 +29,7 @@ const categoryLabels: Record<string, string> = {
   MISCELLANEOUS: 'Miscellaneous',
 };
 
-export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore }: ExpensesListProps) {
+export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit, onDelete }: ExpensesListProps) {
   if (expenses.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
@@ -44,7 +47,7 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore }: Expen
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         {expenses.map((expense) => (
           <div key={expense.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -68,10 +71,31 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore }: Expen
                 </p>
               </div>
               
-              <div className="ml-4 flex-shrink-0 text-right">
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {formatCurrencyAmount(expense.cost, expense.currency)}
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {formatCurrencyAmount(expense.cost, expense.currency)}
+                  </p>
+                </div>
+                
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(expense)}
+                    className="h-8 w-8"
+                  >
+                    <FaEdit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(expense)}
+                    className="h-8 w-8 text-slate-400 hover:text-red-500 "
+                  >
+                    <FaTrash className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

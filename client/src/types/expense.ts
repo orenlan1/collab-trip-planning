@@ -5,8 +5,9 @@ export interface Expense {
   cost: number;
   currency: string;
   category: string;
-  activityId: string | null;
-  activity: { id: string; name: string | null; description: string | null } | null;
+  activityId?: string;
+  flightId?: string;
+  activity?: { id: string; name: string | null; description: string | null };
   date: string;
   createdAt: string;
   updatedAt: string;
