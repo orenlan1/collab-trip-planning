@@ -1,14 +1,14 @@
 import { Map, AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
 import type React from "react";
-
+import { FaBed } from "react-icons/fa";
 
 interface GoogleMapsProps {
     center?: { lat: number; lng: number };
     markers?: { lat: number; lng: number }[];
-  
+    pin?: React.ReactNode;
 }
 
-export const GoogleMaps = ({ center, markers }: GoogleMapsProps) => {
+export const GoogleMaps = ({ center, markers, pin }: GoogleMapsProps) => {
     const defaultCenter = center || { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -28,7 +28,7 @@ export const GoogleMaps = ({ center, markers }: GoogleMapsProps) => {
                             key={index}
                             position={marker}
                         >
-                            <Pin  />
+                            { pin || <Pin />}
                         </AdvancedMarker>
                     ))}
                 </Map>

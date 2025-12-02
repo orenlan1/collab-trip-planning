@@ -12,7 +12,9 @@ export interface Lodging {
   address: string;
   checkIn: string; // YYYY-MM-DD format
   checkOut: string; // YYYY-MM-DD format
-  guests: number;
+  latitude?: number;
+  longitude?: number;
+  expense?: any;
 }
 
 export interface CreateLodgingInput {
@@ -20,7 +22,8 @@ export interface CreateLodgingInput {
   address: string;
   checkIn: string; // YYYY-MM-DD format
   checkOut: string; // YYYY-MM-DD format
-  guests: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UpdateLodgingInput {
@@ -28,7 +31,8 @@ export interface UpdateLodgingInput {
   address?: string;
   checkIn?: string;
   checkOut?: string;
-  guests?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export const lodgingsApi = {

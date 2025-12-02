@@ -64,5 +64,6 @@ export interface CreateExpenseInput {
   currency?: string;
   activityId?: string | null;
   flightId?: string | null;
+  lodgingId?: string | null;
   date?: string;
 }

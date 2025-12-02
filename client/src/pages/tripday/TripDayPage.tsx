@@ -22,7 +22,8 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [showAddActivityDialog, setShowAddActivityDialog] = useState(false);
     const [showAddDiningActivityDialog, setShowAddDiningActivityDialog] = useState(false);
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
-    const { latitude, longitude } = useTripStore();
+    const latitude = useTripStore(state => state.latitude);
+    const longitude = useTripStore(state => state.longitude);
 
     useEffect(() => {
         const fetchTripDayData = async () => {

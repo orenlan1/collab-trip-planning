@@ -25,6 +25,7 @@ export const TripOverviewPage = () => {
   const endDate = useTripStore(state => state.endDate);
   const setTripData = useTripStore(state => state.setTripData);
   const fetchFlights = useTripStore(state => state.fetchFlights);
+  const fetchLodgings = useTripStore(state => state.fetchLodgings);
 
     useEffect(() => {
     const fetchTripData = async () => {
@@ -32,8 +33,11 @@ export const TripOverviewPage = () => {
         try {
           const response = await tripsApi.getById(tripId);
           setTripData(response.data);
-          // Fetch flights after trip data is loaded
-          await fetchFlights(tripId);
+          // Fetch flights and lodgings after trip data is loaded
+          await Promise.all([
+            fetchFlights(tripId),
+            fetchLodgings(tripId)
+          ]);
         } catch (error) {
           console.error("Error fetching trip data:", error);
         }
@@ -41,7 +45,7 @@ export const TripOverviewPage = () => {
     };
 
     fetchTripData();
-  }, [tripId, setTripData, fetchFlights]);
+  }, [tripId, setTripData, fetchFlights, fetchLodgings]);
 
 
   return (

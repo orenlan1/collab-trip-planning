@@ -11,7 +11,8 @@ export const createLodgingSchema = z.object({
     address: z.string().min(1, "Address is required"),
     checkIn: dateStringSchema.transform(val => val ? new Date(`${val}T00:00:00.000Z`) : null),
     checkOut: dateStringSchema.transform(val => val ? new Date(`${val}T00:00:00.000Z`) : null),
-    guests: z.number().min(1, "At least one guest is required"),
+    latitude: z.number().optional(),
+    longitude: z.number().optional()
   })
 });
 
@@ -21,9 +22,25 @@ export const updateLodgingSchema = z.object({
     address: z.string().min(1, "Address is required").optional(),
     checkIn: dateStringSchema.transform(val => val ? new Date(`${val}T00:00:00.000Z`) : undefined).optional(),
     checkOut: dateStringSchema.transform(val => val ? new Date(`${val}T00:00:00.000Z`) : undefined).optional(),
-    guests: z.number().min(1, "At least one guest is required").optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional()
   })
 });
 
-export type CreateLodgingInput = z.infer<typeof createLodgingSchema>['body'];
-export type UpdateLodgingInput = z.infer<typeof updateLodgingSchema>['body'];
+export type CreateLodgingInput = {
+  name: string;
+  address: string;
+  checkIn: Date | null;
+  checkOut: Date | null;
+  latitude?: number;
+  longitude?: number;
+};
+
+export type UpdateLodgingInput = {
+  name?: string;
+  address?: string;
+  checkIn?: Date;
+  checkOut?: Date;
+  latitude?: number;
+  longitude?: number;
+};

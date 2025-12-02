@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { LodgingForm } from './LodgingForm';
+import type { Place } from '@/pages/tripday/components/PlaceInput';
 
 export interface LodgingFormData {
   name: string;
   address: string;
-  checkInDate: Date;
-  checkOutDate: Date;
-  guests: number;
+  checkInDate: Date | undefined;
+  checkOutDate: Date | undefined;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface AddLodgingDialogProps {
@@ -18,27 +20,37 @@ interface AddLodgingDialogProps {
 }
 
 export function AddLodgingDialog({ open, onOpenChange, onLodgingAdded }: AddLodgingDialogProps) {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [checkInDate, setCheckInDate] = useState<Date | undefined>();
-  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(1);
+  const [formData, setFormData] = useState<LodgingFormData>({
+    name: '',
+    address: '',
+    checkInDate: undefined,
+    checkOutDate: undefined,
+    latitude: undefined,
+    longitude: undefined
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handlePlaceSelect = (_place: { id: string; name: string; address: string }): void => {
-    // Place data is already set via setName and setAddress in LodgingForm
-    // This callback can be used for additional logic if needed
+  const handlePlaceSelect = (place: Place): void => {
+    setFormData(prev => ({
+      ...prev,
+      name: place.name,
+      address: place.address,
+      latitude: place.location?.lat,
+      longitude: place.location?.lng
+    }));
   };
 
   const handleDialogClose = (): void => {
     onOpenChange(false);
-    // Reset form
-    setName('');
-    setAddress('');
-    setCheckInDate(undefined);
-    setCheckOutDate(undefined);
-    setGuests(1);
+    setFormData({
+      name: '',
+      address: '',
+      checkInDate: undefined,
+      checkOutDate: undefined,
+      latitude: undefined,
+      longitude: undefined
+    });
     setError('');
   };
 
@@ -46,29 +58,19 @@ export function AddLodgingDialog({ open, onOpenChange, onLodgingAdded }: AddLodg
     e.preventDefault();
     setError('');
 
-    // Validation
-    if (!name || !address || !checkInDate || !checkOutDate || !guests) {
+    if (!formData.name || !formData.address || !formData.checkInDate || !formData.checkOutDate) {
       setError('All fields are required');
       return;
     }
 
-    if (checkInDate >= checkOutDate) {
+    if (formData.checkInDate >= formData.checkOutDate) {
       setError('Check-out date must be after check-in date');
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      const lodgingData: LodgingFormData = {
-        name,
-        address,
-        checkInDate,
-        checkOutDate,
-        guests,
-      };
-
-      await onLodgingAdded(lodgingData);
+      await onLodgingAdded(formData);
       handleDialogClose();
     } catch (error: any) {
       console.error('Failed to add lodging:', error);
@@ -87,17 +89,9 @@ export function AddLodgingDialog({ open, onOpenChange, onLodgingAdded }: AddLodg
 
         <form onSubmit={handleSubmit}>
           <LodgingForm
-            name={name}
-            setName={setName}
-            address={address}
-            setAddress={setAddress}
+            formData={formData}
+            onFormDataChange={setFormData}
             onPlaceSelect={handlePlaceSelect}
-            checkInDate={checkInDate}
-            setCheckInDate={setCheckInDate}
-            checkOutDate={checkOutDate}
-            setCheckOutDate={setCheckOutDate}
-            guests={guests}
-            setGuests={setGuests}
             isSubmitting={isSubmitting}
             error={error}
           />

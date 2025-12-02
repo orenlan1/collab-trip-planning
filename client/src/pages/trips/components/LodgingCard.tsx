@@ -1,35 +1,37 @@
 import { GoHome } from "react-icons/go";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { lodgingsApi, type Lodging, type CreateLodgingInput, type UpdateLodgingInput } from "@/pages/lodging/services/api";
 import { AddLodgingDialog, type LodgingFormData } from "@/pages/lodging/components/AddLodgingDialog";
 import { EditLodgingDialog } from "@/pages/lodging/components/EditLodgingDialog";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit, FaMoneyBillWave } from "react-icons/fa";
+import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
+import { EditExpenseDialog } from "@/pages/budget/components/EditExpenseDialog";
+import type { Expense } from "@/types/expense";
+import { budgetApi } from "@/pages/budget/services/budgetApi";
+import type { ExpenseCategory } from "@/pages/budget/types/budget";
+import { formatCurrencyAmount } from "@/lib/currency";
+import { useTripStore } from "@/stores/tripStore";
+import { GoogleMaps } from "@/components/GoogleMaps";
+import { FaBed } from "react-icons/fa";
 
 export function LodgingCard() {
   const { tripId } = useParams<{ tripId: string }>();
-  const [lodgings, setLodgings] = useState<Lodging[]>([]);
+  const lodgings = useTripStore(state => state.lodgings);
+  const addLodging = useTripStore(state => state.addLodging);
+  const updateLodging = useTripStore(state => state.updateLodging);
+  const deleteLodging = useTripStore(state => state.deleteLodging);
+  const latitude = useTripStore(state => state.latitude);
+  const longitude = useTripStore(state => state.longitude);
+
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingLodging, setEditingLodging] = useState<Lodging | null>(null);
-
-  useEffect(() => {
-    if (tripId) {
-      fetchLodgings();
-    }
-  }, [tripId]);
-
-  const fetchLodgings = async () => {
-    if (!tripId) return;
-    try {
-      const response = await lodgingsApi.getAll(tripId);
-      setLodgings(response.data);
-    } catch (error) {
-      console.error('Failed to fetch lodgings:', error);
-    }
-  };
+  const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
+  const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
+  const [expenseLodging, setExpenseLodging] = useState<Lodging | null>(null);
 
   const formatToYYYYMMDD = (date: Date): string => {
     const year = date.getFullYear();
@@ -39,8 +41,8 @@ export function LodgingCard() {
   };
 
   const handleAddLodging = async (lodgingData: LodgingFormData) => {
-    if (!tripId) {
-      throw new Error('Trip ID is required');
+    if (!tripId || !lodgingData.checkInDate || !lodgingData.checkOutDate) {
+      throw new Error('Trip ID and dates are required');
     }
 
     try {
@@ -49,11 +51,12 @@ export function LodgingCard() {
         address: lodgingData.address,
         checkIn: formatToYYYYMMDD(lodgingData.checkInDate),
         checkOut: formatToYYYYMMDD(lodgingData.checkOutDate),
-        guests: lodgingData.guests,
+        latitude: lodgingData.latitude,
+        longitude: lodgingData.longitude
       };
 
       const response = await lodgingsApi.create(tripId, lodgingInput);
-      setLodgings([...lodgings, response.data]);
+      addLodging(response.data);
       toast.success('Lodging added successfully!');
     } catch (error: any) {
       console.error('Failed to add lodging:', error);
@@ -62,8 +65,8 @@ export function LodgingCard() {
   };
 
   const handleUpdateLodging = async (lodgingData: LodgingFormData) => {
-    if (!tripId || !editingLodging) {
-      throw new Error('Trip ID and lodging are required');
+    if (!tripId || !editingLodging || !lodgingData.checkInDate || !lodgingData.checkOutDate) {
+      throw new Error('Trip ID, lodging, and dates are required');
     }
 
     try {
@@ -72,11 +75,12 @@ export function LodgingCard() {
         address: lodgingData.address,
         checkIn: formatToYYYYMMDD(lodgingData.checkInDate),
         checkOut: formatToYYYYMMDD(lodgingData.checkOutDate),
-        guests: lodgingData.guests,
+        latitude: lodgingData.latitude,
+        longitude: lodgingData.longitude
       };
 
       const response = await lodgingsApi.update(tripId, editingLodging.id, lodgingInput);
-      setLodgings(lodgings.map(l => l.id === editingLodging.id ? response.data : l));
+      updateLodging(editingLodging.id, response.data);
       toast.success('Lodging updated successfully!');
     } catch (error: any) {
       console.error('Failed to update lodging:', error);
@@ -90,7 +94,7 @@ export function LodgingCard() {
     if (window.confirm('Are you sure you want to delete this lodging?')) {
       try {
         await lodgingsApi.delete(tripId, lodgingId);
-        setLodgings(lodgings.filter(l => l.id !== lodgingId));
+        deleteLodging(lodgingId);
         toast.success('Lodging deleted successfully!');
       } catch (error) {
         console.error('Failed to delete lodging:', error);
@@ -102,6 +106,69 @@ export function LodgingCard() {
   const handleEditClick = (lodging: Lodging) => {
     setEditingLodging(lodging);
     setShowEditDialog(true);
+  };
+
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, currency?: string) => {
+    if (!tripId || !expenseLodging) return;
+
+    const lodgingDate = new Date(expenseLodging.checkIn);
+    const dateString = format(lodgingDate, 'yyyy-MM-dd');
+
+    try {
+      const response = await budgetApi.addExpense(tripId, { 
+        description, 
+        cost, 
+        category, 
+        lodgingId: expenseLodging.id, 
+        currency, 
+        date: dateString 
+      });
+      
+      toast.success('Expense added successfully!');
+      
+      const updatedLodging = {
+        ...expenseLodging,
+        expense: response.data
+      };
+      updateLodging(expenseLodging.id, updatedLodging);
+      setShowAddExpenseDialog(false);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+    if (!expenseLodging) return;
+
+    try {
+      const response = await budgetApi.updateExpense(expenseId, { 
+        description, 
+        cost, 
+        category, 
+        currency,
+        date
+      });
+      
+      setShowEditExpenseDialog(false);
+      toast.success('Expense updated successfully!');
+      
+      const updatedLodging = {
+        ...expenseLodging,
+        expense: response.data
+      };
+      updateLodging(expenseLodging.id, updatedLodging);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleOpenExpenseDialog = (lodging: Lodging) => {
+    setExpenseLodging(lodging);
+    if (lodging.expense) {
+      setShowEditExpenseDialog(true);
+    } else {
+      setShowAddExpenseDialog(true);
+    }
   };
 
   return (
@@ -152,7 +219,7 @@ export function LodgingCard() {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{lodging.name}</h3>
-                  <p className="text-sm text-gray-600">{lodging.address}</p>
+                  <p className="text-sm font-semibold text-gray-400">{lodging.address}</p>
                   <div className="mt-2 flex gap-4 text-sm text-gray-700 dark:text-gray-300">
                     <span>
                       Check-in: {format(new Date(lodging.checkIn), "MMM dd, yyyy")}
@@ -160,26 +227,55 @@ export function LodgingCard() {
                     <span>
                       Check-out: {format(new Date(lodging.checkOut), "MMM dd, yyyy")}
                     </span>
-                    <span>Guests: {lodging.guests}</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleOpenExpenseDialog(lodging)}
+                    className="text-green-600 hover:text-green-700 transition"
+                    title={lodging.expense ? "Edit expense" : "Add expense"}
+                  >
+                    <FaMoneyBillWave className="w-4 h-4" />
+                    {lodging.expense && (
+                      <span className="ml-1 text-xs font-semibold">
+                        {formatCurrencyAmount(lodging.expense.cost, lodging.expense.currency)}
+                      </span>
+                    )}
+                  </button>
                   <button
                     onClick={() => handleEditClick(lodging)}
-                    className="text-blue-600 hover:text-blue-800 p-2"
+                    className="text-indigo-500 hover:text-indigo-700 "
                   >
-                    <FaEdit size={18} />
+                    <FaEdit  />
                   </button>
                   <button
                     onClick={() => handleDeleteLodging(lodging.id)}
-                    className="text-red-600 hover:text-red-800 p-2"
+                    className="text-slate-400 hover:text-red-700 "
                   >
-                    <FaTrash size={18} />
+                    <FaTrash />
                   </button>
                 </div>
               </div>
             </div>
           ))}
+
+          <GoogleMaps center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined} 
+          markers={lodgings.map(lodging => ({
+            lat: lodging.latitude || 0,
+            lng: lodging.longitude || 0
+          }))}
+          pin={
+            <div className="relative">
+              <div className="absolute -top-12 -left-6 flex flex-col items-center">
+                <div className="bg-indigo-500 rounded-full p-3 shadow-lg border-4 border-white hover:scale-110 transition-transform">
+                  <FaBed className="w-6 h-6 text-white" />
+                </div>
+                <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-white -mt-1" />
+                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-indigo-500 -mt-[11px]" />
+              </div>
+            </div>
+        }
+          />
         </div>
       )}
 
@@ -195,6 +291,23 @@ export function LodgingCard() {
         onLodgingUpdated={handleUpdateLodging}
         lodging={editingLodging}
       />
+
+      {expenseLodging && (
+        <>
+          <AddExpenseDialog
+            open={showAddExpenseDialog}
+            onOpenChange={setShowAddExpenseDialog}
+            onSubmit={handleAddExpense}
+          />
+
+          <EditExpenseDialog
+            open={showEditExpenseDialog}
+            expense={expenseLodging.expense as Expense | null}
+            onOpenChange={setShowEditExpenseDialog}
+            onSubmit={handleEditExpense}
+          />
+        </>
+      )}
     </div>
   );
 }

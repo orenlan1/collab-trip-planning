@@ -145,7 +145,7 @@ export function FlightsCard() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, _activityId?: string, currency?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, currency?: string) => {
     if (!tripId || !expenseFlight) return;
 
     const flightDate = new Date(expenseFlight.departure);
@@ -325,10 +325,6 @@ export function FlightsCard() {
         <>
           <AddExpenseDialog
             open={showAddExpenseDialog}
-            activity={{
-              id: expenseFlight.id,
-              name: `Flight to ${expenseFlight.to}`,
-            } as any}
             onOpenChange={setShowAddExpenseDialog}
             onSubmit={handleAddExpense}
           />

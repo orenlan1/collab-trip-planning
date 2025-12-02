@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LodgingForm } from './LodgingForm';
 import type { Lodging } from '@/pages/lodging/services/api';
 import type { LodgingFormData } from './AddLodgingDialog';
+import type { Place } from '@/pages/tripday/components/PlaceInput';
 
 interface EditLodgingDialogProps {
   open: boolean;
@@ -13,38 +14,51 @@ interface EditLodgingDialogProps {
 }
 
 export function EditLodgingDialog({ open, onOpenChange, onLodgingUpdated, lodging }: EditLodgingDialogProps) {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [checkInDate, setCheckInDate] = useState<Date | undefined>();
-  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(1);
+  const [formData, setFormData] = useState<LodgingFormData>({
+    name: '',
+    address: '',
+    checkInDate: undefined,
+    checkOutDate: undefined,
+    latitude: undefined,
+    longitude: undefined
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handlePlaceSelect = (_place: { id: string; name: string; address: string }): void => {
-    // Place data is already set via setName and setAddress in LodgingForm
-    // This callback can be used for additional logic if needed
+  const handlePlaceSelect = (place: Place): void => {
+    setFormData(prev => ({
+      ...prev,
+      name: place.name,
+      address: place.address,
+      latitude: place.location?.lat,
+      longitude: place.location?.lng
+    }));
   };
 
-  // Populate form when lodging changes
   useEffect(() => {
-    if (lodging && open) {
-      setName(lodging.name);
-      setAddress(lodging.address);
-      setCheckInDate(new Date(lodging.checkIn));
-      setCheckOutDate(new Date(lodging.checkOut));
-      setGuests(lodging.guests);
+    if (lodging) {
+      setFormData({
+        name: lodging.name,
+        address: lodging.address,
+        checkInDate: new Date(lodging.checkIn),
+        checkOutDate: new Date(lodging.checkOut),
+        latitude: lodging.latitude,
+        longitude: lodging.longitude
+      });
+      setError('');
     }
-  }, [lodging, open]);
+  }, [lodging]);
 
-  const handleDialogClose = () => {
+  const handleDialogClose = (): void => {
     onOpenChange(false);
-    // Reset form
-    setName('');
-    setAddress('');
-    setCheckInDate(undefined);
-    setCheckOutDate(undefined);
-    setGuests(1);
+    setFormData({
+      name: '',
+      address: '',
+      checkInDate: undefined,
+      checkOutDate: undefined,
+      latitude: undefined,
+      longitude: undefined
+    });
     setError('');
   };
 
@@ -52,29 +66,19 @@ export function EditLodgingDialog({ open, onOpenChange, onLodgingUpdated, lodgin
     e.preventDefault();
     setError('');
 
-    // Validation
-    if (!name || !address || !checkInDate || !checkOutDate || !guests) {
+    if (!formData.name || !formData.address || !formData.checkInDate || !formData.checkOutDate) {
       setError('All fields are required');
       return;
     }
 
-    if (checkInDate >= checkOutDate) {
+    if (formData.checkInDate >= formData.checkOutDate) {
       setError('Check-out date must be after check-in date');
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      const lodgingData: LodgingFormData = {
-        name,
-        address,
-        checkInDate,
-        checkOutDate,
-        guests,
-      };
-
-      await onLodgingUpdated(lodgingData);
+      await onLodgingUpdated(formData);
       handleDialogClose();
     } catch (error: any) {
       console.error('Failed to update lodging:', error);
@@ -93,17 +97,9 @@ export function EditLodgingDialog({ open, onOpenChange, onLodgingUpdated, lodgin
 
         <form onSubmit={handleSubmit}>
           <LodgingForm
-            name={name}
-            setName={setName}
-            address={address}
-            setAddress={setAddress}
+            formData={formData}
+            onFormDataChange={setFormData}
             onPlaceSelect={handlePlaceSelect}
-            checkInDate={checkInDate}
-            setCheckInDate={setCheckInDate}
-            checkOutDate={checkOutDate}
-            setCheckOutDate={setCheckOutDate}
-            guests={guests}
-            setGuests={setGuests}
             isSubmitting={isSubmitting}
             error={error}
           />

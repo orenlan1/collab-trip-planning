@@ -17,7 +17,11 @@ const create = async (data: CreateLodgingInput, tripId: string) => {
             address: data.address,
             checkIn: data.checkIn!,
             checkOut: data.checkOut!,
-            guests: data.guests
+            latitude: data.latitude ?? null,
+            longitude: data.longitude ?? null
+        },
+        include: {
+            expense: true
         }
     });
 };
@@ -25,6 +29,9 @@ const create = async (data: CreateLodgingInput, tripId: string) => {
 const getByTripId = async (tripId: string) => {
     return prisma.lodging.findMany({
         where: { tripId },
+        include: {
+            expense: true
+        },
         orderBy: {
             checkIn: 'asc'
         }
@@ -47,7 +54,11 @@ const update = async (lodgingId: string, data: UpdateLodgingInput) => {
             ...(data.address !== undefined && { address: data.address }),
             ...(data.checkIn !== undefined && { checkIn: data.checkIn }),
             ...(data.checkOut !== undefined && { checkOut: data.checkOut }),
-            ...(data.guests !== undefined && { guests: data.guests })
+            ...(data.latitude !== undefined && { latitude: data.latitude }),
+            ...(data.longitude !== undefined && { longitude: data.longitude })
+        },
+        include: {
+            expense: true
         }
     });
 };

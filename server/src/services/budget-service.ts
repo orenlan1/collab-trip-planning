@@ -218,7 +218,8 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
             category: data.category,
             date: expenseDate,
             activityId: data.activityId || null,
-            flightId: data.flightId || null
+            flightId: data.flightId || null,
+            lodgingId: data.lodgingId || null
         },
         include: {
             activity: {
@@ -240,6 +241,15 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
                     flightNumber: true,
                     from: true,
                     to: true
+                }
+            },
+            lodging: {
+                select: {
+                    id: true,
+                    name: true,
+                    address: true,
+                    checkIn: true,
+                    checkOut: true
                 }
             }
         }
@@ -280,6 +290,15 @@ const updateExpense = async (expenseId: string, data: UpdateExpenseInput): Promi
                             date: true
                         }
                     }
+                }
+            },
+            lodging: {
+                select: {
+                    id: true,
+                    name: true,
+                    address: true,
+                    checkIn: true,
+                    checkOut: true
                 }
             }
         }
@@ -409,6 +428,24 @@ const getExpenses = async (tripId: string, page: number, limit: number): Promise
                             date: true
                         }
                     }
+                }
+            },
+            flight: {
+                select: {
+                    id: true,
+                    airline: true,
+                    flightNumber: true,
+                    from: true,
+                    to: true
+                }
+            },
+            lodging: {
+                select: {
+                    id: true,
+                    name: true,
+                    address: true,
+                    checkIn: true,
+                    checkOut: true
                 }
             }
         },
