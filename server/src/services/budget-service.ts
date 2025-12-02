@@ -355,14 +355,23 @@ const getSummary = async (tripId: string) => {
     // Use optimized aggregation with minimal API calls
     const expensesByCategory = await aggregateExpensesByCategoryWithConversion(expenses, budget.currency);
 
-    // Calculate total spent from all categories
     const totalSpent = Object.values(expensesByCategory).reduce((sum, amount) => sum + amount, 0);
 
-    // Calculate total budget (per person * number of members)
     const numberOfMembers = budget.trip.members.length;
-    const totalBudget = budget.totalPerPerson * numberOfMembers;
+    
+    if (budget.totalPerPerson === null) {
+        return {
+            ...expensesByCategory,
+            totalSpent,
+            totalBudget: 0,
+            totalPerPerson: null,
+            numberOfMembers,
+            remaining: 0,
+            currency: budget.currency
+        };
+    }
 
-    // Calculate remaining
+    const totalBudget = budget.totalPerPerson * numberOfMembers;
     const remaining = totalBudget - totalSpent;
 
     return {

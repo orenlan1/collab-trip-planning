@@ -8,7 +8,7 @@ export type ExpenseCategory =
 export interface Budget {
   id: string;
   tripId: string;
-  totalPerPerson: number;
+  totalPerPerson: number | null;
   currency: string;
   createdAt: string;
   updatedAt: string;
@@ -46,7 +46,7 @@ export interface BudgetSummary {
   MISCELLANEOUS: number;
   totalSpent: number;
   totalBudget: number;
-  totalPerPerson: number;
+  totalPerPerson: number | null;
   numberOfMembers: number;
   remaining: number;
   currency: string;

@@ -57,11 +57,17 @@ const create = async (data: CreateTripInput, creatorId: string) => {
         }
       },
       itinerary: {
-        create: {} // Initialize empty itinerary
+        create: {}
+      },
+      budget: {
+        create: {
+          currency: "USD"
+        }
       }
     },
     include: {
-      itinerary: true
+      itinerary: true,
+      budget: true
     },
   });
 

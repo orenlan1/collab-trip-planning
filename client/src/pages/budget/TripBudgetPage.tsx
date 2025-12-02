@@ -6,7 +6,6 @@ import { useTripStore } from '@/stores/tripStore';
 import { itinerariesApi } from '../itineraries/services/api';
 import type { BudgetSummary, ExpenseCategory } from './types/budget';
 import type { Activity } from '@/types/activity';
-import { EmptyBudgetState } from './components/EmptyBudgetState';
 import { BudgetOverviewCards } from './components/BudgetOverviewCards';
 import { BudgetCategories } from './components/BudgetCategories';
 import { BudgetSummaryChart } from './components/BudgetSummaryChart';
@@ -38,19 +37,18 @@ export function TripBudgetPage() {
 
   const itineraryId = useTripStore(state => state.itinerary.id);
 
-  const fetchActivities = async () => {
+  const fetchActivities = async (): Promise<void> => {
     if (!itineraryId) return;
 
     try {
       const response = await itinerariesApi.getActivitiesByItinerary(itineraryId);
-      // response.data should be an array of activities
       setActivities(response.data || []);
     } catch (error) {
       console.error('Error fetching activities by itinerary:', error);
     }
   };
 
-  const fetchExpenses = async (page: number = 1, append: boolean = false) => {
+  const fetchExpenses = async (page: number = 1, append: boolean = false): Promise<void> => {
     if (!tripId) return;
 
     try {
@@ -76,47 +74,36 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleLoadMoreExpenses = () => {
+  const handleLoadMoreExpenses = (): void => {
     const nextPage = expensesPagination.page + 1;
     fetchExpenses(nextPage, true);
   };
 
-  const fetchBudgetSummary = async () => {
+  const fetchBudgetSummary = async (): Promise<void> => {
     if (!tripId) {
-      console.log('No tripId found');
       setIsLoading(false);
       return;
     }
     
-    console.log('Fetching budget summary for trip:', tripId);
-    
     try {
       setIsLoading(true);
       const response = await budgetApi.getSummary(tripId);
-      console.log('Budget summary response:', response.data);
       setSummary(response.data);
     } catch (error: any) {
       console.error('Error fetching budget:', error);
-      if (error.response?.status === 404) {
-        console.log('Budget not found (404), showing empty state');
-        setSummary(null);
-      } else {
-        toast.error('Failed to load budget');
-      }
+      toast.error('Failed to load budget');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log('TripBudgetPage mounted, tripId:', tripId);
     fetchBudgetSummary();
     fetchActivities();
     fetchExpenses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
-  const handleSetBudget = async (totalPerPerson: number, currency: string) => {
+  const handleSetBudget = async (totalPerPerson: number, currency: string): Promise<void> => {
     if (!tripId) return;
 
     try {
@@ -128,7 +115,7 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string) => {
+  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string): Promise<void> => {
     if (!tripId) return;
 
     try {
@@ -143,7 +130,7 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string): Promise<void> => {
     try {
       await budgetApi.updateExpense(expenseId, { description, cost, category, currency, date });
       setShowEditExpenseDialog(false);
@@ -158,7 +145,7 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleDeleteExpense = async (expenseId: string) => {
+  const handleDeleteExpense = async (expenseId: string): Promise<void> => {
     try {
       await budgetApi.deleteExpense(expenseId);
       toast.success('Expense deleted successfully!');
@@ -172,34 +159,21 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleOpenEditDialog = (expense: Expense) => {
+  const handleOpenEditDialog = (expense: Expense): void => {
     setSelectedExpense(expense);
     setShowEditExpenseDialog(true);
   };
 
-  const handleOpenDeleteDialog = (expense: Expense) => {
+  const handleOpenDeleteDialog = (expense: Expense): void => {
     setSelectedExpense(expense);
     setShowDeleteExpenseDialog(true);
   };
 
-  if (isLoading) {
+  if (isLoading || !summary) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-gray-500">Loading budget...</div>
       </div>
-    );
-  }
-
-  if (!summary) {
-    return (
-      <>
-        <EmptyBudgetState onSetBudget={() => setShowSetBudgetDialog(true)} />
-        <SetBudgetDialog
-          open={showSetBudgetDialog}
-          onOpenChange={setShowSetBudgetDialog}
-          onSubmit={handleSetBudget}
-        />
-      </>
     );
   }
 
@@ -235,7 +209,7 @@ export function TripBudgetPage() {
         onOpenChange={setShowSetBudgetDialog}
         onSubmit={handleSetBudget}
         defaultCurrency={summary.currency}
-        defaultTotalPerPerson={summary.totalPerPerson}
+        defaultTotalPerPerson={summary.totalPerPerson ?? undefined}
       />
 
       <AddExpenseDialog

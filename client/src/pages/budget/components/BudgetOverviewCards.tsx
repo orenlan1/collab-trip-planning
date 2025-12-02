@@ -9,8 +9,13 @@ interface BudgetOverviewCardsProps {
 }
 
 export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCardsProps) {
-  const spentPercentage = (summary.totalSpent / summary.totalBudget) * 100;
-  const remainingPercentage = (summary.remaining / summary.totalBudget) * 100;
+  const isBudgetSet = summary.totalPerPerson !== null;
+  const spentPercentage = isBudgetSet && summary.totalBudget > 0 
+    ? (summary.totalSpent / summary.totalBudget) * 100 
+    : 0;
+  const remainingPercentage = isBudgetSet && summary.totalBudget > 0
+    ? (summary.remaining / summary.totalBudget) * 100 
+    : 0;
 
   return (
     <div className="space-y-4 mb-8">
@@ -20,7 +25,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
         {onEditBudget && (
           <Button onClick={onEditBudget} variant="outline" size="sm">
             <Pencil className="w-4 h-4 mr-2" />
-            Edit Budget
+            {isBudgetSet ? 'Edit Budget' : 'Set Budget'}
           </Button>
         )}
       </div>
@@ -38,7 +43,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-300">Total Budget</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
-          <div className="bg-green-500 h-1 rounded-full" style={{ width: '100%' }}></div>
+          <div className="bg-green-500 h-1 rounded-full" style={{ width: isBudgetSet ? '100%' : '0%' }}></div>
         </div>
       </div>
 
@@ -77,7 +82,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
             <div className="w-4 h-4 bg-orange-500 rounded"></div>
           </div>
           <span className={`text-sm font-medium ${
-            summary.remaining < 0 ? 'text-red-500' : 'text-green-500'
+            isBudgetSet && summary.remaining < 0 ? 'text-red-500' : 'text-green-500'
           }`}>
             {remainingPercentage.toFixed(1)}%
           </span>
@@ -86,12 +91,12 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
           {formatCurrencyAmount(summary.remaining, summary.currency)}
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-300">
-          {summary.remaining < 0 ? 'Over Budget' : 'Remaining'}
+          {isBudgetSet && summary.remaining < 0 ? 'Over Budget' : 'Remaining'}
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div 
             className={`h-1 rounded-full ${
-              summary.remaining < 0 ? 'bg-red-500' : 'bg-orange-500'
+              isBudgetSet && summary.remaining < 0 ? 'bg-red-500' : 'bg-orange-500'
             }`}
             style={{ width: `${Math.min(Math.abs(remainingPercentage), 100)}%` }}
           ></div>
@@ -109,11 +114,11 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
           </span>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-          {formatCurrencyAmount(summary.totalPerPerson, summary.currency)}
+          {formatCurrencyAmount(isBudgetSet ? summary.totalPerPerson! : 0, summary.currency)}
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-300">Per Person</div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
-          <div className="bg-purple-500 h-1 rounded-full" style={{ width: '100%' }}></div>
+          <div className="bg-purple-500 h-1 rounded-full" style={{ width: isBudgetSet ? '100%' : '0%' }}></div>
         </div>
       </div>
     </div>
