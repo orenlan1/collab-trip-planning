@@ -13,7 +13,7 @@ export function TripLayout() {
       <TripSocketProvider>
       <div className="flex relative">
         <TripSidebar />
-        <main className="flex-1 w-full lg:max-w-[1200px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
+        <main className="flex-1 w-full lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
           <ToastContainer 
             position="top-right"
             autoClose={5000}

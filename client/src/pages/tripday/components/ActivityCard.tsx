@@ -26,9 +26,12 @@ import { formatCurrencyAmount } from "@/lib/currency";
 interface ActivityCardProps {
   activity: Activity;
   date: Date;
+  index?: number;
+  onHover?: (activityId: string) => void;
+  onLeave?: () => void;
 }
 
-export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
+export const ActivityCard = ({ activity, date, index, onHover, onLeave }: ActivityCardProps) => {
   const { tripId } = useParams<{ tripId: string }>();
   const updateActivity = useTripDayStore(state => state.updateActivity);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -132,7 +135,17 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
     }
   };
 
+  const handleOnActivityHover = () => {
+    if (onHover && activity.latitude && activity.longitude) {
+      onHover(activity.id);
+    }
+  };
 
+  const handleOnActivityLeave = () => {
+    if (onLeave) {
+      onLeave();
+    }
+  };
 
   return (
     <div className="flex items-start gap-6 my-4">
@@ -140,11 +153,11 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
       <div className="flex flex-col items-center min-w-[60px]">
         {activity.startTime ? (
           <div className="flex flex-col items-center">
-            <div className="text-xs font-medium text-gray-600 mb-2">
+            <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
               {formatTimeDisplay(activity.startTime, activity.endTime)}
             </div>
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900">
+              <span className="text-white font-bold text-sm">{index}</span>
             </div>
           </div>
         ) : (
@@ -157,12 +170,12 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
             </div>
           </div>
         )}
-        <div className="w-0.5 h-24 bg-gray-300 mt-3"></div>
+        <div className="w-0.5 h-24 bg-gray-300 dark:bg-gray-600 mt-3"></div>
       </div>
 
       {/* Activity Card */}
-      <div className="flex-1">
-        <div className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-slate-800">
+      <div onMouseEnter={handleOnActivityHover} onMouseLeave={handleOnActivityLeave} className="flex-1">
+        <div className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-800">
           {/* Top: image | name+status+description | trash */}
           <div className="flex flex-col">
             <div className="flex items-start gap-4 p-4">
@@ -195,7 +208,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Add any important notes"
-                    className="p-3 w-full resize-none rounded-md bg-gray-50 dark:bg-slate-700 border border-transparent focus:border-neutral-300 focus:ring-0"
+                    className="p-3 w-full resize-none rounded-md bg-gray-100 dark:bg-slate-700 border border-transparent focus:border-neutral-300 focus:ring-0 text-slate-900 dark:text-slate-300 placeholder:text-slate-500 dark:placeholder:text-slate-300"
                     rows={3}
                   />
                 </div>
@@ -203,10 +216,10 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
             </div>
 
             {/* Bottom: time and location */}
-            <div className="border-t border-gray-100 dark:border-slate-700 px-4 py-3 flex gap-4 items-center text-sm text-slate-500 dark:text-slate-300 font-semibold">
+            <div className="border-t border-gray-100 dark:border-slate-700 px-4 py-3 flex gap-4 items-center text-sm text-slate-700 dark:text-slate-300 font-semibold">
 
-              <div className="flex items-center">
-                <FaMoneyBillWave className="text-gray-500 hover:text-slate-800" />
+              <div className="flex items-center dark:hover:text-slate-200 hover:text-slate-800 cursor-pointer">
+                <FaMoneyBillWave className="text-green-600 hover:text-green-700" />
                 {activity.expense ? (
                   <span 
                     className="ml-2 font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-800 cursor-pointer"
@@ -215,7 +228,7 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
                     {formatCurrencyAmount(activity.expense.cost, activity.expense.currency)}
                   </span>
                 ) : (
-                  <button className="ml-2 text-sm hover:text-slate-800 cursor-pointer" onClick={() => setShowAddExpenseDialog(true)}>
+                  <button className="ml-2 text-sm  cursor-pointer" onClick={() => setShowAddExpenseDialog(true)}>
                     Add cost
                   </button>
                 )}
@@ -235,11 +248,11 @@ export const ActivityCard = ({ activity, date }: ActivityCardProps) => {
                 onSubmit={handleEditExpense}
               />
 
-              <div className="flex items-center hover:text-slate-800 cursor-pointer">
+              <div className="flex items-center hover:text-slate-800 cursor-pointer dark:hover:text-slate-200">
                 <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                   <PopoverTrigger asChild>
                     <div className="flex items-center">
-                      <MdAccessTimeFilled className="hover:text-slate-800" />
+                      <MdAccessTimeFilled className="hover:text-slate-800 dark:hover:text-slate-200" />
                       <span className="ml-1">
                         {formatTimeDisplay(activity.startTime, activity.endTime)}
                       </span>

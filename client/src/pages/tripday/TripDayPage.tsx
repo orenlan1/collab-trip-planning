@@ -24,6 +24,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
     const latitude = useTripStore(state => state.latitude);
     const longitude = useTripStore(state => state.longitude);
+    const [hoveredActivityId, setHoveredActivityId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTripDayData = async () => {
@@ -52,6 +53,14 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
         // Other types will be implemented later
     };
 
+    const handleActivityHover = (activityId: string) => {
+        setHoveredActivityId(activityId);
+    };
+
+    const handleActivityLeave = () => {
+        setHoveredActivityId(null);
+    };
+
     const handleCreateActivity = async (placeName: string, address: string, latitude?: number, longitude?: number) => {
         try {
             const response = await tripDaysApi.addNewActivity(id, { 
@@ -72,8 +81,8 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     return (
         <div>
             <div className="flex justify-between items-center">
-                <div className="text-md font-semibold p-4">
-                  {tripDay?.date && (<>  <h2>Day Itinerary - {tripDay?.date.getDate()} {monthNames[tripDay?.date.getMonth()]}, {tripDay?.date.getFullYear()}</h2></>)}
+                <div className="text-lg font-semibold p-4">
+                  {tripDay?.date && (<>  <h2>{tripDay?.date.getDate()} {monthNames[tripDay?.date.getMonth()]}, {tripDay?.date.getFullYear()}</h2></>)}
                 </div>
                 <div>
                     <button 
@@ -86,7 +95,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
             </div>
             <hr />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 p-4">
                 <div className="flex flex-col gap-6 order-first md:order-last">
                     <div className="border-2 border-gray-300 my-4 p-4 bg-white/80 dark:bg-slate-800 rounded-lg h-fit">
                         <h2 className="text-lg font-medium mb-4">Day Summary</h2>
@@ -101,13 +110,21 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                     
                     <div className="border-2 dark:bg-slate-800 border-gray-300 p-4 rounded-lg h-fit">
                         <h2 className="text-lg font-medium mb-4">Map Overview</h2>    
-                        <div className="w-full h-64 rounded-md overflow-hidden">
+                        <div className="w-full h-full rounded-md overflow-hidden">
                             <GoogleMaps 
                                 center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined}
-                                markers={tripDay?.activities.map(activity => ({
-                                    lat: activity.latitude || 0,
-                                    lng: activity.longitude || 0
-                                })) || []}
+                                markers={tripDay?.activities.map((activity, _idx, arr) => {
+                                    const activitiesWithTime = arr.filter(a => a.startTime);
+                                    const indexInTimed = activitiesWithTime.findIndex(a => a.id === activity.id);
+                                    return {
+                                        id: activity.id,
+                                        lat: activity.latitude || 0,
+                                        lng: activity.longitude || 0,
+                                        index: indexInTimed + 1,
+                                        hasTime: !!activity.startTime
+                                    };
+                                }) || []}
+                                hoveredMarkerId={hoveredActivityId || undefined}
                             />
                         </div>
                     </div>
@@ -117,25 +134,29 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                 </div>
 
                 <div className="md:col-span-2">
-                    {tripDay?.activities.map((activity) => (
-                        <ActivityCard 
-                            key={activity.id} 
-                            activity={activity} 
-                            date={tripDay.date} 
-                        />
-                    ))}
-                    <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <div className="bg-gray-200 p-3 rounded-full mb-3">
-                            <IoAdd className="text-2xl text-gray-500" />
+                    {tripDay?.activities.map((activity, _idx, arr) => {
+                        const activitiesWithTime = arr.filter(a => a.startTime);
+                        const indexInTimed = activitiesWithTime.findIndex(a => a.id === activity.id);
+                        return (
+                            <ActivityCard 
+                                key={activity.id} 
+                                activity={activity} 
+                                date={tripDay.date} 
+                                index={indexInTimed + 1}
+                                onHover={handleActivityHover}
+                                onLeave={handleActivityLeave}
+                            />
+                        );
+                    })}
+                    <div 
+                        onClick={() => setShowChooseActivityDialog(true)} 
+                        className="border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center p-6 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer transition-all"
+                    >
+                        <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-full mb-3">
+                            <IoAdd className="text-2xl text-slate-500 dark:text-slate-400" />
                         </div>
                         <h3 className="text-lg font-medium">Add New Activity</h3>
-                        <p className="text-gray-500 text-sm text-center mt-1">Create another activity for this day</p>
-                        <button 
-                            className="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-md"
-                            onClick={() => setShowChooseActivityDialog(true)}
-                        >
-                            Create Activity
-                        </button>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm text-center mt-1">Create another activity for this day</p>
                     </div>
                 </div>
             

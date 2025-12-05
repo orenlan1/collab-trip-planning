@@ -2,6 +2,10 @@ import type { BudgetSummary } from '../types/budget';
 import { formatCurrencyAmount } from '@/lib/currency';
 import { Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FaWallet } from "react-icons/fa";
+import { FaCreditCard } from "react-icons/fa6";
+import { FaPiggyBank } from "react-icons/fa";
+import { GoGraph } from "react-icons/go";
 
 interface BudgetOverviewCardsProps {
   summary: BudgetSummary;
@@ -35,7 +39,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-green-100 rounded-lg">
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <FaWallet className="w-4 h-4 text-green-500" />
           </div>
         </div>
         <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -51,7 +55,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-blue-100 rounded-lg">
-            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <FaCreditCard className="w-4 h-4 text-blue-500" />
           </div>
           <span className={`text-sm font-medium ${
             spentPercentage > 80 ? 'text-red-500' : 'text-blue-500'
@@ -79,7 +83,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-orange-100 rounded-lg">
-            <div className="w-4 h-4 bg-orange-500 rounded"></div>
+            <FaPiggyBank className="w-4 h-4 text-orange-500" />
           </div>
           <span className={`text-sm font-medium ${
             isBudgetSet && summary.remaining < 0 ? 'text-red-500' : 'text-green-500'
@@ -107,7 +111,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
       <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 bg-purple-100 rounded-lg">
-            <div className="w-4 h-4 bg-purple-500 rounded"></div>
+            <GoGraph className="w-4 h-4 text-purple-500" />
           </div>
           <span className="text-gray-500 dark:text-gray-300 text-sm font-medium">
             {summary.numberOfMembers} {summary.numberOfMembers === 1 ? 'Person' : 'People'}

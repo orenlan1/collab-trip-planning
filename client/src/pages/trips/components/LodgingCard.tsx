@@ -16,6 +16,7 @@ import { formatCurrencyAmount } from "@/lib/currency";
 import { useTripStore } from "@/stores/tripStore";
 import { GoogleMaps } from "@/components/GoogleMaps";
 import { FaBed } from "react-icons/fa";
+import { GrLocationPin } from "react-icons/gr";
 
 export function LodgingCard() {
   const { tripId } = useParams<{ tripId: string }>();
@@ -218,9 +219,12 @@ export function LodgingCard() {
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{lodging.name}</h3>
-                  <p className="text-sm font-semibold text-gray-400">{lodging.address}</p>
-                  <div className="mt-2 flex gap-4 text-sm text-gray-700 dark:text-gray-300">
+                  <h3 className="font-semibold text-lg dark:text-white mb-3">{lodging.name}</h3>
+                  <div className="flex items-center">
+                    <GrLocationPin className="inline-block text-gray-400 dark:text-slate-300 mr-1" />
+                    <p className="text-sm font-semibold text-gray-400 dark:text-slate-300">{lodging.address}</p>
+                  </div>
+                  <div className="mt-2 flex gap-4 text-sm text-gray-700 dark:text-slate-300">
                     <span>
                       Check-in: {format(new Date(lodging.checkIn), "MMM dd, yyyy")}
                     </span>
@@ -261,8 +265,9 @@ export function LodgingCard() {
 
           <GoogleMaps center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined} 
           markers={lodgings.map(lodging => ({
+            id: lodging.id,
             lat: lodging.latitude || 0,
-            lng: lodging.longitude || 0
+            lng: lodging.longitude || 0,
           }))}
           pin={
             <div className="relative">

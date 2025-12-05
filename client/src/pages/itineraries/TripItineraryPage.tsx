@@ -13,6 +13,9 @@ export function TripItineraryPage() {
   const startDate = useTripStore(state => state.startDate);
   const endDate = useTripStore(state => state.endDate);
   const [showDatesSetter, setShowDatesSetter] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   
   const { 
     days, 
@@ -48,6 +51,30 @@ export function TripItineraryPage() {
     fetchItineraryData();
   }, [itineraryId,startDate, endDate, setItineraryData, setIsLoading, setError]);
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    setIsDragging(true);
+    setStartX(e.pageX - element.offsetLeft);
+    setScrollLeft(element.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const element = e.currentTarget;
+    const x = e.pageX - element.offsetLeft;
+    const walk = (x - startX) * 2;
+    element.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
   if (hasNoTripDates) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
@@ -76,23 +103,33 @@ export function TripItineraryPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-4">Trip Timeline</h1>
       {isLoading ? (
         <p>Loading itinerary...</p>
       ) : error ? (
         <p>Error: {error}</p>
       ) : days.length > 0 ? (
-        <div>
-          <hr />
-          <div className="flex justify-around overflow-x-auto gap-5 m-10">
-            {days.map((day, index) => (
-              <div key={day.id}>
-                <DateCard date={new Date(day.date)} index={index} setDay={() => selectDay(day.id)} 
-                  isSelected={selectedDayId === day.id} />
-              </div>
-            ))}
-          </div>
-          <hr />
+        <div>    
+          <div className="sticky top-[72px] p-4 z-40 bg-sky-50/60 dark:bg-slate-900">
+            <h1 className="text-2xl font-semibold mb-4">Trip Timeline</h1>
+            <div 
+              className={`px-8 pb-0 mt-6 overflow-x-auto scrollbar-hide flex gap-3 pb-4 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+            >
+              {days.map((day, index) => (
+                <DateCard 
+                  key={day.id}
+                  date={new Date(day.date)} 
+                  index={index} 
+                  setDay={() => selectDay(day.id)} 
+                  isSelected={selectedDayId === day.id} 
+                />
+              ))}
+            </div>
+          </div>      
 
           {selectedDay && (
             <div>

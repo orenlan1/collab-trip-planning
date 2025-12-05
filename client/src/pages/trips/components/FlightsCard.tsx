@@ -247,8 +247,8 @@ export function FlightsCard() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <IoAirplaneOutline className="text-indigo-500" />
-                  <span className="font-semibold text-gray-900">{flight.airline}</span>
-                  <span className="text-sm text-gray-500">#{flight.flightNumber}</span>
+                  <span className="font-semibold dark:text-white text-gray-900">{flight.airline}</span>
+                  <span className="text-sm dark:text-slate-300 text-gray-500">#{flight.flightNumber}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -282,23 +282,23 @@ export function FlightsCard() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Departure</p>
-                  <p className="font-medium text-gray-900">{flight.from}</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-500 dark:text-slate-200 mb-1">Departure</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{flight.from}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
                     {format(new Date(flight.departure), 'MMM dd, yyyy')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
                     {flight.departure.split('T')[1].substring(0, 5)}
                   </p>
                 </div>
                 
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Arrival</p>
-                  <p className="font-medium text-gray-900">{flight.to}</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-500 dark:text-slate-200 mb-1">Arrival</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{flight.to}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
                     {format(new Date(flight.arrival), 'MMM dd, yyyy')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
                     {flight.arrival.split('T')[1].substring(0, 5)}
                   </p>
                 </div>
