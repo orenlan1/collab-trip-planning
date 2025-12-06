@@ -1,4 +1,4 @@
-import { useEffect} from 'react';
+import { useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 import { FlightsCard } from './components/FlightsCard';
 import { ParticipantsCard } from './components/ParticipantsCard';
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { DatesSetter } from './components/DatesSetter';
 import { tripsApi } from './services/api';
+import { TailSpin } from 'react-loader-spinner'
 
 
 export const TripOverviewPage = () => {
@@ -26,11 +27,13 @@ export const TripOverviewPage = () => {
   const setTripData = useTripStore(state => state.setTripData);
   const fetchFlights = useTripStore(state => state.fetchFlights);
   const fetchLodgings = useTripStore(state => state.fetchLodgings);
+  const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
     const fetchTripData = async () => {
       if (tripId) {
         try {
+          setIsLoading(true);
           const response = await tripsApi.getById(tripId);
           setTripData(response.data);
           // Fetch flights and lodgings after trip data is loaded
@@ -38,8 +41,10 @@ export const TripOverviewPage = () => {
             fetchFlights(tripId),
             fetchLodgings(tripId)
           ]);
+          setIsLoading(false);
         } catch (error) {
           console.error("Error fetching trip data:", error);
+          setIsLoading(false);
         }
       }
     };
@@ -47,6 +52,19 @@ export const TripOverviewPage = () => {
     fetchTripData();
   }, [tripId, setTripData, fetchFlights, fetchLodgings]);
 
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+        <TailSpin
+          height="80"
+          width="80"
+          color="#4F46E5"
+          ariaLabel="loading"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 ">

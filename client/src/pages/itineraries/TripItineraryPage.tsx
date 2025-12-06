@@ -1,6 +1,7 @@
 import { useTripStore } from "@/stores/tripStore";
 import { useItineraryStore } from "@/stores/itineraryStore";
 import { useEffect, useState } from "react";
+import { TailSpin } from 'react-loader-spinner';
 import { DateCard } from "./components/DateCard";
 import { TripDayPage } from "../tripday/TripDayPage";
 import { itinerariesApi } from "./services/api"; 
@@ -84,7 +85,6 @@ export function TripItineraryPage() {
             Add trip dates to start working on your itinerary.
           </p>
         </div>
-        
         {!showDatesSetter ? (
           <button
             onClick={() => setShowDatesSetter(true)}
@@ -104,7 +104,9 @@ export function TripItineraryPage() {
   return (
     <div>
       {isLoading ? (
-        <p>Loading itinerary...</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+          <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
+        </div>
       ) : error ? (
         <p>Error: {error}</p>
       ) : days.length > 0 ? (

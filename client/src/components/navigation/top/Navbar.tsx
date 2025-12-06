@@ -8,7 +8,7 @@ export function Navbar() {
   const { user } = useAuth();
 
   return (
-    <header className="flex bg-neutral-900/8 dark:bg-neutral-900/50 border-neutral-200/40 dark:border-neutral-800/60 border-b pt-4 pr-6 pb-4 pl-6 backdrop-blur-sm items-center justify-between sticky top-0 z-50">
+    <header className="flex bg-neutral-900/8 dark:bg-neutral-900/50 border-neutral-200/40 dark:border-neutral-800/60 border-b pt-4 pr-6 pb-4 pl-6 backdrop-blur-sm items-center justify-between sticky top-0 z-[200]">
       <div className="flex items-center gap-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">

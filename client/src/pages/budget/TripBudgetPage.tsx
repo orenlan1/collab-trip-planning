@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TailSpin } from 'react-loader-spinner';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { budgetApi } from './services/budgetApi';
@@ -91,7 +92,6 @@ export function TripBudgetPage() {
       setSummary(response.data);
     } catch (error: any) {
       console.error('Error fetching budget:', error);
-      toast.error('Failed to load budget');
     } finally {
       setIsLoading(false);
     }
@@ -171,8 +171,8 @@ export function TripBudgetPage() {
 
   if (isLoading || !summary) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-gray-500">Loading budget...</div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+        <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
       </div>
     );
   }

@@ -42,7 +42,7 @@ export function TripSidebar() {
       {/* Mobile menu button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-22 left-4 z-50 lg:hidden bg-white dark:bg-slate-800 p-2 rounded-md shadow-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-slate-700 transition"
+        className="fixed top-22 left-4 z-[120] lg:hidden bg-white dark:bg-slate-800 p-2 rounded-md shadow-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-slate-700 transition"
         aria-label="Toggle menu"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -56,7 +56,7 @@ export function TripSidebar() {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[99] lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -66,9 +66,9 @@ export function TripSidebar() {
         fixed lg:static 
         w-64 bg-white/80 dark:bg-slate-800 backdrop-blur-sm
         min-h-[calc(100vh-64px)] 
-        border-r border-neutral-200/40 dark:border-neutral-800/60
+        border-r border-neutral-200/40 dark:border-neutral-700/40
         transition-transform duration-300 ease-in-out
-        z-40
+        z-[100]
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
       <nav className="flex flex-col p-4 sticky top-20">

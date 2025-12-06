@@ -1,4 +1,5 @@
 import { use, useEffect, useRef } from "react";
+import { TailSpin } from 'react-loader-spinner';
 import { useTripChat } from "./hooks/useTripChat"; 
 import { MessageBubble } from "@/pages/chat/components/MessageBubble";
 import { ChatInput } from "@/pages/chat/components/ChatInput";
@@ -47,11 +48,8 @@ export function TripChatPage() {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500">
-              <p className="text-lg font-medium">No messages yet</p>
-              <p className="text-sm">Start the conversation!</p>
-            </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+            <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
           </div>
         ) : (
           <>
@@ -73,10 +71,8 @@ export function TripChatPage() {
                 />
               );
             })}
-            
             {/* Typing Indicator */}
             <TypingIndicator user={typingUser} />
-            
             {/* Auto-scroll anchor */}
             <div ref={messagesEndRef} />
           </>
