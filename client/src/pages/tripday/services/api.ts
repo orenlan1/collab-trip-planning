@@ -8,11 +8,11 @@ const api = axios.create({
 
 
 export const tripDaysApi = {
-    getTripDay: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}`),
-    addNewActivity: (dayId: string, data: { name: string; address: string; latitude?: number; longitude?: number }) =>
-        api.post(`api/itineraries/days/${dayId}/activities`,  data ),
-    getActivities: (dayId: string) => api.get<TripDay>(`api/itineraries/days/${dayId}/activities`),
-    updateActivity: (activityId: string, data: Partial<{ description: string; startTime: string | null; endTime: string | null; name: string; address: string; image: string; latitude: number; longitude: number }>) =>
-      api.patch(`api/itineraries/activities/${activityId}`, data),
-    deleteActivity: (activityId: string) => api.delete(`api/itineraries/activities/${activityId}`),
+    getTripDay: (tripId: string, dayId: string) => api.get<TripDay>(`/api/trips/${tripId}/itinerary/days/${dayId}`),
+    addNewActivity: (tripId: string, dayId: string, data: { name: string; address: string; latitude?: number; longitude?: number }) =>
+        api.post(`/api/trips/${tripId}/itinerary/days/${dayId}/activities`,  data ),
+    getActivities: (tripId: string, dayId: string) => api.get<TripDay>(`/api/trips/${tripId}/itinerary/days/${dayId}/activities`),
+    updateActivity: (tripId: string, activityId: string, data: Partial<{ description: string; startTime: string | null; endTime: string | null; name: string; address: string; image: string; latitude: number; longitude: number }>) =>
+      api.patch(`/api/trips/${tripId}/itinerary/activities/${activityId}`, data),
+    deleteActivity: (tripId: string, activityId: string) => api.delete(`/api/trips/${tripId}/itinerary/activities/${activityId}`),
 };

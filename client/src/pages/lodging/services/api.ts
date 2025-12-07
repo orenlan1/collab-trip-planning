@@ -37,14 +37,14 @@ export interface UpdateLodgingInput {
 
 export const lodgingsApi = {
   create: (tripId: string, data: CreateLodgingInput) => 
-    api.post<Lodging>(`/api/lodgings/${tripId}/lodgings`, data),
+    api.post<Lodging>(`/api/trips/${tripId}/lodgings`, data),
   
   getAll: (tripId: string) => 
-    api.get<Lodging[]>(`/api/lodgings/${tripId}/lodgings`),
+    api.get<Lodging[]>(`/api/trips/${tripId}/lodgings`),
   
   update: (tripId: string, lodgingId: string, data: UpdateLodgingInput) => 
-    api.patch<Lodging>(`/api/lodgings/${tripId}/lodgings/${lodgingId}`, data),
+    api.patch<Lodging>(`/api/trips/${tripId}/lodgings/${lodgingId}`, data),
   
   delete: (tripId: string, lodgingId: string) => 
-    api.delete(`/api/lodgings/${tripId}/lodgings/${lodgingId}`),
+    api.delete(`/api/trips/${tripId}/lodgings/${lodgingId}`),
 };

@@ -91,6 +91,36 @@ const getById = async (itineraryId: string) => {
     };
 };
 
+const getByTripId = async (tripId: string) => {
+    const itinerary = await prisma.itinerary.findUnique({
+        where: { tripId },
+        include: {
+            days: {
+                include: {
+                    activities: {
+                        orderBy: {
+                            createdAt: 'asc'
+                        }
+                    }
+                },
+                orderBy: {
+                    date: 'asc'
+                }
+            }
+        }
+    });
+    
+    if (!itinerary) return null;
+    
+   return {
+        ...itinerary,
+        days: itinerary.days.map(day => ({
+            ...formatTripDayForAPI(day),
+            activities: day.activities.map(formatActivityForAPI)
+        }))
+    };
+};
+
 const getTripDay = async (tripDayId: string) => {
     const tripDay = await prisma.tripDay.findUnique({
         where: { id: tripDayId },
@@ -206,6 +236,7 @@ const getActivitiesByItinerary = async (itineraryId: string) => {
 
 export default {
     getById,
+    getByTripId,
     getTripDay,
     addTripDay,
     addActivity,

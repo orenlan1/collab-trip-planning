@@ -1,12 +1,10 @@
 import express from 'express';
 import { isAuthenticated } from '../middleware/auth.js';
 import messageController from '../controllers/message-controller.js';
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.get("/:tripId", isAuthenticated, messageController.getMessages);
-
-
-
-router.post("/:tripId", isAuthenticated, messageController.createMessage);
+// GET /api/trips/:tripId/messages
+router.get("/", isAuthenticated, messageController.getMessages);
+router.post("/", isAuthenticated, messageController.createMessage);
 
 export default router;

@@ -4,11 +4,12 @@ import lodgingController from '../controllers/lodging-controller';
 import validateResource from '../middleware/validateResource.js';
 import { createLodgingSchema, updateLodgingSchema } from '../schemas/lodging-schema.js';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.post("/:tripId/lodgings", isAuthenticated, validateResource(createLodgingSchema), lodgingController.addLodging);
-router.get("/:tripId/lodgings", isAuthenticated, lodgingController.getLodgings);
-router.patch("/:tripId/lodgings/:lodgingId", isAuthenticated, validateResource(updateLodgingSchema), lodgingController.updateLodging);
-router.delete("/:tripId/lodgings/:lodgingId", isAuthenticated, lodgingController.deleteLodging);
+// GET /api/trips/:tripId/lodgings
+router.get("/", isAuthenticated, lodgingController.getLodgings);
+router.post("/", isAuthenticated, validateResource(createLodgingSchema), lodgingController.addLodging);
+router.patch("/:lodgingId", isAuthenticated, validateResource(updateLodgingSchema), lodgingController.updateLodging);
+router.delete("/:lodgingId", isAuthenticated, lodgingController.deleteLodging);
 
 export default router;

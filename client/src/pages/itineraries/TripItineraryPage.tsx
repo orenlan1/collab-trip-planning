@@ -10,7 +10,7 @@ import type { Itinerary } from "@/types/itinerary";
 import { DatesSetter } from "../trips/components/DatesSetter";
 
 export function TripItineraryPage() {
-  const itineraryId = useTripStore(state => state.itinerary.id);
+  const tripId = useTripStore(state => state.id);
   const startDate = useTripStore(state => state.startDate);
   const endDate = useTripStore(state => state.endDate);
   const [showDatesSetter, setShowDatesSetter] = useState(false);
@@ -34,10 +34,10 @@ export function TripItineraryPage() {
 
   useEffect(() => {
     const fetchItineraryData = async () => {
-      if (itineraryId && !hasNoTripDates) {
+      if (tripId && !hasNoTripDates) {
         try {
           setIsLoading(true);
-          const response = await itinerariesApi.getItinerary(itineraryId);
+          const response = await itinerariesApi.getItinerary(tripId);
           const itineraryData = formatItineraryFromAPI(response.data) as Itinerary;
           setItineraryData(itineraryData);
         } catch (error) {
@@ -50,7 +50,7 @@ export function TripItineraryPage() {
     };
 
     fetchItineraryData();
-  }, [itineraryId,startDate, endDate, setItineraryData, setIsLoading, setError]);
+  }, [tripId, startDate, endDate, setItineraryData, setIsLoading, setError]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = e.currentTarget;

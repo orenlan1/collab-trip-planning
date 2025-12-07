@@ -16,12 +16,12 @@ export const joinTripChat = (socket: Socket, tripId: string) => {
   };
 
 export const sendMessage = (tripId: string, payload: SendMessagePayload) => {
-    return api.post(`/api/messages/${tripId}`, {
+    return api.post(`/api/trips/${tripId}/messages`, {
         content: payload.content });
   }
 
 export const getChatHistory = (tripId: string) => {
-    return api.get(`/api/messages/${tripId}`);
+    return api.get(`/api/trips/${tripId}/messages`);
   };
 
 // /**

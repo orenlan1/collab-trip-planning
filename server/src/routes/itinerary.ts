@@ -2,15 +2,15 @@ import express from 'express';
 import { isAuthenticated } from '../middleware/auth';
 import itineraryController from '../controllers/itinerary-controller';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-// Itinerary routes
-router.get("/:itineraryId", isAuthenticated, itineraryController.getItinerary);
-router.get("/:itineraryId/activities", isAuthenticated, itineraryController.getActivitiesForItinerary);
+// Itinerary routes - GET /api/trips/:tripId/itinerary
+router.get("/", isAuthenticated, itineraryController.getItinerary);
+router.get("/activities", isAuthenticated, itineraryController.getAllActivities);
 
 // Trip day routes
 router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);
-router.post("/:itineraryId/days", isAuthenticated, itineraryController.addTripDay);
+router.post("/days", isAuthenticated, itineraryController.addTripDay);
 router.delete("/days/:tripDayId", isAuthenticated, itineraryController.deleteTripDay);
 
 // Activity routes

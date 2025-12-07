@@ -9,6 +9,6 @@ const api = axios.create({
 
 
 export const itinerariesApi = {
-  getItinerary: (id: string) => api.get<Itinerary>(`api/itineraries/${id}`),
-  getActivitiesByItinerary: (itineraryId: string) => api.get(`/api/itineraries/${itineraryId}/activities`),
+  getItinerary: (tripId: string) => api.get<Itinerary>(`/api/trips/${tripId}/itinerary`),
+  getActivitiesByItinerary: (tripId: string) => api.get(`/api/trips/${tripId}/itinerary/activities`),
 };

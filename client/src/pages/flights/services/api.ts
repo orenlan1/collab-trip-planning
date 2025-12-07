@@ -42,14 +42,14 @@ export interface UpdateFlightInput {
 
 export const flightsApi = {
   create: (tripId: string, data: CreateFlightInput) => 
-    api.post<Flight>(`/api/flights/${tripId}/flights`, data),
+    api.post<Flight>(`/api/trips/${tripId}/flights`, data),
   
   getAll: (tripId: string) => 
-    api.get<Flight[]>(`/api/flights/${tripId}/flights`),
+    api.get<Flight[]>(`/api/trips/${tripId}/flights`),
   
   update: (tripId: string, flightId: string, data: UpdateFlightInput) => 
-    api.patch<Flight>(`/api/flights/${tripId}/flights/${flightId}`, data),
+    api.patch<Flight>(`/api/trips/${tripId}/flights/${flightId}`, data),
   
   delete: (tripId: string, flightId: string) => 
-    api.delete(`/api/flights/${tripId}/flights/${flightId}`),
+    api.delete(`/api/trips/${tripId}/flights/${flightId}`),
 };

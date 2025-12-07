@@ -59,9 +59,9 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave }: Activi
   };
 
   const handleTimeSave = async (startTime?: string | null, endTime?: string | null) => {
-
+    if (!tripId) return;
     console.log("Saving time:", startTime, endTime);
-    const response = await tripDaysApi.updateActivity(activity.id!, { startTime, endTime });
+    const response = await tripDaysApi.updateActivity(tripId, activity.id!, { startTime, endTime });
     
     console.log("Time updated:", response.data);
     
@@ -71,11 +71,11 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave }: Activi
   }
 
   const saveDescription = useCallback(async (description: string) => {
-    if (!activity.id) throw new Error('Activity ID is required');
+    if (!activity.id || !tripId) throw new Error('Activity ID and Trip ID are required');
     
-    const response = await tripDaysApi.updateActivity(activity.id, { description });
+    const response = await tripDaysApi.updateActivity(tripId, activity.id, { description });
     updateActivity(activity.id, response.data);
-  }, [activity.id, updateActivity]);
+  }, [activity.id, tripId, updateActivity]);
 
   const {value : description,
      updateValue: setDescription,
@@ -93,7 +93,8 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave }: Activi
   
   const handleDeleteActivity = async () => {
   try {
-    await tripDaysApi.deleteActivity(activity.id);
+    if (!tripId) return;
+    await tripDaysApi.deleteActivity(tripId, activity.id);
     removeActivity(activity.id); 
   } catch (error) {
     console.error('Failed to delete activity:', error);

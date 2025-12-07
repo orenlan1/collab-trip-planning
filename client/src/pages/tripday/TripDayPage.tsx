@@ -22,6 +22,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     const [showAddActivityDialog, setShowAddActivityDialog] = useState(false);
     const [showAddDiningActivityDialog, setShowAddDiningActivityDialog] = useState(false);
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
+    const tripId = useTripStore(state => state.id);
     const latitude = useTripStore(state => state.latitude);
     const longitude = useTripStore(state => state.longitude);
     const [hoveredActivityId, setHoveredActivityId] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     useEffect(() => {
         const fetchTripDayData = async () => {
             try {
-                const response = await tripDaysApi.getTripDay(id);
+                const response = await tripDaysApi.getTripDay(tripId, id);
                 const date = new Date(response.data.date);
                 date.setHours(0,0,0,0);
                 console.log("Fetched trip day data:", response.data);
@@ -63,7 +64,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
 
     const handleCreateActivity = async (placeName: string, address: string, latitude?: number, longitude?: number) => {
         try {
-            const response = await tripDaysApi.addNewActivity(id, { 
+            const response = await tripDaysApi.addNewActivity(tripId, id, { 
                 name: placeName, 
                 address,
                 latitude,

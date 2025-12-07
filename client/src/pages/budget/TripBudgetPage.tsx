@@ -3,7 +3,6 @@ import { TailSpin } from 'react-loader-spinner';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { budgetApi } from './services/budgetApi';
-import { useTripStore } from '@/stores/tripStore';
 import { itinerariesApi } from '../itineraries/services/api';
 import type { BudgetSummary, ExpenseCategory } from './types/budget';
 import type { Activity } from '@/types/activity';
@@ -36,13 +35,11 @@ export function TripBudgetPage() {
   const [showDeleteExpenseDialog, setShowDeleteExpenseDialog] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
-  const itineraryId = useTripStore(state => state.itinerary.id);
-
   const fetchActivities = async (): Promise<void> => {
-    if (!itineraryId) return;
+    if (!tripId) return;
 
     try {
-      const response = await itinerariesApi.getActivitiesByItinerary(itineraryId);
+      const response = await itinerariesApi.getActivitiesByItinerary(tripId);
       setActivities(response.data || []);
     } catch (error) {
       console.error('Error fetching activities by itinerary:', error);

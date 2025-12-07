@@ -26,13 +26,13 @@ const getItinerary = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { itineraryId } = req.params;
+    const { tripId } = req.params;
 
-    if (!itineraryId) {
-        return res.status(400).json({ error: "Itinerary ID is required" });
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
     }
     try {
-        const itinerary = await itineraryService.getById(itineraryId);
+        const itinerary = await itineraryService.getByTripId(tripId);
         if (!itinerary) {
             return res.status(404).json({ error: "Itinerary not found" });
         }
@@ -67,14 +67,19 @@ const addTripDay = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { itineraryId } = req.params;
-    if (!itineraryId) {
-        return res.status(400).json({ error: "Itinerary ID is required" });
+    const { tripId } = req.params;
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
     }
 
     const data: TripDayFormData = req.body;
     try {
-        const tripDay = await itineraryService.addTripDay(itineraryId, data);
+        // First get the itinerary by tripId
+        const itinerary = await itineraryService.getByTripId(tripId);
+        if (!itinerary) {
+            return res.status(404).json({ error: "Itinerary not found" });
+        }
+        const tripDay = await itineraryService.addTripDay(itinerary.id, data);
         res.status(201).json(tripDay);
     } catch (error) {
         res.status(500).json({ error: "Failed to add trip day" });
@@ -93,6 +98,11 @@ const addActivity = async (req: Request, res: Response) => {
     const data: ActivityFormData = req.body;
     try {
         const activity = await itineraryService.addActivity(tripDayId, data);
+        const io = req.app.get('io');
+        // Emit real-time update to clients in the trip room
+        // io.to(`trip:${activity.itinerary.tripId}`).emit('activityAdded', { activity });
+
+        const tripDay = await itineraryService.getTripDay(tripDayId);
         res.status(201).json(activity);
     } catch (error) {
         res.status(500).json({ error: "Failed to add activity" });
@@ -170,17 +180,21 @@ const getActivities = async (req: Request, res: Response) => {
     }
 };
 
-const getActivitiesForItinerary = async (req: Request, res: Response) => {
+const getAllActivities = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { itineraryId } = req.params;
-    if (!itineraryId) {
-        return res.status(400).json({ error: "Itinerary ID is required" });
+    const { tripId } = req.params;
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
     }
 
     try {
-        const activities = await itineraryService.getActivitiesByItinerary(itineraryId);
+        const itinerary = await itineraryService.getByTripId(tripId);
+        if (!itinerary) {
+            return res.status(404).json({ error: "Itinerary not found" });
+        }
+        const activities = await itineraryService.getActivitiesByItinerary(itinerary.id);
         res.status(200).json(activities);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch activities for itinerary" });
@@ -196,5 +210,5 @@ export default {
     deleteActivity,
     deleteTripDay,
     getActivities,
-    getActivitiesForItinerary
+    getAllActivities
 };
