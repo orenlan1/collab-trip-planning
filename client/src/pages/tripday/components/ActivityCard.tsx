@@ -29,9 +29,10 @@ interface ActivityCardProps {
   index?: number;
   onHover?: (activityId: string) => void;
   onLeave?: () => void;
+  isAnimated?: boolean;
 }
 
-export const ActivityCard = ({ activity, date, index, onHover, onLeave }: ActivityCardProps) => {
+export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimated }: ActivityCardProps) => {
   const { tripId } = useParams<{ tripId: string }>();
   const updateActivity = useTripDayStore(state => state.updateActivity);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -176,7 +177,7 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave }: Activi
 
       {/* Activity Card */}
       <div onMouseEnter={handleOnActivityHover} onMouseLeave={handleOnActivityLeave} className="flex-1">
-        <div className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-800">
+        <div className={`border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-800 ${isAnimated ? 'animate-pulse-border' : ''}`}>
           {/* Top: image | name+status+description | trash */}
           <div className="flex flex-col">
             <div className="flex items-start gap-4 p-4">

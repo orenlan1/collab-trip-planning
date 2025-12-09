@@ -8,6 +8,7 @@ import { ChooseActivityTypeDialog } from "./components/ChooseActivityTypeDialog"
 import AddDiningActivityDialog from "./components/AddDiningActivityDialog";
 import { GoogleMaps } from "@/components/GoogleMaps";
 import { useTripStore } from "@/stores/tripStore";
+import { useActivitySocketListeners } from "./hooks/useActivitySocketListeners";
 
 interface TripDayPageProps {
     id: string;
@@ -27,6 +28,8 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
     const longitude = useTripStore(state => state.longitude);
     const [hoveredActivityId, setHoveredActivityId] = useState<string | null>(null);
 
+    const { animatedActivityIds } = useActivitySocketListeners(id);
+
     useEffect(() => {
         const fetchTripDayData = async () => {
             try {
@@ -43,6 +46,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
 
         fetchTripDayData();   
     }, [id]);
+
 
     const handleActivityTypeSelected = (type: string) => {
         if (type === 'ACTIVITIES') {
@@ -146,6 +150,7 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                                 index={indexInTimed + 1}
                                 onHover={handleActivityHover}
                                 onLeave={handleActivityLeave}
+                                isAnimated={animatedActivityIds.has(activity.id)}
                             />
                         );
                     })}

@@ -2,82 +2,66 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSocket } from "./SocketContext";
 import { useTripStore } from "@/stores/tripStore";
 import { useAuth } from "./AuthContext";
-import type { ChatMessage } from "@/types/chat";
+import { notifySuccess } from "@/layouts/TripLayout";
+import { useParams } from "react-router-dom";
+import type { ActivitySocketData, ActivityDeletedSocketData } from "@/sockets/types";
+
 
 interface TripItinerarySocketContextType {
-  unreadCount: number;
-  lastMessage: ChatMessage | null;
-  markAsRead: () => void;
-  isInChatPage: boolean;
-  setIsInChatPage: (value: boolean) => void;
 }
 
 const TripItinerarySocketContext = createContext<TripItinerarySocketContextType | null>(null);
 
 export function TripItinerarySocketProvider({ children }: { children: React.ReactNode }) {
   const { socket, isReady } = useSocket();
-  const tripId = useTripStore(state => state.id);
+  const { user } = useAuth();
+  const {tripId} = useParams<{ tripId: string }>();
 
 
-  // Join trip room when socket is ready (for all trip pages)
+  // Listen for new activities across all trip pages
   useEffect(() => {
-    if (socket && isReady && tripId) {
-      console.log(`Joining trip room: ${tripId}`);
-      socket.emit('joinTripChat', tripId);
-
-      return () => {
-        console.log(`Leaving trip room: ${tripId}`);
-        socket.emit('leaveTripChat', tripId);
-      };
+    if (!socket || !isReady || !tripId) {
+      return;
     }
-  }, [socket, isReady, tripId]);
 
-  // Listen for new messages across all trip pages
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleNewMessage = (message: ChatMessage) => {
-      console.log('New message received:', message);
-      
-      // Don't count messages from current user
-      if (message.senderId === user?.id) return;
-      
-      // Don't increment unread if user is actively in chat page
-      if (!isInChatPage) {
-        setUnreadCount(prev => prev + 1);
-      }
-      
-      setLastMessage(message);
+    const handleNewActivity = (data: ActivitySocketData) => {  
+      notifySuccess(`${data.creatorName} added a new activity: ${data.activity.name}`);
     };
 
-    socket.on('newMessage', handleNewMessage);
+    const handleUpdatedActivity = (data: ActivitySocketData) => {
+      if (!data.excludeNotification) {
+        notifySuccess(`${data.creatorName} updated an activity: ${data.activity.name}`);
+      }
+    };
+
+    const handleDeletedActivity = (data: ActivityDeletedSocketData) => {
+      notifySuccess(`${data.deletedByName} deleted an activity`);
+    };
+
+    socket.on('activity:created', handleNewActivity);
+    socket.on('activity:updated', handleUpdatedActivity);
+    socket.on('activity:deleted', handleDeletedActivity);
 
     return () => {
-      socket.off('newMessage', handleNewMessage);
+      socket.off('activity:created', handleNewActivity);
+      socket.off('activity:updated', handleUpdatedActivity);
+      socket.off('activity:deleted', handleDeletedActivity);
     };
-  }, [socket, user?.id, isInChatPage]);
+  }, [socket, isReady, tripId, user]);
 
-  const markAsRead = () => {
-    setUnreadCount(0);
-  };
+
 
   return (
-    <TripSocketContext.Provider value={{
-      unreadCount,
-      lastMessage,
-      markAsRead,
-      isInChatPage,
-      setIsInChatPage
-    }}>
+    <TripItinerarySocketContext.Provider value={null}>
       {children}
-    </TripSocketContext.Provider>
+    </TripItinerarySocketContext.Provider>
   );
 }
 
-export const useTripSocket = () => {
-  const context = useContext(TripSocketContext);
+export const useTripItinerarySocket = () => {
+  const context = useContext(TripItinerarySocketContext);
   if (!context) {
-    throw new Error('useTripSocket must be used within a TripSocketProvider');
+    throw new Error('useTripItinerarySocket must be used within a TripItinerarySocketProvider');
   }
   return context;
 };

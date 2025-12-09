@@ -7,7 +7,7 @@ import { ChatHeader } from "@/pages/chat/components/ChatHeader";
 import { TypingIndicator } from "@/pages/chat/components/TypingIndicator";
 import { useTripStore } from "@/stores/tripStore";
 import { useAuth } from "@/context/AuthContext";
-import { useTripSocket } from "@/context/TripSocketContext";
+import { useTripSocket } from "@/context/TripChatSocketContext";
 
 export function TripChatPage() {
   const tripId = useTripStore(state => state.id);

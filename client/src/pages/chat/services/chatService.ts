@@ -10,11 +10,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-
-export const joinTripChat = (socket: Socket, tripId: string) => {
-    socket.emit('joinTripChat', tripId);
-  };
-
 export const sendMessage = (tripId: string, payload: SendMessagePayload) => {
     return api.post(`/api/trips/${tripId}/messages`, {
         content: payload.content });

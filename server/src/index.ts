@@ -5,32 +5,24 @@ import { sessionMiddleware } from './middleware/session.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import tripRoutes from './routes/trip.js';
-import itineraryRoutes from './routes/itinerary.js';
-import flightRoutes from './routes/flight.js';
-import lodgingRoutes from './routes/lodging.js';
 import invitationRoutes from './routes/invitation.js';
-import messageRoutes from './routes/message.js';
 import budgetRoutes from './routes/budget.js';
 import currencyRoutes from './routes/currency.js';
 import airportRoutes from './routes/airport.js';
 import airlineRoutes from './routes/airline.js';
 import destinationRoutes from './routes/destination.js';
 import cors from 'cors';
-import { Server } from "socket.io" 
 import { createServer} from "http"
-import { onConnection, socketAuth } from './sockets/index.js';
+import { SocketService } from './sockets/socket-service.js';
 
 dotenv.config();
 
 const app = express();
 
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: 'http://localhost:5173',
-    credentials: true
-  }
-});
+
+const socketService = new SocketService(httpServer);
+  
 
 // Express middleware setup
 app.use(express.json());
@@ -44,25 +36,8 @@ app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Socket.IO setup
-const wrap = (middleware: any) => (socket: any, next: any) => {
-  // Create a fake response object with required methods
-  const res = {
-    end: () => {},
-    setHeader: () => {},
-  };
-  middleware(socket.request, res, next);
-};
-
-// Set up Socket.IO middleware
-io.use(wrap(sessionMiddleware));  // Session must be first
-io.use(wrap(passport.initialize())); // Then passport initialize
-io.use(wrap(passport.session()));   // Then passport session
-io.use(socketAuth);  // Finally our auth check
-io.on("connection", onConnection);
-
 // Make socket server available to Express routes
-app.set('io', io);
+app.set('io', socketService.getIO());
 
 
 app.use('/auth', authRoutes);

@@ -234,6 +234,12 @@ const getActivitiesByItinerary = async (itineraryId: string) => {
     return activities.map(formatActivityForAPI);
 }
 
+const getActivityById = async (activityId: string) => {
+    return prisma.activity.findUnique({
+        where: { id: activityId }
+    });
+}
+
 export default {
     getById,
     getByTripId,
@@ -245,5 +251,6 @@ export default {
     deleteTripDay,
     createItineraryDays,
     getActivities,
-    getActivitiesByItinerary
+    getActivitiesByItinerary,
+    getActivityById
 };

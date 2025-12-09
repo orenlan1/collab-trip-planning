@@ -1,6 +1,6 @@
 import { Link, useParams, useLocation } from "react-router-dom";
 import { DollarSignIcon, Map, LayoutDashboard, MessageSquareIcon, Menu, X } from "lucide-react";
-import { useTripSocket } from "@/context/TripSocketContext";
+import { useTripSocket } from "@/context/TripChatSocketContext";
 import { useState, useEffect } from "react";
 
 

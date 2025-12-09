@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { TypedSocket } from "../types/socket";
+import type { TypedSocket } from "../sockets/types";
 import type { CreateTripInput, UpdateTripInput } from "../schemas/trip-schema.js";
 import tripService from "../services/trip-service";
 import userService from "../services/user-service";

@@ -30,7 +30,10 @@ export function DestinationCard() {
   useEffect(() => {
     if (debouncedDestination.length >= 2 && showDestinationSuggestions) {
       destinationsApi.search(debouncedDestination)
-        .then(res => setDestinationSuggestions(res.data))
+        .then(res => {
+          console.log('Destination search results:', res.data);
+          setDestinationSuggestions(res.data)
+        })
         .catch(err => console.error('Failed to search destinations:', err));
     } else {
       setDestinationSuggestions([]);
@@ -56,6 +59,7 @@ export function DestinationCard() {
   };
 
   const handleDestinationSelect = async (dest: Destination) => {
+    console.log('Selected destination:', dest);
     const displayText = dest.type === 'city' 
       ? `${dest.name}, ${dest.country}`
       : dest.name;

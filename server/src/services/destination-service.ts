@@ -67,22 +67,38 @@ export const destinationService = {
     // Try to find the destination as a city first
     if (destination.includes(',')) {
       const cityName = destination.split(',')[0]?.trim();
-      if (cityName) {
-        const city = await prisma.city.findFirst({
+      const countryName = destination.split(',')[1]?.trim();
+      
+      if (cityName && countryName) {
+        // First find the country to get its ID
+        const country = await prisma.country.findFirst({
           where: {
-            name: cityName,
+            name: countryName,
           },
           select: {
-            latitude: true,
-            longitude: true
+            id: true
           }
         });
 
-        if (city) {
-          return {
-            latitude: city.latitude,
-            longitude: city.longitude
-          };
+        if (country) {
+          // Then find the city with matching name AND country ID
+          const city = await prisma.city.findFirst({
+            where: {
+              name: cityName,
+              countryId: country.id
+            },
+            select: {
+              latitude: true,
+              longitude: true
+            }
+          });
+
+          if (city) {
+            return {
+              latitude: city.latitude,
+              longitude: city.longitude
+            };
+          }
         }
       }  
     } else {   

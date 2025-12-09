@@ -30,13 +30,10 @@ export const TripOverviewPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-    const fetchTripData = async () => {
+    const fetchFlightsAndLodgings = async () => {
       if (tripId) {
         try {
           setIsLoading(true);
-          const response = await tripsApi.getById(tripId);
-          setTripData(response.data);
-          // Fetch flights and lodgings after trip data is loaded
           await Promise.all([
             fetchFlights(tripId),
             fetchLodgings(tripId)
@@ -49,7 +46,7 @@ export const TripOverviewPage = () => {
       }
     };
 
-    fetchTripData();
+    fetchFlightsAndLodgings();
   }, [tripId, setTripData, fetchFlights, fetchLodgings]);
 
 

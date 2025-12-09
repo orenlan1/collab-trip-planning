@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { ChatMessage, ChatUser } from "@/types/chat";
 import { useSocket } from "@/context/SocketContext";
-import { sendMessage, joinTripChat, getChatHistory } from "../services/chatService";
+import { sendMessage, getChatHistory } from "../services/chatService";
 import { useAuth } from "@/context/AuthContext";
 
 interface UseTripChatOptions {
@@ -44,13 +44,6 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
         fetchMessages();
     }, [tripId]);
 
-    // Join trip chat room when socket is ready
-    useEffect(() => {
-        if (socket && isReady) {
-            joinTripChat(socket, tripId);
-        }
-    }, [socket, isReady, tripId]);
-
     // Listen for new messages and typing events from socket
     useEffect(() => {
         if (!socket || !isReady) return;
@@ -71,12 +64,12 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
             }
         };
 
-        socket.on('newMessage', handleNewMessage);
-        socket.on('userTyping', handleUserTyping);
+        socket.on('chat:newMessage', handleNewMessage);
+        socket.on('chat:userTyping', handleUserTyping);
 
         return () => {
-            socket.off('newMessage', handleNewMessage);
-            socket.off('userTyping', handleUserTyping);
+            socket.off('chat:newMessage', handleNewMessage);
+            socket.off('chat:userTyping', handleUserTyping);
         };
     }, [socket, isReady, tripId, user?.id]);
 
@@ -102,7 +95,7 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
     // Send typing indicator
     const handleTyping = useCallback((isTyping: boolean) => {
         if (socket && isReady && user?.name) {
-            socket.emit('typing', {
+            socket.emit('chat:typing', {
                 tripId,
                 userId: user.id,
                 name: user.name,

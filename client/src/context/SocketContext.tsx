@@ -1,15 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
+import type { TypedSocket } from "@/sockets/types";
 import { useAuth } from "./AuthContext";
 
-const SocketContext = createContext<{ socket: Socket | null; isReady: boolean }>({
+const SocketContext = createContext<{ socket: TypedSocket | null; isReady: boolean }>({
   socket: null,
   isReady: false
 });
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<TypedSocket | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {

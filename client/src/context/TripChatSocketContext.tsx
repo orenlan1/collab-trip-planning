@@ -3,6 +3,7 @@ import { useSocket } from "./SocketContext";
 import { useTripStore } from "@/stores/tripStore";
 import { useAuth } from "./AuthContext";
 import type { ChatMessage } from "@/types/chat";
+import { useParams } from "react-router-dom";
 
 interface TripSocketContextType {
   unreadCount: number;
@@ -14,31 +15,18 @@ interface TripSocketContextType {
 
 const TripSocketContext = createContext<TripSocketContextType | null>(null);
 
-export function TripSocketProvider({ children }: { children: React.ReactNode }) {
+export function TripChatSocketProvider({ children }: { children: React.ReactNode }) {
   const { socket, isReady } = useSocket();
   const { user } = useAuth();
-  const tripId = useTripStore(state => state.id);
   
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastMessage, setLastMessage] = useState<ChatMessage | null>(null);
   const [isInChatPage, setIsInChatPage] = useState(false);
 
-  // Join trip room when socket is ready (for all trip pages)
-  useEffect(() => {
-    if (socket && isReady && tripId) {
-      console.log(`Joining trip room: ${tripId}`);
-      socket.emit('joinTripChat', tripId);
-
-      return () => {
-        console.log(`Leaving trip room: ${tripId}`);
-        socket.emit('leaveTripChat', tripId);
-      };
-    }
-  }, [socket, isReady, tripId]);
 
   // Listen for new messages across all trip pages
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !isReady) return;
 
     const handleNewMessage = (message: ChatMessage) => {
       console.log('New message received:', message);
@@ -54,10 +42,10 @@ export function TripSocketProvider({ children }: { children: React.ReactNode }) 
       setLastMessage(message);
     };
 
-    socket.on('newMessage', handleNewMessage);
+    socket.on('chat:newMessage', handleNewMessage);
 
     return () => {
-      socket.off('newMessage', handleNewMessage);
+      socket.off('chat:newMessage', handleNewMessage);
     };
   }, [socket, user?.id, isInChatPage]);
 

@@ -43,7 +43,7 @@ const createMessage = async (req: Request, res: Response) => {
 
     const newMessage = await messageService.createMessage(tripId, senderId, content);
     const io = req.app.get('io');
-    io.to(`trip:${tripId}`).emit('newMessage', newMessage);
+    io.to(`trip:${tripId}`).emit('chat:newMessage', newMessage);
     res.status(201).json(newMessage);
 };
 

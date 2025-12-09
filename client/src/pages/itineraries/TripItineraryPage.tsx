@@ -9,6 +9,7 @@ import { formatItineraryFromAPI } from "@/lib/utils";
 import type { Itinerary } from "@/types/itinerary";
 import { DatesSetter } from "../trips/components/DatesSetter";
 
+
 export function TripItineraryPage() {
   const tripId = useTripStore(state => state.id);
   const startDate = useTripStore(state => state.startDate);
@@ -17,6 +18,7 @@ export function TripItineraryPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  
   
   const { 
     days, 

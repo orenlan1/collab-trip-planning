@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import itineraryService from "../services/itinerary-service";
+import type { TypedServer } from "../sockets/types";
 
 export interface ItineraryFormData {
     tripId: string;
@@ -90,21 +91,26 @@ const addActivity = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { tripDayId } = req.params;
+    const { tripDayId, tripId } = req.params;
     if (!tripDayId) {
         return res.status(400).json({ error: "Trip Day ID is required" });
     }
 
     const data: ActivityFormData = req.body;
     try {
-        const activity = await itineraryService.addActivity(tripDayId, data);
-        const io = req.app.get('io');
-        // Emit real-time update to clients in the trip room
-        // io.to(`trip:${activity.itinerary.tripId}`).emit('activityAdded', { activity });
+        const activity = await itineraryService.addActivity(tripDayId, data);    
+        const io : TypedServer = req.app.get('io');
+        const socketData = {
+           activity: activity,
+           tripDayId: tripDayId,
+           creatorId: req.user.id,
+           creatorName: req.user.name,
+        }
+        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:created', socketData);
 
-        const tripDay = await itineraryService.getTripDay(tripDayId);
         res.status(201).json(activity);
     } catch (error) {
+        console.error('Error adding activity:', error);
         res.status(500).json({ error: "Failed to add activity" });
     }
 };
@@ -113,7 +119,7 @@ const updateActivity = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { activityId } = req.params;
+    const { activityId, tripId } = req.params;
 
     if (!activityId) {
         return res.status(400).json({ error: "Activity ID is required" });
@@ -122,8 +128,24 @@ const updateActivity = async (req: Request, res: Response) => {
     const data: ActivityFormData = req.body;
     try {
         const activity = await itineraryService.updateActivity(activityId, data);
+        
+        const tripDay = await itineraryService.getTripDay(activity.tripDayId);
+        
+        const isDescriptionOnlyUpdate = Object.keys(data).length === 1 && data.description !== undefined;
+        
+        const io: TypedServer = req.app.get('io');
+        const socketData = {
+           activity: activity,
+           tripDayId: activity.tripDayId,
+           creatorId: req.user.id,
+           creatorName: req.user.name,
+           excludeNotification: isDescriptionOnlyUpdate,
+        }
+        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:updated', socketData);
+        
         res.status(200).json(activity);
     } catch (error) {
+        console.error('Error updating activity:', error);
         res.status(500).json({ error: "Failed to update activity" });
     }
 };
@@ -132,15 +154,31 @@ const deleteActivity = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
-    const { activityId } = req.params;
+    const { activityId, tripId } = req.params;
     if (!activityId) {
         return res.status(400).json({ error: "Activity ID is required" });
     }
 
     try {
+        const activity = await itineraryService.getActivityById(activityId);
+        if (!activity) {
+            return res.status(404).json({ error: "Activity not found" });
+        }
+        
         await itineraryService.deleteActivity(activityId);
+        
+        const io: TypedServer = req.app.get('io');
+        const socketData = {
+           activityId: activityId,
+           tripDayId: activity.tripDayId,
+           deletedById: req.user.id,
+           deletedByName: req.user.name,
+        }
+        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:deleted', socketData);
+        
         res.status(204).send();
     } catch (error) {
+        console.error('Error deleting activity:', error);
         res.status(500).json({ error: "Failed to delete activity" });
     }
 };

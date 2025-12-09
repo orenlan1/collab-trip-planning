@@ -141,3 +141,38 @@
 .time-picker-dropdown {
   z-index: 9999 !important;
 }
+
+/* Activity card animation for real-time updates */
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgb(209 213 219);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5);
+  }
+  50% {
+    border-color: rgb(99, 102, 241);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  }
+}
+
+.dark .animate-pulse-border {
+  animation: pulse-border 1s ease-in-out;
+}
+
+.animate-pulse-border {
+  animation: pulse-border 1s ease-in-out;
+}
+
+@keyframes pulse-border-dark {
+  0%, 100% {
+    border-color: rgb(51 65 85);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5);
+  }
+  50% {
+    border-color: rgb(99, 102, 241);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  }
+}
+
+.dark .animate-pulse-border {
+  animation: pulse-border-dark 1s ease-in-out;
+}

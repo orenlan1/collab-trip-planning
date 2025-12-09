@@ -9,13 +9,15 @@ import { AutoSaveInputStatusRender } from "@/components/AutoSaveInputStatusRende
 export function DescriptionCard() {
     const { tripId } = useParams<{ tripId: string }>();
     const storeDescription = useTripStore(state => state.description);
+    const setStoreDescription = useTripStore(state => state.setDescription);
 
     // Auto-save function to update trip description
     const saveDescription = useCallback(async (description: string) => {
         if (!tripId) throw new Error('Trip ID is required');
         
         await tripsApi.update(tripId, { description });
-    }, [tripId]);
+        setStoreDescription(description);
+    }, [tripId, setStoreDescription]);
 
     // Initialize auto-save hook with the current store value
     const {
