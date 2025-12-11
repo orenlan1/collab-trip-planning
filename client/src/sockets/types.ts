@@ -6,9 +6,9 @@ import type { ChatMessage } from "@/types/chat";
 interface ServerToClientEvents {
   "invite:created": (invitation: { tripId: string; inviterId: string }) => void;
   
-  "trip::userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
-  "trip::userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
-  "trip:joined": (data: { tripId: string }) => void;
+  "trip:userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
+  "trip:userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
+  "trip:joined": (data: { tripId: string; connectedUserIds: string[] }) => void;
   "chat:newMessage": (message: ChatMessage) => void;
   "chat:messageDelivered": (data: { messageId: string }) => void;
   "chat:userTyping": (data: { userId: string; isTyping: boolean; tripId: string; name: string }) => void;

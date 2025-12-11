@@ -22,6 +22,8 @@ const wrap = (middleware: any) => (socket: any, next: any) => {
 
 export class SocketService {
   private io: TypedServer;
+  // Track user connections per trip: Map<tripId, Map<userId, Set<socketId>>>
+  private tripConnections: Map<string, Map<string, Set<string>>> = new Map();
 
   constructor(httpServer: HTTPServer) {
     this.io = new Server(httpServer, {
@@ -50,27 +52,44 @@ export class SocketService {
             socket.join(`user:${socket.data.userId}`);
         }
 
-        registerHandlers(this.io, socket);
+        registerHandlers(this.io, socket, this.tripConnections);
 
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.data.userId}`);
 
             // Clean up user from all rooms
-            if (socket.data.userId) {
+            if (socket.data.userId && socket.data.tripId) {
+                const tripId = socket.data.tripId;
+                const userId = socket.data.userId;
+                
+                // Remove this socket from trip connections tracking
+                const tripMap = this.tripConnections.get(tripId);
+                if (tripMap) {
+                    const userSockets = tripMap.get(userId);
+                    if (userSockets) {
+                        userSockets.delete(socket.id);
+                        console.log(`Removed socket ${socket.id} from trip ${tripId}, user ${userId} has ${userSockets.size} remaining connections`);
+                        
+                        // Only notify if this was the user's LAST connection to this trip
+                        if (userSockets.size === 0) {
+                            console.log(`User ${userId} has no more connections to trip ${tripId}, notifying others`);
+                            tripMap.delete(userId);
+                            this.io.to(`trip:${tripId}`).emit("trip:userLeft", {
+                                userId: userId,
+                                tripId: tripId,
+                                timestamp: new Date()
+                            });
+                        }
+                        
+                        // Clean up empty maps
+                        if (tripMap.size === 0) {
+                            this.tripConnections.delete(tripId);
+                        }
+                    }
+                }
+                
                 // Leave personal room
                 socket.leave(`user:${socket.data.userId}`);
-                
-                // Notify trip rooms that user disconnected
-                const rooms = Array.from(socket.rooms);
-                const tripRooms = rooms.filter(room => room.startsWith('trip:'));
-                tripRooms.forEach(room => {
-                    const tripId = room.replace('trip:', '');
-                    socket.to(room).emit("trip::userLeft", {
-                    userId: socket.data.userId,
-                    tripId,
-                    timestamp: new Date()
-                    });
-                });
             }
         });
     });

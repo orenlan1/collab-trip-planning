@@ -4,6 +4,7 @@ import { FiUsers } from "react-icons/fi";
 import { FiUserPlus } from "react-icons/fi";
 import { InviteModal } from "./InviteModal";
 import { useTripStore } from "@/stores/tripStore";
+import { useTripSocket } from "@/context/TripSocketContext";
 
 interface ParticipantCardProps {
     tripId: string;
@@ -13,6 +14,7 @@ interface ParticipantCardProps {
 export function ParticipantsCard({ tripId }: ParticipantCardProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const members = useTripStore(state => state.members);
+  const { connectedUserIds } = useTripSocket();
 
   return (
     <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
@@ -24,7 +26,10 @@ export function ParticipantsCard({ tripId }: ParticipantCardProps) {
             <ul>
               {members.map(member => (
                 <li key={member.userId} className="flex items-center gap-4 p-4 ">
-                  <TripMemberItem member={member} />
+                  <TripMemberItem 
+                    member={member} 
+                    isOnline={connectedUserIds.has(member.userId)} 
+                  />
                 </li>
               ))}
             </ul>

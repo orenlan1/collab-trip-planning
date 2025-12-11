@@ -6,9 +6,9 @@ import type { Activity } from '@prisma/client';
 interface ServerToClientEvents {
   "invite:created": (invitation: { tripId: string; inviterId: string }) => void;
   
-  "trip::userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
-  "trip::userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
-  "trip:joined": (data: { tripId: string }) => void;
+  "trip:userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
+  "trip:userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
+  "trip:joined": (data: { tripId: string; connectedUserIds: string[] }) => void;
   "chat:newMessage": (message: { 
     id: string; 
     userId: string; 
@@ -40,6 +40,7 @@ interface InterServerEvents {
 
 interface SocketData {
   userId: string;
+  tripId?: string;
 }
 
 export type TypedServer = Server<

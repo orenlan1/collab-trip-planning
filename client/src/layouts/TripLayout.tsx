@@ -10,8 +10,7 @@ import { useTripStore } from '@/stores/tripStore';
 import { useEffect, useState } from 'react';
 import { tripsApi } from '@/pages/trips/services/api';
 import { TailSpin } from 'react-loader-spinner';
-import { useSocket } from '@/context/SocketContext';
-import { useJoinTripSocket } from '@/hooks/useJoinTripSocket';
+import { TripSocketProvider } from '@/context/TripSocketContext';
 export const notifySuccess = (message: string) => toast.success(message);
 
 export function TripLayout() {
@@ -21,8 +20,6 @@ export function TripLayout() {
   const reset = useTripStore(state => state.reset);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useJoinTripSocket();
   
   useEffect(() => {
     const fetchTripData = async () => {
@@ -86,22 +83,24 @@ export function TripLayout() {
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased">
       <Navbar />
-      <TripChatSocketProvider>
-        <TripItinerarySocketProvider>
-          <ScrollToTop excludePaths={['/chat']} />
-          <div className="flex relative">
-            <TripSidebar />
-            <main className="flex-1 w-full lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
-              <ToastContainer 
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-              />
-              <Outlet />
-            </main>
-          </div>
-        </TripItinerarySocketProvider>
-      </TripChatSocketProvider>
+      <TripSocketProvider>
+        <TripChatSocketProvider>
+          <TripItinerarySocketProvider>
+            <ScrollToTop excludePaths={['/chat']} />
+            <div className="flex relative">
+              <TripSidebar />
+              <main className="flex-1 w-full lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
+                <ToastContainer 
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                />
+                <Outlet />
+              </main>
+            </div>
+          </TripItinerarySocketProvider>
+        </TripChatSocketProvider>
+      </TripSocketProvider>
     </div>
   );
 }

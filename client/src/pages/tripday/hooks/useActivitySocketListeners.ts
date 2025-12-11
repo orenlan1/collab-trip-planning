@@ -15,9 +15,8 @@ export function useActivitySocketListeners(currentTripDayId: string) {
 
         const handleNewActivity = (data: ActivitySocketData) => {
             if (data.tripDayId === currentTripDayId) {
-                addActivity(data.activity);
-                
                 if (data.creatorId !== user?.id) {
+                    addActivity(data.activity);
                     setAnimatedActivityIds(prev => new Set(prev).add(data.activity.id));
                     setTimeout(() => {
                         setAnimatedActivityIds(prev => {
@@ -31,10 +30,9 @@ export function useActivitySocketListeners(currentTripDayId: string) {
         }
 
         const handleUpdatedActivity = (data: ActivitySocketData) => {
-            if (data.tripDayId === currentTripDayId) {
-                updateActivity(data.activity.id, data.activity);
-                
+            if (data.tripDayId === currentTripDayId) {                
                 if (data.creatorId !== user?.id) {
+                    updateActivity(data.activity.id, data.activity);
                     setAnimatedActivityIds(prev => new Set(prev).add(data.activity.id));
                     setTimeout(() => {
                         setAnimatedActivityIds(prev => {
@@ -49,7 +47,9 @@ export function useActivitySocketListeners(currentTripDayId: string) {
 
         const handleDeletedActivity = (data: ActivityDeletedSocketData) => {
             if (data.tripDayId === currentTripDayId) {
-                removeActivity(data.activityId);
+                if (data.deletedById !== user?.id) {             
+                    removeActivity(data.activityId);
+                }
             }
         }
 

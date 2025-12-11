@@ -17,7 +17,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     // Only connect if user is authenticated
     if (user) {
       const newSocket = io('http://localhost:3000', {
-        withCredentials: true      
+        withCredentials: true,
+        forceNew: true  // Force new connection per tab/window
       });
 
       // Handle connection events
