@@ -18,7 +18,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 export interface CreateTripRequest {
     title: string;
-    destination?: string;
+    destination: string;
     description?: string;
     startDate?: string; // string format for API
     endDate?: string;   // string format for API
@@ -30,10 +30,12 @@ export const CreateTripPage = () => {
     const [startDate, setStartDate] = useState<Date>();
     const [endDate, setEndDate] = useState<Date>();
     const [dateError, setDateError] = useState<string>("");
+    const [destinationError, setDestinationError] = useState<string>("");
     const { register, handleSubmit, formState: { errors }, setValue } = useForm<CreateTripRequest>();
 
     // Destination autocomplete
     const [destination, setDestination] = useState('');
+    const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
     const [destinationSuggestions, setDestinationSuggestions] = useState<Destination[]>([]);
     const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
     const destinationRef = useRef<HTMLDivElement>(null);
@@ -67,26 +69,43 @@ export const CreateTripPage = () => {
         ? `${dest.name}, ${dest.country}`
         : dest.name;
       setDestination(displayText);
+      setSelectedDestination(displayText);
       setValue('destination', displayText);
       setShowDestinationSuggestions(false);
+      setDestinationError("");
+    };
+
+    const handleDestinationChange = (value: string) => {
+      setDestination(value);
+      if (selectedDestination && value !== selectedDestination) {
+        setSelectedDestination(null);
+        setValue('destination', '');
+      }
     };
 
   const onSubmit = async (data: CreateTripRequest) => {
+    if (!selectedDestination) {
+      setDestinationError("Please select a destination from the suggestions");
+      return;
+    }
+
     // Validate that both dates are provided or both are empty
     if ((startDate && !endDate) || (!startDate && endDate)) {
       setDateError("Both start and end dates must be provided together, or leave both empty for an open-ended trip.");
       return;
     }
     
-    // Clear any previous date errors
+    // Clear any previous errors
     setDateError("");
+    setDestinationError("");
+    
+    // Set destination from selected value
+    data.destination = selectedDestination;
     
     if (startDate) {
-      // Use consistent date formatting utility
       data.startDate = dateToLocalDateString(startDate);
     }
     if (endDate) {
-      // Use consistent date formatting utility  
       data.endDate = dateToLocalDateString(endDate);
     }
     try {
@@ -103,7 +122,7 @@ export const CreateTripPage = () => {
       <div className="flex gap-6 items-start justify-between">
         <div>
             <h1 className="text-2xl font-semibold text-slate-900 tracking-tight mb-1">Create trip</h1>
-            <p className="text-sm text-slate-600">Start a new trip. Only the title is required - everything else is optional and can be updated later.</p>
+            <p className="text-sm text-slate-600">Start a new trip. Title and destination are required - everything else is optional and can be updated later.</p>
         </div>
         <div className="flex gap-3 items-center">
             <button className="hover:bg-slate-200 transition text-slate-900 bg-white/80 border-sky-100 border rounded-md pt-2 pr-3 pb-2 pl-3">
@@ -123,15 +142,19 @@ export const CreateTripPage = () => {
                 <p className="text-xs text-slate-500 mt-2">This is required to create the trip. You can add more details later.</p>
             </div>
             <div ref={destinationRef}>
-                 <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="">Destination</label>
+                 <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="">Destination <span className="text-rose-500">*</span>{destinationError && <span className="text-rose-500"> {destinationError}</span>}</label>
                  <div className="relative">
                     <FiMapPin className="absolute top-1/2 left-3 -translate-y-1/2 text-indigo-500"/>
                     <input 
                       type="text" 
-                      placeholder="City, region or country" 
-                      className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"
+                      placeholder="Search and select a destination, city or country" 
+                      className={`w-full focus:outline-none focus:ring-2 transition text-sm bg-white/90 border rounded-lg pt-3 pr-4 pb-3 pl-8 ${
+                        destinationError ? 'border-rose-300 focus:ring-rose-300' : 'border-neutral-200/60 focus:ring-indigo-300'
+                      } ${
+                        selectedDestination ? 'border-green-300' : ''
+                      }`}
                       value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
+                      onChange={(e) => handleDestinationChange(e.target.value)}
                       onFocus={() => setShowDestinationSuggestions(true)}
                       autoComplete="off"
                     />
@@ -152,7 +175,7 @@ export const CreateTripPage = () => {
                       </div>
                     )}
                  </div>
-                <p className="text-xs text-slate-500 mt-2">Optional. Add a location to help participants know where the trip will take place.</p>
+                <p className="text-xs text-slate-500 mt-2">{selectedDestination ? '✓ Destination selected' : 'Type to search and select a destination from the list'}</p>
             </div>
             <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="">Description</label>

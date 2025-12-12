@@ -57,7 +57,7 @@ model Account {
 model Trip {
   id          String    @id @default(cuid())
   title       String
-  destination String?
+  destination String
   description String?
   startDate   DateTime?
   endDate     DateTime?

@@ -1,5 +1,5 @@
 import { useTripStore } from "@/stores/tripStore";
-import { useState, useEffect, useRef, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiMapPin } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import { tripsApi } from "../services/api";
@@ -13,6 +13,7 @@ export function DestinationCard() {
   const setStoreDestination = useTripStore(state => state.setDestination);
 
   const [destination, setDestination] = useState(storeDestination || '');
+  const [selectedDestination, setSelectedDestination] = useState<string | null>(storeDestination || null);
   const [destinationSuggestions, setDestinationSuggestions] = useState<Destination[]>([]);
   const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
@@ -23,6 +24,7 @@ export function DestinationCard() {
   // Update local state when store changes
   useEffect(() => {
     setDestination(storeDestination || '');
+    setSelectedDestination(storeDestination || null);
     setHasUnsavedChanges(false);
   }, [storeDestination]);
 
@@ -54,7 +56,9 @@ export function DestinationCard() {
 
   const handleDestinationChange = (value: string) => {
     setDestination(value);
-    // Mark as unsaved if different from stored value
+    if (selectedDestination && value !== selectedDestination) {
+      setSelectedDestination(null);
+    }
     setHasUnsavedChanges(value !== (storeDestination || ''));
   };
 
@@ -65,6 +69,7 @@ export function DestinationCard() {
       : dest.name;
     
     setDestination(displayText);
+    setSelectedDestination(displayText);
     setShowDestinationSuggestions(false);
     setHasUnsavedChanges(false);
 
@@ -128,9 +133,11 @@ export function DestinationCard() {
       </div>
       <div>
         <p className="ml-4 text-sm text-gray-500">
-          {hasUnsavedChanges 
+          {!selectedDestination && destination
+            ? "Please select a destination from the suggestions" 
+            : hasUnsavedChanges
             ? "Select a suggestion to save changes" 
-            : "country, region or city"}
+            : "Search and select a destination"}
         </p>
       </div>
       

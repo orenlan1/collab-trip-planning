@@ -8,7 +8,7 @@ const dateStringSchema = z.string()
 export const createTripSchema = z.object({
     body: z.object({
         title: z.string().min(1, "Title is required"),
-        destination: z.string().optional().nullable().default(null),
+        destination: z.string().min(1, "Destination is required"),
         description: z.string().optional().nullable().default(null),
         startDate: dateStringSchema.optional().transform(val => val ? new Date(`${val}T00:00:00.000Z`) : null),
         endDate: dateStringSchema.optional().transform(val => val ? new Date(`${val}T00:00:00.000Z`) : null),

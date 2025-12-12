@@ -3,7 +3,7 @@ import type { TripMember } from "./tripMember";
 export interface Trip {
   id: string;
   title: string;
-  destination?: string;
+  destination: string;
   description?: string;
   startDate?: string; // ISO string format from API
   endDate?: string;   // ISO string format from API

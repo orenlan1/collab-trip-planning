@@ -8,7 +8,7 @@ import userService from "../services/user-service";
 
 export interface TripFormData {
     title: string;
-    destination?: string | null;
+    destination: string;
     description?: string | null;
     startDate?: Date | null;
     endDate?: Date | null;
