@@ -7,6 +7,7 @@ import itineraryRoutes from './itinerary.js';
 import flightRoutes from './flight.js';
 import lodgingRoutes from './lodging.js';
 import messageRoutes from './message.js';
+import budgetRoutes from './budget.js';
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/:tripId/itinerary", itineraryRoutes);
 router.use("/:tripId/flights", flightRoutes);
 router.use("/:tripId/lodgings", lodgingRoutes);
 router.use("/:tripId/messages", messageRoutes);
+router.use("/:tripId/budget", budgetRoutes);
 
 export default router;

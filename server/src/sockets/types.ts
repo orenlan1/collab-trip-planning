@@ -1,8 +1,8 @@
 import type { Socket, Server } from 'socket.io';
 import type { Activity } from '@prisma/client';
+import type { Expense} from '@prisma/client'
 
 
-// Define your custom events here
 interface ServerToClientEvents {
   "invite:created": (invitation: { tripId: string; inviterId: string }) => void;
   
@@ -23,6 +23,9 @@ interface ServerToClientEvents {
   "activity:created": (data: ActivitySocketData) => void;
   "activity:updated": (data: ActivitySocketData) => void;
   "activity:deleted": (data: ActivityDeletedSocketData) => void;
+  "activity:expense:created": (data: ActivityExpenseSocketData) => void;
+  "activity:expense:updated": (data: ActivityExpenseSocketData) => void;
+  "activity:expense:deleted": (data: ActivityExpenseDeletedSocketData) => void;
   "error": (data: { message: string }) => void;
 }
 
@@ -68,6 +71,27 @@ export interface ActivitySocketData {
 export interface ActivityDeletedSocketData {
   activityId: string;
   tripDayId: string;
+  deletedById: string;
+  deletedByName: string | null;
+}
+export interface ActivityExpenseSocketData {
+  activityId: string;
+  creatorId: string;
+  creatorName: string | null;
+  expense: {
+    id: string;
+    description: string;
+    cost: number;
+    currency: string;
+    category: string;
+    date: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface ActivityExpenseDeletedSocketData {
+  activityId: string;
   deletedById: string;
   deletedByName: string | null;
 }

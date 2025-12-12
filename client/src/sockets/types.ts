@@ -1,6 +1,7 @@
 import type { Socket } from "socket.io-client";
 import type { Activity } from '@/types/activity';
 import type { ChatMessage } from "@/types/chat";
+import type { Expense } from "@/types/expense";
 
 // Define your custom events here
 interface ServerToClientEvents {
@@ -16,6 +17,9 @@ interface ServerToClientEvents {
   "activity:created": (data: ActivitySocketData) => void;
   "activity:updated": (data: ActivitySocketData) => void;
   "activity:deleted": (data: ActivityDeletedSocketData) => void;
+  "activity:expense:created": (data: ActivityExpenseSocketData) => void;
+  "activity:expense:updated": (data: ActivityExpenseSocketData) => void;
+  "activity:expense:deleted": (data: ActivityExpenseDeletedSocketData) => void;
   "error": (data: { message: string }) => void;
 }
 
@@ -43,6 +47,18 @@ export interface ActivitySocketData {
 export interface ActivityDeletedSocketData {
   activityId: string;
   tripDayId: string;
+  deletedById: string;
+  deletedByName: string | null;
+}
+export interface ActivityExpenseSocketData {
+  activityId: string;
+  creatorId: string;
+  creatorName: string | null;
+  expense: Expense;
+}
+
+export interface ActivityExpenseDeletedSocketData {
+  activityId: string;
   deletedById: string;
   deletedByName: string | null;
 }

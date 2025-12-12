@@ -309,7 +309,7 @@ const updateExpense = async (expenseId: string, data: UpdateExpenseInput): Promi
 
 // Delete an expense
 const deleteExpense = async (expenseId: string) => {
-    // Check if expense exists
+    // Check if expense exists and get related data
     const expense = await prisma.expense.findUnique({
         where: { id: expenseId }
     });
@@ -322,7 +322,10 @@ const deleteExpense = async (expenseId: string) => {
         where: { id: expenseId }
     });
 
-    return { message: 'Expense deleted successfully' };
+    return { 
+        message: 'Expense deleted successfully',
+        activityId: expense.activityId
+    };
 };
 
 // Get budget summary with spending breakdown

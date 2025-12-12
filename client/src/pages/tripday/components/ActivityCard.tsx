@@ -125,8 +125,10 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
   };
 
   const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+    if (!tripId) return;
+    
     try {
-      const response = await budgetApi.updateExpense(expenseId, { description, cost, category, currency, date });
+      const response = await budgetApi.updateExpense(tripId, expenseId, { description, cost, category, currency, date });
       const expense = response.data;
       toast.success('Expense updated successfully!');
 

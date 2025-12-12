@@ -1,10 +1,9 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useSocket } from "./SocketContext";
-import { useTripStore } from "@/stores/tripStore";
 import { useAuth } from "./AuthContext";
 import { notifySuccess } from "@/layouts/TripLayout";
 import { useParams } from "react-router-dom";
-import type { ActivitySocketData, ActivityDeletedSocketData } from "@/sockets/types";
+import type { ActivitySocketData, ActivityDeletedSocketData, ActivityExpenseSocketData, ActivityExpenseDeletedSocketData } from "@/sockets/types";
 
 
 interface TripItinerarySocketContextType {
@@ -38,14 +37,38 @@ export function TripItinerarySocketProvider({ children }: { children: React.Reac
       notifySuccess(`${data.deletedByName} deleted an activity`);
     };
 
+    const handleExpenseCreated = (data: ActivityExpenseSocketData) => {
+      if (data.creatorId !== user?.id) {
+        notifySuccess(`${data.creatorName} added an expense: ${data.expense.description}`);
+      }
+    };
+
+    const handleExpenseUpdated = (data: ActivityExpenseSocketData) => {
+      if (data.creatorId !== user?.id) {
+        notifySuccess(`${data.creatorName} updated an expense: ${data.expense.description}`);
+      }
+    };
+
+    const handleExpenseDeleted = (data: ActivityExpenseDeletedSocketData) => {
+      if (data.deletedById !== user?.id) {
+        notifySuccess(`${data.deletedByName} deleted an expense`);
+      }
+    };
+
     socket.on('activity:created', handleNewActivity);
     socket.on('activity:updated', handleUpdatedActivity);
     socket.on('activity:deleted', handleDeletedActivity);
+    socket.on('activity:expense:created', handleExpenseCreated);
+    socket.on('activity:expense:updated', handleExpenseUpdated);
+    socket.on('activity:expense:deleted', handleExpenseDeleted);
 
     return () => {
       socket.off('activity:created', handleNewActivity);
       socket.off('activity:updated', handleUpdatedActivity);
       socket.off('activity:deleted', handleDeletedActivity);
+      socket.off('activity:expense:created', handleExpenseCreated);
+      socket.off('activity:expense:updated', handleExpenseUpdated);
+      socket.off('activity:expense:deleted', handleExpenseDeleted);
     };
   }, [socket, isReady, tripId, user]);
 

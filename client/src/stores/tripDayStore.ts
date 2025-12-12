@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { TripDay } from '@/types/tripDay';
 import type { Activity } from '@/types/activity';
-import { tripDaysApi } from '@/pages/tripday/services/api';
+import type { Expense } from '@/types/expense';
 
 interface TripDayStore {
   tripDay: TripDay | null;
@@ -9,6 +9,7 @@ interface TripDayStore {
   addActivity: (activity: Activity) => void;
   removeActivity: (activityId: string) => void;
   updateActivity: (activityId: string, updatedActivity: Activity) => void;
+  updateActivityExpense: (activityId: string, expense: Expense | null) => void;
 }
 
 
@@ -53,6 +54,15 @@ export const useTripDayStore = create<TripDayStore>((set) => ({
       activities: sortActivities(state.tripDay.activities.map(activity => 
         activity.id === activityId ? updatedActivity : activity
       ))
+    } : null
+  })),
+
+  updateActivityExpense: (activityId, expense) => set(state => ({
+    tripDay: state.tripDay ? {
+      ...state.tripDay,
+      activities: state.tripDay.activities.map(activity => 
+        activity.id === activityId ? { ...activity, expense } : activity
+      )
     } : null
   })),
 

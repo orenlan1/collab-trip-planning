@@ -128,8 +128,10 @@ export function TripBudgetPage() {
   };
 
   const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string): Promise<void> => {
+    if (!tripId) return;
+    
     try {
-      await budgetApi.updateExpense(expenseId, { description, cost, category, currency, date });
+      await budgetApi.updateExpense(tripId, expenseId, { description, cost, category, currency, date });
       setShowEditExpenseDialog(false);
       setSelectedExpense(null);
       toast.success('Expense updated successfully!');
@@ -143,8 +145,10 @@ export function TripBudgetPage() {
   };
 
   const handleDeleteExpense = async (expenseId: string): Promise<void> => {
+    if (!tripId) return;
+    
     try {
-      await budgetApi.deleteExpense(expenseId);
+      await budgetApi.deleteExpense(tripId, expenseId);
       toast.success('Expense deleted successfully!');
       
       await fetchBudgetSummary();

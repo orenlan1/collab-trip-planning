@@ -139,10 +139,10 @@ export function LodgingCard() {
   };
 
   const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
-    if (!expenseLodging) return;
+    if (!expenseLodging || !tripId) return;
 
     try {
-      const response = await budgetApi.updateExpense(expenseId, { 
+      const response = await budgetApi.updateExpense(tripId, expenseId, { 
         description, 
         cost, 
         category, 

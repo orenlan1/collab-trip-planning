@@ -1,14 +1,15 @@
 import { useSocket } from "@/context/SocketContext";
-import { useEffect, useState } from "react";
-import type { ActivitySocketData, ActivityDeletedSocketData } from "@/sockets/types";
+import { useEffect } from "react";
+import type { ActivitySocketData, ActivityDeletedSocketData, ActivityExpenseSocketData, ActivityExpenseDeletedSocketData } from "@/sockets/types";
 import { useTripDayStore } from "@/stores/tripDayStore";
 import { useAuth } from "@/context/AuthContext";
+import { useActivityAnimation } from "./useActivityAnimation";
 
 export function useActivitySocketListeners(currentTripDayId: string) {
     const { socket, isReady } = useSocket();
-    const { addActivity, updateActivity, removeActivity } = useTripDayStore();
+    const { addActivity, updateActivity, removeActivity, updateActivityExpense } = useTripDayStore();
     const { user } = useAuth();
-    const [animatedActivityIds, setAnimatedActivityIds] = useState<Set<string>>(new Set());
+    const { animatedActivityIds, animateActivity } = useActivityAnimation();
 
     useEffect(() => {
         if (!socket || !isReady) return;
@@ -17,14 +18,7 @@ export function useActivitySocketListeners(currentTripDayId: string) {
             if (data.tripDayId === currentTripDayId) {
                 if (data.creatorId !== user?.id) {
                     addActivity(data.activity);
-                    setAnimatedActivityIds(prev => new Set(prev).add(data.activity.id));
-                    setTimeout(() => {
-                        setAnimatedActivityIds(prev => {
-                            const newSet = new Set(prev);
-                            newSet.delete(data.activity.id);
-                            return newSet;
-                        });
-                    }, 1000);
+                    animateActivity(data.activity.id);
                 }
             }
         }
@@ -33,14 +27,7 @@ export function useActivitySocketListeners(currentTripDayId: string) {
             if (data.tripDayId === currentTripDayId) {                
                 if (data.creatorId !== user?.id) {
                     updateActivity(data.activity.id, data.activity);
-                    setAnimatedActivityIds(prev => new Set(prev).add(data.activity.id));
-                    setTimeout(() => {
-                        setAnimatedActivityIds(prev => {
-                            const newSet = new Set(prev);
-                            newSet.delete(data.activity.id);
-                            return newSet;
-                        });
-                    }, 1000);
+                    animateActivity(data.activity.id);
                 }
             }
         }
@@ -53,16 +40,37 @@ export function useActivitySocketListeners(currentTripDayId: string) {
             }
         }
 
+        const handleActivityExpenseCreated = (data: ActivityExpenseSocketData) => {
+            updateActivityExpense(data.activityId, data.expense);
+            animateActivity(data.activityId);
+        }
+
+        const handleActivityExpenseUpdated = (data: ActivityExpenseSocketData) => {
+            updateActivityExpense(data.activityId, data.expense);
+            animateActivity(data.activityId);
+        }
+
+        const handleActivityExpenseDeleted = (data: ActivityExpenseDeletedSocketData) => {
+            updateActivityExpense(data.activityId, null);
+            animateActivity(data.activityId);
+        }
+
         socket.on('activity:created', handleNewActivity);
         socket.on('activity:updated', handleUpdatedActivity);
         socket.on('activity:deleted', handleDeletedActivity);
+        socket.on('activity:expense:created', handleActivityExpenseCreated);
+        socket.on('activity:expense:updated', handleActivityExpenseUpdated);
+        socket.on('activity:expense:deleted', handleActivityExpenseDeleted);
 
         return () => {
             socket.off('activity:created', handleNewActivity);
             socket.off('activity:updated', handleUpdatedActivity);
             socket.off('activity:deleted', handleDeletedActivity);
+            socket.off('activity:expense:created', handleActivityExpenseCreated);
+            socket.off('activity:expense:updated', handleActivityExpenseUpdated);
+            socket.off('activity:expense:deleted', handleActivityExpenseDeleted);
         };
-    }, [socket, isReady, currentTripDayId, addActivity, updateActivity, removeActivity, user?.id]);
+    }, [socket, isReady, currentTripDayId, addActivity, updateActivity, removeActivity, updateActivityExpense, animateActivity, user?.id]);
 
     return { animatedActivityIds };
 }

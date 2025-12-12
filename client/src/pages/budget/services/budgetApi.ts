@@ -45,15 +45,15 @@ export const budgetApi = {
   },
 
   // Update an expense
-  updateExpense: (expenseId: string, data: Partial<CreateExpenseInput>) => {
+  updateExpense: (tripId: string, expenseId: string, data: Partial<CreateExpenseInput>) => {
     console.log('API: Updating expense:', expenseId, data);
-    return api.patch(`/budget/expenses/${expenseId}`, data);
+    return api.patch(`/trips/${tripId}/budget/expenses/${expenseId}`, data);
   },
 
   // Delete an expense
-  deleteExpense: (expenseId: string) => {
+  deleteExpense: (tripId: string, expenseId: string) => {
     console.log('API: Deleting expense:', expenseId);
-    return api.delete(`/budget/expenses/${expenseId}`);
+    return api.delete(`/trips/${tripId}/budget/expenses/${expenseId}`);
   },
 
   // Get budget summary

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import budgetService from "../services/budget-service.js";
 import type { CreateOrUpdateBudgetInput, CreateExpenseInput, UpdateExpenseInput } from "../schemas/budget-schema.js";
+import type { TypedServer } from "../sockets/types.js";
 
 // POST /api/trips/:tripId/budget - Create or update a trip's budget
 const createOrUpdateBudget = async (req: Request, res: Response) => {
@@ -67,6 +68,25 @@ const addExpense = async (req: Request, res: Response) => {
 
     try {
         const expense = await budgetService.addExpense(tripId, data);
+        if (expense.activity) {
+            const io: TypedServer = req.app.get('io');
+            io.to(`trip:${tripId}`).emit('activity:expense:created', {
+                activityId: expense.activity.id,
+                creatorId: req.user!.id,
+                creatorName: req.user!.name,
+                expense: {
+                    id: expense.id,
+                    description: expense.description,
+                    cost: expense.cost,
+                    currency: expense.currency,
+                    category: expense.category,
+                    date: expense.date instanceof Date ? expense.date.toISOString() : expense.date,
+                    createdAt: expense.createdAt instanceof Date ? expense.createdAt.toISOString() : expense.createdAt,
+                    updatedAt: expense.updatedAt instanceof Date ? expense.updatedAt.toISOString() : expense.updatedAt
+                }
+            });
+        }
+
         res.status(201).json(expense);
     } catch (error: any) {
         console.error("Error adding expense:", error);
@@ -89,13 +109,17 @@ const addExpense = async (req: Request, res: Response) => {
     }
 };
 
-// PATCH /api/budget/expenses/:expenseId - Update an expense
+// PATCH /api/trips/:tripId/budget/expenses/:expenseId - Update an expense
 const updateExpense = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { expenseId } = req.params;
+    const { tripId, expenseId } = req.params;
+    
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
     
     if (!expenseId) {
         return res.status(400).json({ error: "Expense ID is required" });
@@ -105,6 +129,27 @@ const updateExpense = async (req: Request, res: Response) => {
 
     try {
         const expense = await budgetService.updateExpense(expenseId, data);
+        
+        if (expense.activityId) {
+            const io: TypedServer = req.app.get('io');
+            
+            io.to(`trip:${tripId}`).emit('activity:expense:updated', {
+                activityId: expense.activityId,
+                creatorId: req.user!.id,
+                creatorName: req.user!.name,
+                expense: {
+                    id: expense.id,
+                    description: expense.description,
+                    cost: expense.cost,
+                    currency: expense.currency,
+                    category: expense.category,
+                    date: expense.date instanceof Date ? expense.date.toISOString() : expense.date,
+                    createdAt: expense.createdAt instanceof Date ? expense.createdAt.toISOString() : expense.createdAt,
+                    updatedAt: expense.updatedAt instanceof Date ? expense.updatedAt.toISOString() : expense.updatedAt
+                }
+            });
+        }
+        
         res.status(200).json(expense);
     } catch (error: any) {
         console.error("Error updating expense:", error);
@@ -117,13 +162,17 @@ const updateExpense = async (req: Request, res: Response) => {
     }
 };
 
-// DELETE /api/budget/expenses/:expenseId - Delete an expense
+// DELETE /api/trips/:tripId/budget/expenses/:expenseId - Delete an expense
 const deleteExpense = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { expenseId } = req.params;
+    const { tripId, expenseId } = req.params;
+    
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
     
     if (!expenseId) {
         return res.status(400).json({ error: "Expense ID is required" });
@@ -131,6 +180,17 @@ const deleteExpense = async (req: Request, res: Response) => {
 
     try {
         const result = await budgetService.deleteExpense(expenseId);
+        
+        if (result.activityId) {
+            const io: TypedServer = req.app.get('io');
+            
+            io.to(`trip:${tripId}`).emit('activity:expense:deleted', {
+                activityId: result.activityId,
+                deletedById: req.user!.id,
+                deletedByName: req.user!.name
+            });
+        }
+        
         res.status(200).json(result);
     } catch (error: any) {
         console.error("Error deleting expense:", error);
