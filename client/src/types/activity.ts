@@ -20,3 +20,12 @@ export interface Activity {
   } | null;
   createdAt: string;
 }
+
+export interface CreateActivityRequest {
+  name: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  description?: string;
+  image?: string;
+}

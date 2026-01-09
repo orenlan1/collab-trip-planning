@@ -8,6 +8,9 @@ const router = express.Router({ mergeParams: true });
 router.get("/", isAuthenticated, itineraryController.getItinerary);
 router.get("/activities", isAuthenticated, itineraryController.getAllActivities);
 
+// Dining suggestions route
+router.get("/dining/suggestions", isAuthenticated, itineraryController.getDiningSuggestionsController);
+
 // Trip day routes
 router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);
 router.post("/days", isAuthenticated, itineraryController.addTripDay);

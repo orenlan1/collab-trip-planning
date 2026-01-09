@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import PlaceInput from "./PlaceInput";
 import type { Place } from "./PlaceInput";
+import type { CreateActivityRequest } from "@/types/activity";
 
 interface AddActivityDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (placeName: string, address: string, latitude?: number, longitude?: number) => void;
+  onSubmit: (activity: CreateActivityRequest) => void;
 }
 
 const AddActivityDialog: React.FC<AddActivityDialogProps> = ({
@@ -31,12 +32,21 @@ const AddActivityDialog: React.FC<AddActivityDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (placeName.trim() && selectedPlace) {
+    // if (placeName.trim() && selectedPlace) {
+    if (selectedPlace) {
+      if (placeName) {
+        setPlaceName(placeName.trim());
+      }
       setIsSubmitting(true);
       try {
-        await onSubmit(selectedPlace.name || placeName, selectedPlace.address || "",
-            selectedPlace.location?.lat, selectedPlace.location?.lng
-        );
+        await onSubmit({
+          name: selectedPlace.name || placeName,
+          address: selectedPlace.address || "",
+          latitude: selectedPlace.location?.lat,
+          longitude: selectedPlace.location?.lng
+        });
+        // Close dialog after successful submission
+        onOpenChange(false);
       } catch (error) {
         console.error("Failed to create activity:", error);
       } finally {

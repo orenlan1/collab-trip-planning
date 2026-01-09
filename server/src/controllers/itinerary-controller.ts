@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import itineraryService from "../services/itinerary-service";
 import type { TypedServer } from "../sockets/types";
+import { getDiningSuggestions } from "../apiClients/openai/dining";
 
 export interface ItineraryFormData {
     tripId: string;
@@ -239,6 +240,26 @@ const getAllActivities = async (req: Request, res: Response) => {
     }
 };
 
+const getDiningSuggestionsController = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { query, destination } = req.query;
+
+    if (!query || !destination) {
+        return res.status(400).json({ error: "Query and destination are required" });
+    }
+
+    try {
+        const suggestions = await getDiningSuggestions(query as string, destination as string);
+        res.status(200).json(suggestions);
+    } catch (error) {
+        console.error("Failed to get dining suggestions:", error);
+        res.status(500).json({ error: "Failed to get dining suggestions" });
+    }
+};
+
 export default {
     getItinerary,
     getTripDay,
@@ -248,5 +269,6 @@ export default {
     deleteActivity,
     deleteTripDay,
     getActivities,
-    getAllActivities
+    getAllActivities,
+    getDiningSuggestionsController
 };

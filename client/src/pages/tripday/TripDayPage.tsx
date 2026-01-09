@@ -9,6 +9,7 @@ import AddDiningActivityDialog from "./components/AddDiningActivityDialog";
 import { GoogleMaps } from "@/components/GoogleMaps";
 import { useTripStore } from "@/stores/tripStore";
 import { useActivitySocketListeners } from "./hooks/useActivitySocketListeners";
+import type { CreateActivityRequest } from "@/types/activity";
 
 interface TripDayPageProps {
     id: string;
@@ -66,19 +67,14 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
         setHoveredActivityId(null);
     };
 
-    const handleCreateActivity = async (placeName: string, address: string, latitude?: number, longitude?: number) => {
+    const handleCreateActivity = async (activity : CreateActivityRequest) => {
         try {
-            const response = await tripDaysApi.addNewActivity(tripId, id, { 
-                name: placeName, 
-                address,
-                latitude,
-                longitude
-            });
+            const response = await tripDaysApi.addNewActivity(tripId, id, activity);
             addActivity(response.data);
-            setShowAddActivityDialog(false);
-            
+            // Dialog will be closed by the child component
         } catch (error) {
             console.error("Failed to add activity:", error);
+            throw error; // Re-throw to let the dialog handle the error
         }
     };
 
@@ -185,6 +181,8 @@ export const TripDayPage = ({ id }: TripDayPageProps) => {
                 isOpen={showAddDiningActivityDialog}
                 onOpenChange={setShowAddDiningActivityDialog}
                 onSubmit={handleCreateActivity}
+                tripId={tripId}
+                destination={useTripStore.getState().destination || ''}
             />
         </div>
     );

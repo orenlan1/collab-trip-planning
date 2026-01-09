@@ -1,9 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { FaPlane } from "react-icons/fa";
-import { FaBed } from "react-icons/fa";
 import { PiForkKnifeFill } from "react-icons/pi";
 import { FaCamera } from "react-icons/fa6";
-import { FaShoppingBag } from "react-icons/fa";
 
 export type ActivityType = 'TRANSPORTATION' | 'ACCOMMODATION' | 'DINING' | 'ACTIVITIES' | 'MISCELLANEOUS';
 

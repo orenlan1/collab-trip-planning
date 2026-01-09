@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export interface Place {
   id: string;
@@ -34,6 +35,32 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const debounceTimeout = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  const updateDropdownPosition = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (loading || suggestions.length > 0 || (isTyping && value && value.length > 2)) {
+        updateDropdownPosition();
+        window.addEventListener('scroll', updateDropdownPosition, true);
+        window.addEventListener('resize', updateDropdownPosition);
+        
+        return () => {
+            window.removeEventListener('scroll', updateDropdownPosition, true);
+            window.removeEventListener('resize', updateDropdownPosition);
+        };
+    }
+  }, [loading, suggestions.length, isTyping, value]);
 
   useEffect(() => {
     if (!value || !window.google || !window.google.maps || !window.google.maps.places || !isTyping) {
@@ -86,7 +113,11 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
   // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        (!dropdownRef.current || !dropdownRef.current.contains(event.target as Node))
+      ) {
         setSuggestions([]);
         setIsTyping(false);
       }
@@ -139,52 +170,67 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
         style={{ width: "100%" }}
         autoComplete="off"
       />
-      {loading && (
-        <div style={{ 
-          position: "absolute", 
-          background: "white", 
-          zIndex: 10, 
-          width: "100%",
-          padding: "8px",
-          border: "1px solid #ccc"
-        }}>
-          Loading...
-        </div>
-      )}
-      {!loading && suggestions.length > 0 && (
-        <ul className="absolute bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 w-full m-0 p-0 list-none z-10 max-h-[200px] overflow-y-auto shadow-md rounded-md">
-          {suggestions.map((s, index) => (
-            <li
-              className="p-2 cursor-pointer border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white"
-              key={s.placePrediction?.placeId || index}
-              onClick={() => {   
-                handleSuggestionSelect(s.placePrediction!);
+      {dropdownPosition && createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: "fixed",
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
+            width: dropdownPosition.width,
+            zIndex: 9999,
+            pointerEvents: "auto"
+          }}
+          onWheel={(e) => e.stopPropagation()}
+        >
+          {loading && (
+            <div style={{ 
+              background: "white", 
+              padding: "8px",
+              border: "1px solid #ccc"
+            }}>
+              Loading...
+            </div>
+          )}
+          {!loading && suggestions.length > 0 && (
+            <ul 
+              className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 m-0 p-0 list-none overflow-y-auto shadow-md rounded-md"
+              style={{
+                maxHeight: "200px",
+                pointerEvents: "auto"
               }}
-            
-              // onMouseEnter={(e) => {
-              //   e.currentTarget.style.backgroundColor = "#f0f0f0";
-              // }}
-              // onMouseLeave={(e) => {
-              //   e.currentTarget.style.backgroundColor = "white";
-              // }}
+              onMouseDown={(e) => {
+                // Prevent default only if not clicking scrollbar (simple heuristic or just rely on item onMouseDown)
+                // Actually, preventing default on the list itself might break scrollbar dragging in some browsers if not careful.
+                // So we won't put preventDefault here, only on items.
+              }}
             >
-              {s.placePrediction?.text.text }
-            </li>
-          ))}
-        </ul>
-      )}
-      {!loading && isTyping && suggestions.length === 0 && value && value.length > 2 && (
-        <div style={{ 
-          position: "absolute", 
-          background: "white", 
-          zIndex: 10, 
-          width: "100%",
-          padding: "8px",
-          border: "1px solid #ccc",
-          color: "#666"
-        }}>
-          No results found
-        </div>
+              {suggestions.map((s, index) => (
+                <li
+                  className="p-2 cursor-pointer border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white"
+                  key={s.placePrediction?.placeId || index}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent focus loss from input
+                    handleSuggestionSelect(s.placePrediction!);
+                  }}
+                >
+                  {s.placePrediction?.text.text }
+                </li>
+              ))}
+            </ul>
+          )}
+          {!loading && isTyping && suggestions.length === 0 && value && value.length > 2 && (
+            <div style={{ 
+              background: "white", 
+              padding: "8px",
+              border: "1px solid #ccc",
+              color: "#666"
+            }}>
+              No results found
+            </div>
+          )}
+        </div>,
+        document.body
       )}
     </div>
   );
