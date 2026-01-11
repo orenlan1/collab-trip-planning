@@ -24,6 +24,7 @@ import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
 import { SearchingLayout } from './layouts/SearchingLayout.tsx'
 import { FlightResults } from './pages/flights/components/FlightResults.tsx'
 import { JoinTripPage } from './pages/trips/JoinTripPage.tsx';
+import { Navbar } from './components/navigation/top/Navbar.tsx'
 // Import commented out until needed
 import {APIProvider} from "@vis.gl/react-google-maps"
 
@@ -100,7 +101,10 @@ const router = createBrowserRouter([
 
   {
     path: 'trips/join/:token',
-    element: <ProtectedRoute><JoinTripPage /></ProtectedRoute>
+    element: <>
+        <Navbar />
+        <JoinTripPage />
+      </>
   },
   {
     path: '/login',

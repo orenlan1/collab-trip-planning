@@ -76,9 +76,15 @@ router.post('/logout', (req, res) => {
 });
 
 
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
-}));
+router.get('/google', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const redirect = req.query.redirect as string;
+  if (redirect) {
+    (req.session as any).oauthRedirect = redirect;
+  }
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+  })(req, res, next);
+});
 
 
 // Get current session user
@@ -109,7 +115,9 @@ router.get('/google/callback', (req: express.Request, res: express.Response, nex
         console.error('Login error:', err);
         return res.redirect('http://localhost:5173/login?error=' + encodeURIComponent('Login failed'));
       }
-      return res.redirect('http://localhost:5173/dashboard');
+      const redirect = (req.session as any).oauthRedirect;
+      delete (req.session as any).oauthRedirect;
+      return res.redirect('http://localhost:5173' + (redirect || '/dashboard'));
     });
   })(req, res, next);
 });

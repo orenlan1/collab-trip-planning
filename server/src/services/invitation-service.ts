@@ -83,9 +83,8 @@ export class InvitationService {
     return result;
   }
 
-  // Get invitation by token
-  async getInvitationByToken(token: string) {
-    return prisma.invitation.findFirst({
+  async getInvitationByToken(token: string, userId?: string) {
+    const invitation = await prisma.invitation.findFirst({
       where: {
         token,
         status: 'ACTIVE',
@@ -103,5 +102,25 @@ export class InvitationService {
         }
       }
     });
+
+    if (!invitation) {
+      return null;
+    }
+
+    let isAlreadyMember = false;
+    if (userId) {
+      const existingMember = await prisma.tripMember.findFirst({
+        where: {
+          tripId: invitation.tripId,
+          userId
+        }
+      });
+      isAlreadyMember = !!existingMember;
+    }
+
+    return {
+      ...invitation,
+      isAlreadyMember
+    };
   }
 }

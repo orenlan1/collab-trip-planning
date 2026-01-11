@@ -24,7 +24,11 @@ export const authApi = {
   logout: () =>
     api.post('/auth/logout'),
 
-  googleLogin: () => {
-    window.location.href = 'http://localhost:3000/auth/google';
+  googleLogin: (redirect?: string) => {
+    const url = new URL('http://localhost:3000/auth/google');
+    if (redirect) {
+      url.searchParams.set('redirect', redirect);
+    }
+    window.location.href = url.toString();
   },
 };

@@ -11,6 +11,7 @@ interface InvitationDetails {
   inviterUser: {
     name: string;
   };
+  isAlreadyMember: boolean;
 }
 
 export function JoinTripPage() {
@@ -100,6 +101,26 @@ export function JoinTripPage() {
             className="bg-indigo-500 text-white px-6 py-2 rounded-md hover:bg-indigo-600"
           >
             Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (invitation?.isAlreadyMember) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold mb-4">Already a Member</h1>
+          <p className="text-gray-600 mb-6">
+            You are already a member of{' '}
+            <span className="font-semibold">{invitation.trip.title}</span>
+          </p>
+          <button
+            onClick={() => navigate(`/trips/${invitation.trip.id}/overview`)}
+            className="bg-indigo-500 text-white px-6 py-2 rounded-md hover:bg-indigo-600"
+          >
+            Go to Trip
           </button>
         </div>
       </div>

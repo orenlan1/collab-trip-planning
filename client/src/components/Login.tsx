@@ -28,7 +28,9 @@ export function Login() {
     try {
       const response = await authApi.login(data);
       setUser(response.data);
-      navigate('/dashboard');
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      navigate(redirect || '/dashboard');
     } catch (error: any) {
       if (error.response?.status === 401) {
         setError('root', {
@@ -84,7 +86,11 @@ export function Login() {
       </form>
 
       <button
-        onClick={() => authApi.googleLogin()}
+        onClick={() => {
+          const params = new URLSearchParams(location.search);
+          const redirect = params.get('redirect');
+          authApi.googleLogin(redirect || undefined);
+        }}
         className="w-full mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600"
       >
         Login with Google

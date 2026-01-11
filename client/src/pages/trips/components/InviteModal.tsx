@@ -60,7 +60,7 @@ export function InviteModal({ isOpen, onClose, tripId }: InviteModalProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0  bg-opacity-25" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -74,8 +74,8 @@ export function InviteModal({ isOpen, onClose, tripId }: InviteModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 mb-4">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border-2 bg-white dark:bg-slate-800 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 dark:text-white mb-4">
                   Invite Participants
                 </Dialog.Title>
                 <div className="space-y-4">

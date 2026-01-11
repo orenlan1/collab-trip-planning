@@ -51,7 +51,6 @@ export class InvitationController {
     }
   }
 
-  // Get invitation details by token
   async getInvitationByToken(req: Request, res: Response) {
     try {
       const { token } = req.params;
@@ -59,7 +58,8 @@ export class InvitationController {
         return res.status(400).json({ error: 'Invalid invitation token' });
       }
 
-      const invitation = await invitationService.getInvitationByToken(token);
+      const userId = req.user?.id;
+      const invitation = await invitationService.getInvitationByToken(token, userId);
 
       if (!invitation) {
         return res.status(404).json({ error: 'Invitation not found or expired' });
