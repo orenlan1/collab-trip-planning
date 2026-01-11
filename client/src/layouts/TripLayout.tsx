@@ -1,7 +1,7 @@
 // TripLayout.tsx
 import { Navbar } from '../components/navigation/top/Navbar';
 import { TripSidebar } from '../pages/trips/navigation/TripSidebar';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { TripChatSocketProvider } from '@/context/TripChatSocketContext';
 import { TripItinerarySocketProvider } from '@/context/TripItinerarySocketContext';
@@ -15,11 +15,14 @@ export const notifySuccess = (message: string) => toast.success(message);
 
 export function TripLayout() {
   const { tripId } = useParams<{ tripId: string }>();
+  const location = useLocation();
   const setTripData = useTripStore(state => state.setTripData);
   const currentTripId = useTripStore(state => state.id);
   const reset = useTripStore(state => state.reset);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const isItineraryPage = location.pathname.includes('/itinerary');
   
   useEffect(() => {
     const fetchTripData = async () => {
@@ -89,7 +92,7 @@ export function TripLayout() {
             <ScrollToTop excludePaths={['/chat']} />
             <div className="flex relative">
               <TripSidebar />
-              <main className="flex-1 w-full lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0">
+              <main className={`flex-1 w-full ${isItineraryPage ? 'h-[calc(100vh-73px)] overflow-hidden' : 'lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0'}`}>
                 <ToastContainer 
                   position="top-right"
                   autoClose={5000}

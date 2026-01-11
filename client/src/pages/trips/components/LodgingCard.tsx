@@ -262,25 +262,26 @@ export function LodgingCard() {
               </div>
             </div>
           ))}
-
-          <GoogleMaps center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined} 
-          markers={lodgings.map(lodging => ({
-            id: lodging.id,
-            lat: lodging.latitude || 0,
-            lng: lodging.longitude || 0,
-          }))}
-          pin={
-            <div className="relative">
-              <div className="absolute -top-12 -left-6 flex flex-col items-center">
-                <div className="bg-indigo-500 rounded-full p-3 shadow-lg border-4 border-white hover:scale-110 transition-transform">
-                  <FaBed className="w-6 h-6 text-white" />
+          <div className="h-[400px] ">
+            <GoogleMaps center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined} 
+            markers={lodgings.map(lodging => ({
+              id: lodging.id,
+              lat: lodging.latitude || 0,
+              lng: lodging.longitude || 0,
+            }))}
+            pin={
+              <div className="relative">
+                <div className="absolute -top-12 -left-6 flex flex-col items-center">
+                  <div className="bg-indigo-500 rounded-full p-3 shadow-lg border-4 border-white hover:scale-110 transition-transform">
+                    <FaBed className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-white -mt-1" />
+                  <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-indigo-500 -mt-[11px]" />
                 </div>
-                <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-white -mt-1" />
-                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-indigo-500 -mt-[11px]" />
               </div>
-            </div>
-        }
-          />
+          }
+            />
+          </div>
         </div>
       )}
 

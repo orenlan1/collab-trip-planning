@@ -12,7 +12,7 @@ export function DateCard({ date, index, setDay, isSelected }: { date: Date, inde
     <div 
       onClick={setDay} 
       className={`
-        flex-shrink-0 w-28 rounded-xl p-3 text-center cursor-pointer transition-all
+        flex-shrink-0 w-28 rounded-xl p-2 mx-2 text-center cursor-pointer transition-all
         ${isSelected 
           ? 'bg-indigo-600 dark:bg-indigo-600 text-white scale-105 shadow-lg ring-2 ring-offset-2 ring-indigo-600 dark:ring-offset-slate-900' 
           : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-600 dark:text-slate-300'

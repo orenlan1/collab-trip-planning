@@ -36,7 +36,7 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
     );
 
     return (
-        <div style={{ width: '100%', height: '400px', position: 'relative', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
             {apiKey ? (
                 <Map
                     defaultCenter={ defaultCenter}
