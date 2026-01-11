@@ -1,10 +1,11 @@
 import { Map, AdvancedMarker, Pin, AdvancedMarkerAnchorPoint } from "@vis.gl/react-google-maps";
 import type React from "react";
-import { FaBed } from "react-icons/fa";
+import { useState } from "react";
+
 
 interface GoogleMapsProps {
     center?: { lat: number; lng: number };
-    markers?: { id: string; lat: number; lng: number; index?: number; hasTime?: boolean }[];
+    markers?: { id: string; lat: number; lng: number; placeName?: string; index?: number; hasTime?: boolean }[];
     pin?: React.ReactNode;
     hoveredMarkerId?: string;
 }
@@ -12,6 +13,7 @@ interface GoogleMapsProps {
 export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMapsProps) => {
     const defaultCenter = center || { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    const [localHoveredId, setLocalHoveredId] = useState<string | null>(null);
 
     const CustomNumberedPin = ({ index, isHovered }: { index: number; isHovered: boolean }) => (
         <div
@@ -39,7 +41,7 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
         <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
             {apiKey ? (
                 <Map
-                    defaultCenter={ defaultCenter}
+                    defaultCenter={defaultCenter}
                     defaultZoom={12}
                     mapId="8f112ffd2b5e89bd"
                     gestureHandling="greedy"
@@ -47,19 +49,54 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
                     reuseMaps={true}
                 >
                     {markers && markers.map((marker) => {
-                        const isHovered = hoveredMarkerId === marker.id;
+                        const isHovered = hoveredMarkerId === marker.id || localHoveredId === marker.id;
+                    
                         return (
-                            <AdvancedMarker
-                                key={marker.id}
-                                position={{ lat: marker.lat, lng: marker.lng }}
-                                anchorPoint={AdvancedMarkerAnchorPoint.CENTER}
-                            >
-                                {pin ? pin : marker.hasTime ? (
-                                    <CustomNumberedPin index={marker.index!} isHovered={isHovered} />
-                                ) : (
-                                    <Pin scale={isHovered ? 1.5 : 1} background="#9ca3af" borderColor="#6b7280" glyphColor="#ffffff" />
+                            <>
+                                <AdvancedMarker
+                                    key={marker.id}
+                                    position={{ lat: marker.lat, lng: marker.lng }}
+                                    anchorPoint={AdvancedMarkerAnchorPoint.CENTER}
+                                    onMouseEnter={() => {
+                                        setLocalHoveredId(marker.id);
+                                    }}
+                                    onMouseLeave={() => {
+                                        setLocalHoveredId(null);
+                                    }}
+                                >
+                                    <div>
+                                        {pin ? pin : marker.hasTime ? (
+                                            <CustomNumberedPin index={marker.index!} isHovered={isHovered} />
+                                        ) : (
+                                            <Pin scale={isHovered ? 1.5 : 1} background="#9ca3af" borderColor="#6b7280" glyphColor="#ffffff" />
+                                        )}
+                                    </div>
+                                </AdvancedMarker>
+                                {isHovered && marker.placeName && (
+                                    <AdvancedMarker
+                                        key={`tooltip-${marker.id}`}
+                                        position={{ lat: marker.lat, lng: marker.lng }}
+                                        anchorPoint={AdvancedMarkerAnchorPoint.BOTTOM}
+                                    >
+                                        <div 
+                                            className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
+                                            style={{
+                                                padding: '6px 12px',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                                                fontSize: '14px',
+                                                fontWeight: '500',
+                                                whiteSpace: 'nowrap',
+                                                position: 'relative',
+                                                top: '-30px',
+                                                
+                                            }}
+                                        >
+                                            {marker.placeName}
+                                        </div>
+                                    </AdvancedMarker>
                                 )}
-                            </AdvancedMarker>
+                            </>
                         );
                     })}
                 </Map>

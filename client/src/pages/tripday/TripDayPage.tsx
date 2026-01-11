@@ -16,9 +16,6 @@ interface TripDayPageProps {
     onActivityLeave?: () => void;
 }
 
-const monthNames = ["January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
 
 export const TripDayPage = ({ id, onActivityHover, onActivityLeave }: TripDayPageProps) => {
     const [showChooseActivityDialog, setShowChooseActivityDialog] = useState(false);

@@ -186,13 +186,16 @@ export function TripItineraryPage() {
             {selectedDay && tripDay && (
               <GoogleMaps 
                 center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined}
-                markers={tripDay.activities.map((activity, _idx, arr) => {
+                markers={tripDay.activities
+                  .filter(activity => activity.latitude && activity.longitude)
+                  .map((activity, _idx, arr) => {
                   const activitiesWithTime = arr.filter(a => a.startTime);
                   const indexInTimed = activitiesWithTime.findIndex(a => a.id === activity.id);
                   return {
                     id: activity.id,
                     lat: activity.latitude || 0,
                     lng: activity.longitude || 0,
+                    placeName: activity.name,
                     index: indexInTimed + 1,
                     hasTime: !!activity.startTime
                   };
@@ -225,13 +228,16 @@ export function TripItineraryPage() {
                   {selectedDay && tripDay && (
                     <GoogleMaps 
                       center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined}
-                      markers={tripDay.activities.map((activity, _idx, arr) => {
+                      markers={tripDay.activities
+                        .filter(activity => activity.latitude && activity.longitude)
+                        .map((activity, _idx, arr) => {
                         const activitiesWithTime = arr.filter(a => a.startTime);
                         const indexInTimed = activitiesWithTime.findIndex(a => a.id === activity.id);
                         return {
                           id: activity.id,
                           lat: activity.latitude || 0,
                           lng: activity.longitude || 0,
+                          placeName: activity.name || activity.address || 'Unnamed Activity',
                           index: indexInTimed + 1,
                           hasTime: !!activity.startTime
                         };
