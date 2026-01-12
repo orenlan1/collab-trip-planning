@@ -66,7 +66,7 @@ export function MyTripsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-sky-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-gray-500 dark:text-slate-400">Loading trips...</div>
@@ -78,7 +78,7 @@ export function MyTripsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-sky-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-red-500 dark:text-red-400">{error}</div>
@@ -90,7 +90,7 @@ export function MyTripsPage() {
 
   if (trips.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-sky-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
             <div className="text-center">
@@ -110,7 +110,7 @@ export function MyTripsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-300/50 rounded-2xl dark:bg-slate-900">
+    <div className="min-h-screen bg-sky-50 rounded-2xl dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">

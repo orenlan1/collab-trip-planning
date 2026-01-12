@@ -1,5 +1,6 @@
 import { AddFlightDialog } from "@/pages/flights/components/AddFlightDialog";
 import { EditFlightDialog } from "@/pages/flights/components/EditFlightDialog";
+import { DeleteFlightDialog } from "@/pages/flights/components/DeleteFlightDialog";
 import type { FlightFormData } from "@/pages/flights/components/AddFlightDialog";
 import { useState } from "react";
 import { IoAirplaneOutline } from "react-icons/io5";
@@ -29,6 +30,9 @@ export function FlightsCard() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingFlight, setDeletingFlight] = useState<Flight | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
   const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
   const [expenseFlight, setExpenseFlight] = useState<Flight | null>(null);
@@ -118,23 +122,33 @@ export function FlightsCard() {
     setShowEditDialog(true);
   };
 
-  const handleDeleteFlight = async (flightId: string) => {
-    if (!tripId) {
-      toast.error('Trip ID is missing');
-      return;
-    }
+  const handleDeleteClick = (flight: Flight) => {
+    setDeletingFlight(flight);
+    setShowDeleteDialog(true);
+  };
 
-    if (!confirm('Are you sure you want to delete this flight?')) {
-      return;
-    }
+  const handleDeleteConfirm = async () => {
+    if (!tripId || !deletingFlight) return;
 
+    setIsDeleting(true);
     try {
-      await flightsApi.delete(tripId, flightId);
-      deleteFlight(flightId);
+      await flightsApi.delete(tripId, deletingFlight.id);
+      deleteFlight(deletingFlight.id);
       toast.success('Flight deleted successfully!');
+      setShowDeleteDialog(false);
+      setDeletingFlight(null);
     } catch (error: any) {
       console.error('Failed to delete flight:', error);
       toast.error(error.response?.data?.error || 'Failed to delete flight');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteDialogClose = () => {
+    if (!isDeleting) {
+      setShowDeleteDialog(false);
+      setDeletingFlight(null);
     }
   };
 
@@ -271,7 +285,7 @@ export function FlightsCard() {
                     <FaEdit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDeleteFlight(flight.id)}
+                    onClick={() => handleDeleteClick(flight)}
                     className="text-slate-400 hover:text-red-700 transition"
                     title="Delete flight"
                   >
@@ -319,6 +333,14 @@ export function FlightsCard() {
         onOpenChange={handleEditDialogClose}
         onFlightUpdated={handleUpdateFlight}
         flight={editingFlight}
+      />
+
+      <DeleteFlightDialog
+        open={showDeleteDialog}
+        flightInfo={deletingFlight ? `${deletingFlight.airline} #${deletingFlight.flightNumber}` : ''}
+        isDeleting={isDeleting}
+        onOpenChange={handleDeleteDialogClose}
+        onConfirm={handleDeleteConfirm}
       />
 
       {expenseFlight && (

@@ -339,7 +339,7 @@ export function FlightForm({
       <div className="space-y-2">
         <Label>Flight Times (UTC) *</Label>
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
+          <div className="space-y-2 ">
             <Label htmlFor="departureTime" className="text-xs text-gray-500 dark:text-gray-400">
               Departure Time
             </Label>

@@ -142,6 +142,35 @@
   z-index: 9999 !important;
 }
 
+/* Dark mode styles for TimePicker */
+.dark .ant-picker {
+  background-color: oklch(1 0 0 / 15%) !important;
+  border-color: oklch(1 0 0 / 15%) !important;
+  color: oklch(0.985 0 0) !important;
+}
+
+.dark .ant-picker:hover {
+  border-color: oklch(0.556 0 0) !important;
+}
+
+.dark .ant-picker-focused {
+  border-color: oklch(0.556 0 0) !important;
+  box-shadow: 0 0 0 1px oklch(0.556 0 0) !important;
+}
+
+.dark .ant-picker input {
+  color: oklch(0.985 0 0) !important;
+}
+
+.dark .ant-picker input::placeholder {
+  color: oklch(0.708 0 0) !important;
+}
+
+.dark .ant-picker-suffix,
+.dark .ant-picker-clear {
+  color: oklch(0.708 0 0) !important;
+}
+
 /* Activity card animation for real-time updates */
 @keyframes pulse-border {
   0%, 100% {

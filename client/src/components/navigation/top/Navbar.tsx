@@ -25,7 +25,7 @@ export function Navbar() {
         {user && (
           <Link
             to="/my-trips"
-            className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             My Trips
           </Link>

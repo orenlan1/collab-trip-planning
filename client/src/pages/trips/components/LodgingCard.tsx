@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { lodgingsApi, type Lodging, type CreateLodgingInput, type UpdateLodgingInput } from "@/pages/lodging/services/api";
 import { AddLodgingDialog, type LodgingFormData } from "@/pages/lodging/components/AddLodgingDialog";
 import { EditLodgingDialog } from "@/pages/lodging/components/EditLodgingDialog";
+import { DeleteLodgingDialog } from "@/pages/lodging/components/DeleteLodgingDialog";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { FaTrash, FaEdit, FaMoneyBillWave } from "react-icons/fa";
@@ -30,6 +31,9 @@ export function LodgingCard() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingLodging, setEditingLodging] = useState<Lodging | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingLodging, setDeletingLodging] = useState<Lodging | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
   const [showEditExpenseDialog, setShowEditExpenseDialog] = useState(false);
   const [expenseLodging, setExpenseLodging] = useState<Lodging | null>(null);
@@ -89,18 +93,33 @@ export function LodgingCard() {
     }
   };
 
-  const handleDeleteLodging = async (lodgingId: string) => {
-    if (!tripId) return;
+  const handleDeleteClick = (lodging: Lodging) => {
+    setDeletingLodging(lodging);
+    setShowDeleteDialog(true);
+  };
 
-    if (window.confirm('Are you sure you want to delete this lodging?')) {
-      try {
-        await lodgingsApi.delete(tripId, lodgingId);
-        deleteLodging(lodgingId);
-        toast.success('Lodging deleted successfully!');
-      } catch (error) {
-        console.error('Failed to delete lodging:', error);
-        toast.error('Failed to delete lodging');
-      }
+  const handleDeleteConfirm = async () => {
+    if (!tripId || !deletingLodging) return;
+
+    setIsDeleting(true);
+    try {
+      await lodgingsApi.delete(tripId, deletingLodging.id);
+      deleteLodging(deletingLodging.id);
+      toast.success('Lodging deleted successfully!');
+      setShowDeleteDialog(false);
+      setDeletingLodging(null);
+    } catch (error) {
+      console.error('Failed to delete lodging:', error);
+      toast.error('Failed to delete lodging');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteDialogClose = () => {
+    if (!isDeleting) {
+      setShowDeleteDialog(false);
+      setDeletingLodging(null);
     }
   };
 
@@ -253,7 +272,7 @@ export function LodgingCard() {
                     <FaEdit  />
                   </button>
                   <button
-                    onClick={() => handleDeleteLodging(lodging.id)}
+                    onClick={() => handleDeleteClick(lodging)}
                     className="text-slate-400 hover:text-red-700 "
                   >
                     <FaTrash />
@@ -296,6 +315,14 @@ export function LodgingCard() {
         onOpenChange={setShowEditDialog}
         onLodgingUpdated={handleUpdateLodging}
         lodging={editingLodging}
+      />
+
+      <DeleteLodgingDialog
+        open={showDeleteDialog}
+        lodgingName={deletingLodging?.name || ''}
+        isDeleting={isDeleting}
+        onOpenChange={handleDeleteDialogClose}
+        onConfirm={handleDeleteConfirm}
       />
 
       {expenseLodging && (

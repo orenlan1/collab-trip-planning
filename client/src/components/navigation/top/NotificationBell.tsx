@@ -37,7 +37,7 @@ export function NotificationBell() {
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 text-slate-700"
+        className="h-5 w-5 text-slate-700 dark:text-slate-200"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
