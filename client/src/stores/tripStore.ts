@@ -29,7 +29,7 @@ export const useTripStore = create<TripStore>()(
     (set) => ({
     id: '',
     title: '',
-    destination: undefined,      // Optional: undefined shows it's not set yet
+    destination: '',      // Optional: undefined shows it's not set yet
     description: undefined,      // Optional: undefined shows it's not set yet
     startDate: undefined,        // Optional: undefined for dates that are not set
     endDate: undefined,

@@ -1,6 +1,7 @@
 import type { ChatMessage, ChatUser } from "@/types/chat";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { linkify } from "@/lib/linkify";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -59,7 +60,9 @@ export function MessageBubble({
             ? "bg-blue-500 text-white rounded-br-sm" 
             : "bg-gray-100 text-gray-900 rounded-bl-sm"
         )}>
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="text-sm leading-relaxed break-words">
+            {linkify(message.content, isCurrentUser)}
+          </p>
           
           {/* Edited indicator */}
           {message.isEdited && (

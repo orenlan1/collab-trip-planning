@@ -16,6 +16,8 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
     const [typingUser, setTypingUser] = useState<ChatUser | null>(null);
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     // Set connection status based on socket state
     useEffect(() => {
@@ -26,23 +28,31 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
         }
     }, [socket, isReady]);
 
-    // Load chat history when component mounts
-    useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await getChatHistory(tripId);
-                for (const message of response.data) {
-                    message.createdAt = new Date(message.createdAt);
-                }
-                setMessages(response.data);
-            } catch (error) {
-                console.error("Failed to load chat history:", error);
-                // Keep empty array on error
-                setMessages([]);
+    const loadMessages = useCallback(async (beforeDate?: string) => {
+        try {
+            const response = await getChatHistory(tripId, beforeDate, 100);
+            for (const message of response.data) {
+                message.createdAt = new Date(message.createdAt);
             }
-        };
-        fetchMessages();
+            
+            if (response.data.length < 100) {
+                setHasMoreMessages(false);
+            }
+            
+            return response.data;
+        } catch (error) {
+            console.error("Failed to load chat history:", error);
+            return [];
+        }
     }, [tripId]);
+
+    useEffect(() => {
+        const fetchInitialMessages = async () => {
+            const initialMessages = await loadMessages();
+            setMessages(initialMessages);
+        };
+        fetchInitialMessages();
+    }, [loadMessages]);
 
     // Listen for new messages and typing events from socket
     useEffect(() => {
@@ -104,11 +114,28 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
         }
     }, [socket, isReady, tripId, user?.id, user?.name]);
 
+    const loadMoreMessages = useCallback(async () => {
+        if (!hasMoreMessages || isLoadingMore || messages.length === 0) return;
+        
+        setIsLoadingMore(true);
+        const oldestMessage = messages[0];
+        const olderMessages = await loadMessages(oldestMessage.createdAt.toISOString());
+        
+        if (olderMessages.length > 0) {
+            setMessages(prev => [...olderMessages, ...prev]);
+        }
+        
+        setIsLoadingMore(false);
+    }, [hasMoreMessages, isLoadingMore, messages, loadMessages]);
+
     return {
         messages,
         connectionStatus,
         typingUser,
         sendMessage: handleSendMessage,
-        emitTyping: handleTyping
+        emitTyping: handleTyping,
+        loadMoreMessages,
+        hasMoreMessages,
+        isLoadingMore
     };
 }

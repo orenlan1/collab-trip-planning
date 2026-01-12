@@ -16,7 +16,10 @@ const getMessages = async (req: Request, res: Response) => {
         return res.status(403).json({ error: "Forbidden" });
     }
 
-    const messages = await messageService.getMessagesForTrip(tripId);
+    const beforeDate = req.query.beforeDate as string | undefined;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+
+    const messages = await messageService.getMessagesForTrip(tripId, beforeDate, limit);
     res.json(messages);
 };
 

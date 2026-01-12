@@ -28,7 +28,7 @@ interface ClientToServerEvents {
   "trip:join": (tripId: string) => void;
   "trip:leave": (tripId: string) => void;
   "chat:sendMessage": (data: { tripId: string; content: string; type: 'text' | 'image' | 'file' }) => void;
-  "chat:typing": (data: { tripId: string; isTyping: boolean; name: string }) => void;
+  "chat:typing": (data: { tripId: string; userId: string; isTyping: boolean; name: string }) => void;
 }
 
 export type TypedSocket = Socket<
