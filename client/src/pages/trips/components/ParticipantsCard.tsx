@@ -5,6 +5,7 @@ import { FiUserPlus } from "react-icons/fi";
 import { InviteModal } from "./InviteModal";
 import { useTripStore } from "@/stores/tripStore";
 import { useTripSocket } from "@/context/TripSocketContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface ParticipantCardProps {
     tripId: string;
@@ -14,6 +15,8 @@ interface ParticipantCardProps {
 export function ParticipantsCard({ tripId }: ParticipantCardProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const members = useTripStore(state => state.members);
+  const { user } = useAuth();
+  const isCreator = members.find(member => member.userId === user?.id)?.role === 'creator';
   const { connectedUserIds } = useTripSocket();
 
   return (
@@ -35,13 +38,15 @@ export function ParticipantsCard({ tripId }: ParticipantCardProps) {
             </ul>
         </div>
 
+        {isCreator && (      
         <button 
           onClick={() => setIsInviteModalOpen(true)}
           className="flex items-center bg-indigo-500 hover:bg-indigo-600 transition ml-4 rounded-2xl gap-2 px-4 py-2 text-sm font-semibold text-white"
         >
             <FiUserPlus className="text-lg" />
             Add Participant
-        </button>
+        </button> )}
+
 
         <InviteModal 
           isOpen={isInviteModalOpen}
