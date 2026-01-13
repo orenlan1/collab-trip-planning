@@ -33,7 +33,7 @@ export function NotificationBell() {
     <button
       onClick={() => setIsOpen((prev) => !prev)}
       aria-label="Notifications"
-      className="relative p-2 rounded-md hover:bg-neutral-200/60 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+      className="relative p-2 rounded-md hover:bg-neutral-300/60  dark:hover:bg-neutral-800/60 outline-none focus:ring-2 focus:ring-indigo-500 transition"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

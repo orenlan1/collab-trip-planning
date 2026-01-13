@@ -117,7 +117,7 @@ router.get('/google/callback', (req: express.Request, res: express.Response, nex
       }
       const redirect = (req.session as any).oauthRedirect;
       delete (req.session as any).oauthRedirect;
-      return res.redirect('http://localhost:5173' + (redirect || '/dashboard'));
+      return res.redirect('http://localhost:5173' + (redirect || '/my-trips'));
     });
   })(req, res, next);
 });

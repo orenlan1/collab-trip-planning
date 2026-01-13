@@ -7,7 +7,7 @@ export function ThemeToggle() {
     <button
       onClick={toggleTheme}
       aria-label="Toggle dark mode"
-      className="p-2 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition ring-1 ring-transparent focus:ring-2 focus:ring-indigo-500"
+      className="p-2 rounded-md hover:bg-neutral-300/60 dark:hover:bg-neutral-800/60 transition ring-1 ring-transparent focus:ring-2 focus:ring-indigo-500"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
