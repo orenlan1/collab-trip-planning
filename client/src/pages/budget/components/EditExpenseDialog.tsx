@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { ExpenseCategory } from '../types/budget';
+import type { CreateExpenseInput, ExpenseCategory } from '../types/budget';
 import type { Expense } from '@/types/expense';
 import { ExpenseForm, type ExpenseFormData } from './ExpenseForm';
+import { useTripStore } from '@/stores/tripStore';
 
 interface EditExpenseDialogProps {
   open: boolean;
   expense: Expense | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => Promise<void>;
+  onSubmit: (expenseId: string, input: CreateExpenseInput) => Promise<void>;
 }
 
 export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: EditExpenseDialogProps) {
+  const tripMembers = useTripStore(state => state.members || []);
+  
   const [formData, setFormData] = useState<ExpenseFormData>({
     description: '',
     cost: '',
     category: 'FOOD',
     currency: '',
     selectedActivityId: '',
+    selectedMemberIds: [],
     date: new Date(),
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,17 +30,21 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
 
   useEffect(() => {
     if (expense) {
+      // If no splits, default to all trip members
+      const defaultMemberIds = tripMembers.map(m => m.id || m.userId).filter(id => id);
+      
       setFormData({
         description: expense.description,
         cost: expense.cost.toString(),
         category: expense.category as ExpenseCategory,
         currency: expense.currency,
         selectedActivityId: expense.activityId || '',
+        selectedMemberIds: expense.splits?.map(s => s.memberId) || defaultMemberIds,
         date: new Date(expense.date),
       });
       setError('');
     }
-  }, [expense]);
+  }, [expense, tripMembers]);
 
   const handleFormDataChange = (data: Partial<ExpenseFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -76,7 +84,14 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       const day = String(formData.date.getDate()).padStart(2, '0');
       const dateString = `${year}-${month}-${day}`;
       
-      await onSubmit(expense.id, formData.description, amount, formData.category, formData.currency, dateString);
+      await onSubmit(expense.id, {
+        description: formData.description,
+        cost: amount,
+        category: formData.category,
+        currency: formData.currency,
+        date: dateString,
+        splitMemberIds: formData.selectedMemberIds
+      });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update expense');
     } finally {
@@ -110,6 +125,7 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
           <ExpenseForm
             formData={formData}
             onFormDataChange={handleFormDataChange}
+            tripMembers={tripMembers}
             linkToActivity={false}
             showActivitySelector={false}
             showCurrencySelector={true}

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { budgetApi } from './services/budgetApi';
 import { itinerariesApi } from '../itineraries/services/api';
-import type { BudgetSummary, ExpenseCategory } from './types/budget';
+import type { BudgetSummary, CreateExpenseInput } from './types/budget';
 import type { Activity } from '@/types/activity';
 import { BudgetOverviewCards } from './components/BudgetOverviewCards';
 import { BudgetCategories } from './components/BudgetCategories';
@@ -20,6 +20,7 @@ import type { Expense } from '@/types/expense';
 export function TripBudgetPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
+  const [userSpending, setUserSpending] = useState<{ userSpending: number; currency: string } | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expensesPagination, setExpensesPagination] = useState({
@@ -94,8 +95,20 @@ export function TripBudgetPage() {
     }
   };
 
+  const fetchUserSpending = async (): Promise<void> => {
+    if (!tripId) return;
+    
+    try {
+      const response = await budgetApi.getUserSpending(tripId);
+      setUserSpending(response.data);
+    } catch (error: any) {
+      console.error('Error fetching user spending:', error);
+    }
+  };
+
   useEffect(() => {
     fetchBudgetSummary();
+    fetchUserSpending();
     fetchActivities();
     fetchExpenses();
   }, [tripId]);
@@ -112,14 +125,15 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string): Promise<void> => {
+  const handleAddExpense = async (input: CreateExpenseInput): Promise<void> => {
     if (!tripId) return;
 
     try {
-      await budgetApi.addExpense(tripId, { description, cost, category, activityId, currency, date });
+      await budgetApi.addExpense(tripId, input);
       toast.success('Expense added successfully!');
       
       await fetchBudgetSummary();
+      await fetchUserSpending();
       await fetchActivities();
       await fetchExpenses();
     } catch (error: any) {
@@ -127,16 +141,17 @@ export function TripBudgetPage() {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string): Promise<void> => {
+  const handleEditExpense = async (expenseId: string, input: CreateExpenseInput): Promise<void> => {
     if (!tripId) return;
     
     try {
-      await budgetApi.updateExpense(tripId, expenseId, { description, cost, category, currency, date });
+      await budgetApi.updateExpense(tripId, expenseId, input);
       setShowEditExpenseDialog(false);
       setSelectedExpense(null);
       toast.success('Expense updated successfully!');
       
       await fetchBudgetSummary();
+      await fetchUserSpending();
       await fetchActivities();
       await fetchExpenses();
     } catch (error: any) {
@@ -152,6 +167,7 @@ export function TripBudgetPage() {
       toast.success('Expense deleted successfully!');
       
       await fetchBudgetSummary();
+      await fetchUserSpending();
       await fetchActivities();
       await fetchExpenses();
     } catch (error: any) {
@@ -182,6 +198,7 @@ export function TripBudgetPage() {
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <BudgetOverviewCards 
         summary={summary} 
+        userSpending={userSpending}
         onEditBudget={() => setShowSetBudgetDialog(true)}
       />
 

@@ -62,6 +62,12 @@ export const budgetApi = {
     return api.get<BudgetSummary>(`/trips/${tripId}/budget/summary`);
   },
 
+  // Get user's own spending
+  getUserSpending: (tripId: string) => {
+    console.log('API: Getting user spending for trip:', tripId);
+    return api.get<{ userSpending: number; currency: string }>(`/trips/${tripId}/budget/user-spending`);
+  },
+
   // Get paginated expenses
   getExpenses: (tripId: string, page: number = 1, limit: number = 5) => {
     return api.get<{

@@ -75,13 +75,6 @@ export function CategoryItem({ category, spent, currency, totalSpent, numberOfMe
           <div className="font-medium text-lg">
             {formatCurrencyAmount(spent, currency)}
           </div>
-          <div>
-            {numberOfMembers && numberOfMembers > 0 && (
-              <span className="text-xs text-gray-500 dark:text-gray-300">
-                ({formatCurrencyAmount(spent / numberOfMembers, currency)} per person)
-              </span>
-            )}
-          </div>
         </div>
       </div>
 

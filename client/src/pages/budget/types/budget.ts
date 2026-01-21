@@ -66,4 +66,5 @@ export interface CreateExpenseInput {
   flightId?: string | null;
   lodgingId?: string | null;
   date?: string;
+  splitMemberIds?: string[];
 }

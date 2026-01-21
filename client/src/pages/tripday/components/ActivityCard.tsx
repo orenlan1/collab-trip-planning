@@ -19,7 +19,7 @@ import { EditExpenseDialog } from "@/pages/budget/components/EditExpenseDialog";
 import type { Expense } from "@/types/expense"; 
 import { useParams } from "react-router-dom";
 import { budgetApi } from '../../budget/services/budgetApi';
-import type { ExpenseCategory } from '../../budget/types/budget';
+import type { CreateExpenseInput } from '../../budget/types/budget';
 import { toast } from "react-toastify";
 import { formatCurrencyAmount } from "@/lib/currency";
 
@@ -102,7 +102,7 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
   }
 };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, _activityId?: string, currency?: string) => {
+  const handleAddExpense = async (input: CreateExpenseInput) => {
     if (!tripId) return;
 
     // Format tripDay date as YYYY-MM-DD in local time (date is the tripDay date prop)
@@ -112,7 +112,11 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
     const dateString = `${year}-${month}-${day}`;
 
     try {
-      const response = await budgetApi.addExpense(tripId, { description, cost, category, activityId: activity.id, currency, date: dateString });
+      const response = await budgetApi.addExpense(tripId, { 
+        ...input,
+        activityId: activity.id,
+        date: dateString
+      });
       const expense = response.data;
       toast.success('Expense added successfully!');
 
@@ -124,11 +128,11 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+  const handleEditExpense = async (expenseId: string, input: CreateExpenseInput) => {
     if (!tripId) return;
     
     try {
-      const response = await budgetApi.updateExpense(tripId, expenseId, { description, cost, category, currency, date });
+      const response = await budgetApi.updateExpense(tripId, expenseId, input);
       const expense = response.data;
       toast.success('Expense updated successfully!');
 

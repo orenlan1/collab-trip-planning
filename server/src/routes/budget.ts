@@ -28,6 +28,13 @@ router.get(
     budgetController.getSummary
 );
 
+// GET /api/trips/:tripId/budget/user-spending - Get current user's own spending
+router.get(
+    "/user-spending",
+    isAuthenticated,
+    budgetController.getUserSpending
+);
+
 // POST /api/trips/:tripId/budget/expenses - Add an expense to the trip's budget
 router.post(
     "/expenses",

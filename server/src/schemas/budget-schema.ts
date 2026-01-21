@@ -23,7 +23,8 @@ export const createExpenseSchema = z.object({
         activityId: z.string().optional().nullable(),
         flightId: z.string().optional().nullable(),
         lodgingId: z.string().optional().nullable(),
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format").optional()
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format").optional(),
+        splitMemberIds: z.array(z.string()).optional()
     })
 });
 
@@ -37,7 +38,8 @@ export const updateExpenseSchema = z.object({
         category: z.enum(["TRANSPORTATION", "ACCOMMODATION", "ACTIVITIES", "FOOD", "MISCELLANEOUS"], {
             message: "Category must be one of: TRANSPORTATION, ACCOMMODATION, ACTIVITIES, FOOD, MISCELLANEOUS"
         }).optional(),
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format").optional()
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format").optional(),
+        splitMemberIds: z.array(z.string()).optional()
     })
 });
 

@@ -128,7 +128,7 @@ const updateExpense = async (req: Request, res: Response) => {
     const data = req.body as UpdateExpenseInput;
 
     try {
-        const expense = await budgetService.updateExpense(expenseId, data);
+        const expense = await budgetService.updateExpense(tripId, expenseId, data);
         
         if (expense.activityId) {
             const io: TypedServer = req.app.get('io');
@@ -261,6 +261,35 @@ const getExpenses = async (req: Request, res: Response) => {
     }
 };
 
+// GET /api/trips/:tripId/budget/user-spending - Get current user's own spending
+const getUserSpending = async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { tripId } = req.params;
+    
+    if (!tripId) {
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    try {
+        const result = await budgetService.getUserSpending(tripId, req.user.id);
+        res.status(200).json(result);
+    } catch (error: any) {
+        console.error("Error fetching user spending:", error);
+        
+        if (error.message === 'Budget not found for this trip') {
+            return res.status(404).json({ error: error.message });
+        }
+        if (error.message === 'User is not a member of this trip') {
+            return res.status(403).json({ error: error.message });
+        }
+        
+        res.status(500).json({ error: "Failed to fetch user spending" });
+    }
+};
+
 export default {
     createOrUpdateBudget,
     getBudget,
@@ -268,5 +297,6 @@ export default {
     updateExpense,
     deleteExpense,
     getSummary,
-    getExpenses
+    getExpenses,
+    getUserSpending
 };

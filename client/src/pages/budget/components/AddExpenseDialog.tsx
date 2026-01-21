@@ -1,30 +1,44 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { ExpenseCategory } from '../types/budget';
+import type { CreateExpenseInput } from '../types/budget';
 import type { Activity } from '@/types/activity';
 import { ExpenseForm, type ExpenseFormData } from './ExpenseForm';
+import { useTripStore } from '@/stores/tripStore';
 
 interface AddExpenseDialogProps {
   open: boolean;
   activity?: Activity; // Single activity (from itinerary page)
   activities?: Activity[]; // List of activities (from budget page)
   onOpenChange: (open: boolean) => void;
-  onSubmit: (description: string, cost: number, category: ExpenseCategory, activityId?: string, currency?: string, date?: string) => Promise<void>;
+  onSubmit: (input: CreateExpenseInput) => Promise<void>;
 }
 
 export function AddExpenseDialog({ open, activity, activities, onOpenChange, onSubmit }: AddExpenseDialogProps) {
+  const tripMembers = useTripStore(state => state.members || []);
+   
   const [formData, setFormData] = useState<ExpenseFormData>({
     description: activity?.name || '',
     cost: '',
     category: 'FOOD',
     currency: '',
     selectedActivityId: '',
+    selectedMemberIds: [],
     date: new Date(),
   });
   const [linkToActivity, setLinkToActivity] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Update selectedMemberIds when trip members change or dialog opens
+  useEffect(() => {
+    if (tripMembers.length > 0 && open) {
+      setFormData(prev => ({ 
+        ...prev, 
+        selectedMemberIds: tripMembers.map((m: typeof tripMembers[number]) => m.id || m.userId).filter(id => id)
+      }));
+    }
+  }, [tripMembers, open]);
 
   // When activities list is provided (budget page mode), update description when activity is selected
   useEffect(() => {
@@ -80,8 +94,15 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
         const day = String(formData.date.getDate()).padStart(2, '0');
         dateString = `${year}-${month}-${day}`;
       }
-      
-      await onSubmit(formData.description, amount, formData.category, activityId, formData.currency, dateString);
+      await onSubmit({
+        description: formData.description,
+        cost: amount,
+        category: formData.category,
+        activityId,
+        currency: formData.currency,
+        date: dateString,
+        splitMemberIds: formData.selectedMemberIds
+      });
       
       // Reset form
       setFormData({
@@ -90,6 +111,7 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
         category: 'FOOD',
         currency: '',
         selectedActivityId: '',
+        selectedMemberIds: tripMembers.map((m: typeof tripMembers[number]) => m.id || m.userId).filter(id => id),
         date: new Date(),
       });
       setLinkToActivity(false);
@@ -109,6 +131,7 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       category: 'FOOD',
       currency: '',
       selectedActivityId: '',
+      selectedMemberIds: tripMembers.map((m: typeof tripMembers[number]) => m.id || m.userId).filter(id => id),
       date: new Date(),
     });
     setLinkToActivity(false);
@@ -126,11 +149,12 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
             formData={formData}
             onFormDataChange={handleFormDataChange}
             activities={activities}
+            tripMembers={tripMembers}
             linkToActivity={linkToActivity}
             onLinkToActivityChange={setLinkToActivity}
             showActivitySelector={!!activities && activities.length > 0}
             showCurrencySelector={true}
-            showDatePicker={!activity} // Hide date picker when single activity is provided
+            showDatePicker={!activity}
             error={error}
           />
           <DialogFooter>

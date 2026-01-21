@@ -6,13 +6,15 @@ import { FaWallet } from "react-icons/fa";
 import { FaCreditCard } from "react-icons/fa6";
 import { FaPiggyBank } from "react-icons/fa";
 import { GoGraph } from "react-icons/go";
+import { FaUser } from "react-icons/fa";
 
 interface BudgetOverviewCardsProps {
   summary: BudgetSummary;
+  userSpending?: { userSpending: number; currency: string } | null;
   onEditBudget?: () => void;
 }
 
-export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCardsProps) {
+export function BudgetOverviewCards({ summary, userSpending, onEditBudget }: BudgetOverviewCardsProps) {
   const isBudgetSet = summary.totalPerPerson !== null;
   const spentPercentage = isBudgetSet && summary.totalBudget > 0 
     ? (summary.totalSpent / summary.totalBudget) * 100 
@@ -20,6 +22,15 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
   const remainingPercentage = isBudgetSet && summary.totalBudget > 0
     ? (summary.remaining / summary.totalBudget) * 100 
     : 0;
+  
+  // Calculate user's fair share and spending percentage
+  const userFairShare = isBudgetSet && summary.numberOfMembers > 0
+    ? summary.totalBudget / summary.numberOfMembers
+    : 0;
+  const userSpendingPercentage = userSpending && userFairShare > 0
+    ? (userSpending.userSpending / userFairShare) * 100
+    : 0;
+  const isUserOverBudget = userSpending && userFairShare > 0 && userSpending.userSpending > userFairShare;
 
   return (
     <div className="space-y-4 mb-8">
@@ -67,7 +78,7 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
           {formatCurrencyAmount(summary.totalSpent, summary.currency)}
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-300">
-          Spent ({formatCurrencyAmount(summary.totalSpent / summary.numberOfMembers, summary.currency)} per person)
+          Total Spent
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
           <div 
@@ -125,6 +136,34 @@ export function BudgetOverviewCards({ summary, onEditBudget }: BudgetOverviewCar
           <div className="bg-purple-500 h-1 rounded-full" style={{ width: isBudgetSet ? '100%' : '0%' }}></div>
         </div>
       </div>
+
+      {/* My Spending */}
+      {userSpending && (
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-4 md:p-6 shadow-sm border">
+          <div className="flex items-center justify-between mb-2">
+            <div className={`p-2 rounded-lg ${isUserOverBudget ? 'bg-red-100' : 'bg-purple-100'}`}>
+              <FaUser className={`w-4 h-4 ${isUserOverBudget ? 'text-red-500' : 'text-purple-500'}`} />
+            </div>
+            <span className={`text-sm font-medium ${
+              isUserOverBudget ? 'text-red-500' : 'text-purple-500'
+            }`}>
+              {userSpendingPercentage.toFixed(1)}%
+            </span>
+          </div>
+          <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            {formatCurrencyAmount(userSpending.userSpending, userSpending.currency)}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-300">
+            {isUserOverBudget ? 'Over Your Share' : 'My Spending'}
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+            <div 
+              className={`h-1 rounded-full ${isUserOverBudget ? 'bg-red-500' : 'bg-purple-500'}`}
+              style={{ width: `${Math.min(userSpendingPercentage, 100)}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
     </div>
     </div>
   );

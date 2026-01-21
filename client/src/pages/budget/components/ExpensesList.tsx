@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Avatar } from '@/components/ui/avatar';
 import { formatCurrencyAmount } from '@/lib/currency';
 import { format } from 'date-fns';
 import { FaTrash, FaEdit } from "react-icons/fa";
@@ -66,9 +67,35 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit,
                   {expense.description}
                 </p>
                 
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {format(new Date(expense.date), 'MMM d, yyyy')}
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {format(new Date(expense.date), 'MMM d, yyyy')}
+                  </p>
+                  
+                  {expense.splits && expense.splits.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-400">•</span>
+                      <div className="flex -space-x-2">
+                        {expense.splits.slice(0, 3).map((split) => (
+                          <Avatar 
+                            key={split.id} 
+                            className="h-5 w-5 border-2 border-white dark:border-gray-800"
+                            src={split.member.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(split.member.user.name!)}`}
+                            alt={split.member.user.name || ''}
+                            fallback={split.member.user.name?.charAt(0).toUpperCase() || 'U'}
+                          />
+                        ))}
+                        {expense.splits.length > 3 && (
+                          <div className="h-5 w-5 rounded-full bg-gray-200 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                              +{expense.splits.length - 3}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="flex items-center gap-2">

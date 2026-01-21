@@ -4,6 +4,29 @@ import type { ExpenseCategory } from '@prisma/client';
 import { convertCurrency } from '../apiClients/unirate/unirate.js';
 
 /**
+ * Create expense splits for selected members
+ * @param expenseId - The expense ID
+ * @param memberIds - Array of trip member IDs to split the expense among
+ * @param totalCost - Total cost of the expense
+ * @returns Promise resolving to created splits
+ */
+const createExpenseSplits = async (
+    expenseId: string,
+    memberIds: string[],
+    totalCost: number
+) => {
+    const sharePerMember = totalCost / memberIds.length;
+    
+    await prisma.expenseSplit.createMany({
+        data: memberIds.map(memberId => ({
+            expenseId,
+            memberId,
+            share: sharePerMember
+        }))
+    });
+};
+
+/**
  * Group expenses by currency and category, then aggregate totals with minimal API calls
  * @param expenses - Array of expenses with cost, currency, and category
  * @param targetCurrency - Currency to convert all amounts to
@@ -255,13 +278,101 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         }
     });
 
-    return expense;
+    // Handle expense splits
+    let splitMemberIds = data.splitMemberIds;
+    
+    // Default to all trip members if no specific members selected
+    if (!splitMemberIds || splitMemberIds.length === 0) {
+        const tripMembers = await prisma.tripMember.findMany({
+            where: { tripId },
+            select: { id: true }
+        });
+        splitMemberIds = tripMembers.map(m => m.id);
+    }
+    
+    // Validate all member IDs belong to the trip
+    if (splitMemberIds.length > 0) {
+        const members = await prisma.tripMember.findMany({
+            where: { 
+                id: { in: splitMemberIds },
+                tripId: tripId 
+            }
+        });
+        
+        if (members.length !== splitMemberIds.length) {
+            // Clean up the created expense before throwing
+            await prisma.expense.delete({ where: { id: expense.id } });
+            throw new Error('One or more members do not belong to this trip');
+        }
+        
+        // Create the expense splits
+        await createExpenseSplits(expense.id, splitMemberIds, data.cost);
+    }
+
+    // Return expense with splits
+    return await prisma.expense.findUnique({
+        where: { id: expense.id },
+        include: {
+            activity: {
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    tripDay: {
+                        select: {
+                            date: true
+                        }
+                    }
+                }
+            },
+            flight: {
+                select: {
+                    id: true,
+                    airline: true,
+                    flightNumber: true,
+                    from: true,
+                    to: true
+                }
+            },
+            lodging: {
+                select: {
+                    id: true,
+                    name: true,
+                    address: true,
+                    checkIn: true,
+                    checkOut: true
+                }
+            },
+            splits: {
+                include: {
+                    member: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    image: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
 };
 
 // Update an existing expense
-const updateExpense = async (expenseId: string, data: UpdateExpenseInput): Promise<any> => {
+const updateExpense = async (tripId: string, expenseId: string, data: UpdateExpenseInput): Promise<any> => {
     const expense = await prisma.expense.findUnique({
-        where: { id: expenseId }
+        where: { id: expenseId },
+        include: {
+            budget: {
+                select: {
+                    tripId: true
+                }
+            }
+        }
     });
 
     if (!expense) {
@@ -300,9 +411,91 @@ const updateExpense = async (expenseId: string, data: UpdateExpenseInput): Promi
                     checkIn: true,
                     checkOut: true
                 }
+            },
+            splits: {
+                include: {
+                    member: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    image: true
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     });
+
+    // Handle expense splits update
+    if (data.splitMemberIds) {
+        // Validate all member IDs belong to the trip
+        const members = await prisma.tripMember.findMany({
+            where: { 
+                id: { in: data.splitMemberIds },
+                tripId: expense.budget.tripId 
+            }
+        });
+        
+        if (members.length !== data.splitMemberIds.length) {
+            throw new Error('One or more members do not belong to this trip');
+        }
+
+        // Delete existing splits
+        await prisma.expenseSplit.deleteMany({
+            where: { expenseId }
+        });
+
+        // Create new splits with updated cost
+        const costToUse = data.cost !== undefined ? data.cost : expense.cost;
+        await createExpenseSplits(expenseId, data.splitMemberIds, costToUse);
+
+        // Fetch and return expense with updated splits
+        return await prisma.expense.findUnique({
+            where: { id: expenseId },
+            include: {
+                activity: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        tripDay: {
+                            select: {
+                                date: true
+                            }
+                        }
+                    }
+                },
+                lodging: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        checkIn: true,
+                        checkOut: true
+                    }
+                },
+                splits: {
+                    include: {
+                        member: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        image: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     return updatedExpense;
 };
@@ -459,6 +652,21 @@ const getExpenses = async (tripId: string, page: number, limit: number): Promise
                     checkIn: true,
                     checkOut: true
                 }
+            },
+            splits: {
+                include: {
+                    member: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    image: true
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         orderBy: {
@@ -483,6 +691,83 @@ const getExpenses = async (tripId: string, page: number, limit: number): Promise
     };
 };
 
+// Get user's own spending across all expenses
+const getUserSpending = async (tripId: string, userId: string) => {
+    const budget = await prisma.budget.findUnique({
+        where: { tripId },
+        select: {
+            id: true,
+            currency: true
+        }
+    });
+
+    if (!budget) {
+        throw new Error('Budget not found for this trip');
+    }
+
+    // Get the trip member ID for this user
+    const tripMember = await prisma.tripMember.findFirst({
+        where: {
+            tripId,
+            userId
+        },
+        select: {
+            id: true
+        }
+    });
+
+    if (!tripMember) {
+        throw new Error('User is not a member of this trip');
+    }
+
+    // Get all expense splits for this user and group by currency
+    const expenseSplits = await prisma.expenseSplit.findMany({
+        where: {
+            memberId: tripMember.id,
+            expense: {
+                budgetId: budget.id
+            }
+        },
+        include: {
+            expense: {
+                select: {
+                    currency: true
+                }
+            }
+        }
+    });
+
+    // Group splits by currency
+    const splitsByCurrency: Record<string, number> = {};
+    for (const split of expenseSplits) {
+        const currency = split.expense.currency;
+        if (!splitsByCurrency[currency]) {
+            splitsByCurrency[currency] = 0;
+        }
+        splitsByCurrency[currency] += split.share;
+    }
+
+    // Convert all amounts to budget currency
+    let totalUserSpending = 0;
+    for (const [currency, amount] of Object.entries(splitsByCurrency)) {
+        if (currency === budget.currency) {
+            totalUserSpending += amount;
+        } else {
+            const convertedAmount = await currencyService.convert(
+                amount,
+                currency,
+                budget.currency
+            );
+            totalUserSpending += convertedAmount;
+        }
+    }
+
+    return {
+        userSpending: totalUserSpending,
+        currency: budget.currency
+    };
+};
+
 export default {
     createOrUpdate,
     getBudgetByTripId,
@@ -490,5 +775,6 @@ export default {
     updateExpense,
     deleteExpense,
     getSummary,
-    getExpenses
+    getExpenses,
+    getUserSpending
 };

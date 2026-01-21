@@ -12,7 +12,7 @@ import { AddExpenseDialog } from "@/pages/budget/components/AddExpenseDialog";
 import { EditExpenseDialog } from "@/pages/budget/components/EditExpenseDialog";
 import type { Expense } from "@/types/expense";
 import { budgetApi } from "@/pages/budget/services/budgetApi";
-import type { ExpenseCategory } from "@/pages/budget/types/budget";
+import type { CreateExpenseInput } from '@/pages/budget/types/budget';
 import { formatCurrencyAmount } from "@/lib/currency";
 import { useTripStore } from "@/stores/tripStore";
 import { GoogleMaps } from "@/components/GoogleMaps";
@@ -128,7 +128,7 @@ export function LodgingCard() {
     setShowEditDialog(true);
   };
 
-  const handleAddExpense = async (description: string, cost: number, category: ExpenseCategory, currency?: string) => {
+  const handleAddExpense = async (input: CreateExpenseInput) => {
     if (!tripId || !expenseLodging) return;
 
     const lodgingDate = new Date(expenseLodging.checkIn);
@@ -136,12 +136,9 @@ export function LodgingCard() {
 
     try {
       const response = await budgetApi.addExpense(tripId, { 
-        description, 
-        cost, 
-        category, 
-        lodgingId: expenseLodging.id, 
-        currency, 
-        date: dateString 
+        ...input,
+        lodgingId: expenseLodging.id,
+        date: dateString
       });
       
       toast.success('Expense added successfully!');
@@ -157,17 +154,11 @@ export function LodgingCard() {
     }
   };
 
-  const handleEditExpense = async (expenseId: string, description: string, cost: number, category: ExpenseCategory, currency?: string, date?: string) => {
+  const handleEditExpense = async (expenseId: string, input: CreateExpenseInput) => {
     if (!expenseLodging || !tripId) return;
 
     try {
-      const response = await budgetApi.updateExpense(tripId, expenseId, { 
-        description, 
-        cost, 
-        category, 
-        currency,
-        date
-      });
+      const response = await budgetApi.updateExpense(tripId, expenseId, input);
       
       setShowEditExpenseDialog(false);
       toast.success('Expense updated successfully!');

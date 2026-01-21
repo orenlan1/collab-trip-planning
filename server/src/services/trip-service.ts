@@ -94,6 +94,7 @@ const getAllTripsByUserId = async (userId: string) => {
                   include: {
                     members: {
                       select: {
+                        id: true,
                         userId: true,
                         role: true,
                         user: {
@@ -126,6 +127,7 @@ const getTripById = async (id: string) => {
     include: {
       members: {
         select: {
+          id: true,
           userId: true,
           role: true,
           user: {
