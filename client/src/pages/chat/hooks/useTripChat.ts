@@ -18,6 +18,7 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
     const [typingUser, setTypingUser] = useState<ChatUser | null>(null);
     const [hasMoreMessages, setHasMoreMessages] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     // Set connection status based on socket state
     useEffect(() => {
@@ -48,8 +49,10 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
 
     useEffect(() => {
         const fetchInitialMessages = async () => {
+            setIsInitialLoading(true);
             const initialMessages = await loadMessages();
             setMessages(initialMessages);
+            setIsInitialLoading(false);
         };
         fetchInitialMessages();
     }, [loadMessages]);
@@ -136,6 +139,7 @@ export function useTripChat({ tripId }: UseTripChatOptions) {
         emitTyping: handleTyping,
         loadMoreMessages,
         hasMoreMessages,
-        isLoadingMore
+        isLoadingMore,
+        isInitialLoading
     };
 }

@@ -15,7 +15,7 @@ export function TripChatPage() {
   const tripId = useTripStore(state => state.id);
   const { user } = useAuth();
   const { markAsRead, setIsInChatPage } = useTripSocket();
-  const { messages, connectionStatus, typingUser, sendMessage, emitTyping, loadMoreMessages, hasMoreMessages, isLoadingMore } = useTripChat({ tripId });
+  const { messages, connectionStatus, typingUser, sendMessage, emitTyping, loadMoreMessages, hasMoreMessages, isLoadingMore, isInitialLoading } = useTripChat({ tripId });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -85,9 +85,16 @@ export function TripChatPage() {
 
       {/* Messages Area */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.length === 0 ? (
+        {isInitialLoading ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
             <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium">No messages yet</p>
+              <p className="text-sm mt-2">Start a conversation by sending a message!</p>
+            </div>
           </div>
         ) : (
           <>
