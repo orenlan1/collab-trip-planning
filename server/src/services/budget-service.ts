@@ -753,10 +753,10 @@ const getUserSpending = async (tripId: string, userId: string) => {
         if (currency === budget.currency) {
             totalUserSpending += amount;
         } else {
-            const convertedAmount = await currencyService.convert(
-                amount,
+            const convertedAmount = await convertCurrency(
                 currency,
-                budget.currency
+                budget.currency,
+                amount,
             );
             totalUserSpending += convertedAmount;
         }

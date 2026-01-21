@@ -68,7 +68,7 @@ const addExpense = async (req: Request, res: Response) => {
 
     try {
         const expense = await budgetService.addExpense(tripId, data);
-        if (expense.activity) {
+        if (expense && expense.activity) {
             const io: TypedServer = req.app.get('io');
             io.to(`trip:${tripId}`).emit('activity:expense:created', {
                 activityId: expense.activity.id,
