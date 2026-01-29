@@ -279,8 +279,7 @@ const update = async (id: string, data: UpdateTripInput) => {
           ...(data.startDate !== undefined && { startDate: data.startDate }),
           ...(data.endDate !== undefined && { endDate: data.endDate }),
           ...(data.description !== undefined && { description: data.description }),
-          latitude: location.latitude && location.latitude,
-          longitude: location.longitude && location.longitude,
+          ...(data.destination !== undefined && { latitude: location.latitude, longitude: location.longitude }),
       },
     });
 
