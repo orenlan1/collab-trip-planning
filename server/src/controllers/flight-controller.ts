@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import flightService from "../services/flight-service";
-import { searchFlightsOffers } from "../apiClients/amadeus/flights.js";
 import type { CreateFlightInput, UpdateFlightInput } from "../schemas/flight-schema";
 
 export interface FlightFormData {
@@ -92,37 +91,10 @@ const deleteFlight = async (req: Request, res: Response) => {
     }
 };
 
-export interface FlightSearchCriteria {
-  from: string;
-  to: string;
-  departDate: string;
-  returnDate?: string | undefined;
-  passengers: {
-    adults: number;
-    children: number;
-  };
-  tripType: 'oneWay' | 'roundTrip';
-}
-
-const searchFlights = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const data: FlightSearchCriteria = req.body;
-
-    try {
-        const results = await searchFlightsOffers(data);
-        res.status(200).json(results);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to search flights" });
-    }
-
-};
 
 export default {
     addFlight,
     getFlights,
     updateFlight,
     deleteFlight,
-    searchFlights
 };

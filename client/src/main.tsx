@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-// import App from './App.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import { MainLayout } from './layouts/MainLayout.tsx'
 import { HomePage } from './pages/home/HomePage.tsx'
@@ -10,7 +9,6 @@ import { Login } from './components/Login.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import { ThemeProvider } from './context/ThemeContext'
 import { Register } from './components/Register.tsx'
-import { DashboardPage } from './pages/dashboard/DashboardPage.tsx';
 import { CreateTripPage } from './pages/trips/CreateTripPage.tsx'
 import { MyTripsPage } from './pages/trips/MyTripsPage.tsx'
 import { TripOverviewPage } from './pages/trips/TripOverviewPage.tsx'
@@ -20,12 +18,8 @@ import { TripChatPage } from './pages/chat/TripChatPage.tsx'
 import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
 import { TripLayout } from './layouts/TripLayout.tsx'
-import { SearchFlightsPage} from './pages/flights/SearchFlightsPage.tsx';
-import { SearchingLayout } from './layouts/SearchingLayout.tsx'
-import { FlightResults } from './pages/flights/components/FlightResults.tsx'
 import { JoinTripPage } from './pages/trips/JoinTripPage.tsx';
 import { Navbar } from './components/navigation/top/Navbar.tsx'
-// Import commented out until needed
 import {APIProvider} from "@vis.gl/react-google-maps"
 
 
@@ -40,10 +34,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />
-      },
-      {
-        path: 'dashboard',
-        element: <ProtectedRoute><DashboardPage /></ProtectedRoute>
       },
       {
         path: 'my-trips',
@@ -80,21 +70,6 @@ const router = createBrowserRouter([
             element: <ProtectedRoute><TripChatPage /></ProtectedRoute>
           }
         ]
-      }
-    ]
-  },
-
-  {
-    path: '/search',
-    element: <SearchingLayout />,
-    children: [
-      {
-        path: 'flights',
-        element: <ProtectedRoute><SearchFlightsPage /></ProtectedRoute>,
-      },
-      {
-        path: 'flights/results',
-        element: <ProtectedRoute><FlightResults /></ProtectedRoute>,
       }
     ]
   },

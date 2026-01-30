@@ -204,9 +204,9 @@ export function LodgingCard() {
           <div className="text-indigo-500 mb-4">
             <GoHome className="w-12 h-12 mx-auto" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">No Lodging Booked?</h3>
+          <h3 className="text-xl font-semibold mb-2">No Lodging</h3>
           <p className="text-gray-600 mb-6">
-            Looks like you haven't secured your stay. Find the perfect place to relax!
+            Add your lodging details to keep track of where you'll be staying during your trip and see it on the map.
           </p>
           <div className="flex gap-3">
             <button
@@ -214,9 +214,6 @@ export function LodgingCard() {
               className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-semibold"
             >
               Add Lodging
-            </button>
-            <button className="border-2 border-indigo-500 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-semibold">
-              Search Lodging
             </button>
           </div>
         </div>

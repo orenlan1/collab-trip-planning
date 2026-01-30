@@ -11,5 +11,4 @@ router.post("/", isAuthenticated, validateResource(createFlightSchema), flightCo
 router.patch("/:flightId", isAuthenticated, validateResource(updateFlightSchema), flightController.updateFlight);
 router.delete("/:flightId", isAuthenticated, flightController.deleteFlight);
 
-router.post("/search", isAuthenticated, flightController.searchFlights);
 export default router;

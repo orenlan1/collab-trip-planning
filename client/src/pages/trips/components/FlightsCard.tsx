@@ -221,12 +221,6 @@ export function FlightsCard() {
           <IoAirplaneOutline className="text-xl text-indigo-500" />
           <h1 className="font-semibold text-xl">Flights</h1>
         </div>
-        <button 
-          onClick={() => setShowAddDialog(true)} 
-          className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition text-sm font-medium"
-        >
-          Add Flight
-        </button>
       </div>
 
       {flights.length === 0 ? (
@@ -238,8 +232,11 @@ export function FlightsCard() {
           <p className="text-gray-600 mb-6">
             It looks like you haven't added any flights for this trip. Let's get started!
           </p>
-          <button onClick={() => navigate("/search/flights")} className="border-2 border-indigo-500 px-4 py-2 rounded-lg hover:bg-gray-100 transition font-semibold">
-            Search Flights
+          <button 
+          onClick={() => setShowAddDialog(true)} 
+          className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition font-semibold"
+          >
+            Add Flight
           </button>
         </div>
       ) : (
