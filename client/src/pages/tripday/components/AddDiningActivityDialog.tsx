@@ -29,6 +29,20 @@ const AddDiningActivityDialog: React.FC<AddDiningActivityDialogProps> = ({
       const [customInput, setCustomInput] = useState("");
       const [isSubmitting, setIsSubmitting] = useState(false);
     
+      const handleGooglePlaceSelect = (place: Place | null) => {
+        if (place) {
+          setSelectedDining({
+            name: place.name,
+            address: place.address,
+            latitude: place.location?.lat,
+            longitude: place.location?.lng,
+            image: place.photoUrl
+          });
+        } else {
+          setSelectedDining(null);
+        }
+      };
+
       useEffect(() => {
         if (!isOpen) {
           setSearchMode('google');
@@ -50,7 +64,8 @@ const AddDiningActivityDialog: React.FC<AddDiningActivityDialogProps> = ({
               address: selectedDining.address || "",
               latitude: selectedDining.latitude,
               longitude: selectedDining.longitude,
-              description: selectedDining.description
+              description: selectedDining.description,
+              image: selectedDining.image
             });
             onOpenChange(false);
           } catch (error) {
@@ -116,7 +131,7 @@ const AddDiningActivityDialog: React.FC<AddDiningActivityDialogProps> = ({
                   <GoogleDiningSearch
                     placeName={placeName}
                     onPlaceNameChange={setPlaceName}
-                    onPlaceSelect={setSelectedDining}
+                    onPlaceSelect={handleGooglePlaceSelect}
                     disabled={isSubmitting}
                   />
               ) : (

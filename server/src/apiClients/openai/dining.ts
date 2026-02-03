@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
-import { getRestaurants } from "../google-maps/places";
+import { getRestaurants, getPlacePhotoUrl } from "../google-maps/places";
 
 dotenv.config();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -17,6 +17,7 @@ interface Restaurant {
     address: string;
     location: Location;
     whyRecommended: string;
+    photoUrl?: string;
 }
 
 interface DiningSuggestionsResponse {
@@ -35,6 +36,7 @@ Follow these rules strictly:
 - Provide a short description (1-2 sentences) explaining why each place fits the request.
 - Infer the cuisine type based on the restaurant name and your knowledge.
 - Add a "whyRecommended" field highlighting a unique or special aspect.
+- Include the photoName field exactly as provided in the data (if available).
 - Use ONLY the restaurants provided in the function call data. Do NOT invent or add restaurants.
 - Return ONLY valid JSON, with no explanations, markdown, or extra text.`;
 
@@ -56,7 +58,8 @@ Return a JSON object with the following exact structure:
       "cuisine": "string (inferred cuisine type)",
       "address": "string (the formatted address)",
       "location": { "latitude": number, "longitude": number },
-      "whyRecommended": "string (unique or special aspect)"
+      "whyRecommended": "string (unique or special aspect)",
+      "photoName": "string | null (the photo reference from data, or null if not available)"
     }
   ]
 }`;
@@ -117,7 +120,8 @@ Return a JSON object with the following exact structure:
                     location: {
                         latitude: place.location.latitude,
                         longitude: place.location.longitude
-                    }
+                    },
+                    photoName: place.photos && place.photos.length > 0 ? place.photos[0]?.name : null
                 }));
 
                 messages.push({
@@ -144,5 +148,20 @@ Return a JSON object with the following exact structure:
         throw new Error("No response from OpenAI");
     }
 
-    return JSON.parse(content) as DiningSuggestionsResponse;
+    const parsedResponse = JSON.parse(content) as DiningSuggestionsResponse;
+    
+    const restaurantsWithPhotos = parsedResponse.restaurants.map(restaurant => {
+        if ((restaurant as any).photoName) {
+            return {
+                ...restaurant,
+                photoUrl: getPlacePhotoUrl((restaurant as any).photoName, 400)
+            };
+        }
+        return restaurant;
+    });
+
+    return {
+        ...parsedResponse,
+        restaurants: restaurantsWithPhotos
+    };
 }

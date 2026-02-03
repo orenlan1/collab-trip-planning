@@ -20,6 +20,7 @@ export interface Restaurant {
   address: string;
   location: Location;
   whyRecommended: string;
+  photoUrl?: string;
 }
 
 interface DiningSuggestionsResponse {

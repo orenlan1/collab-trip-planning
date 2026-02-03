@@ -4,6 +4,7 @@ import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
 import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
 import { destinationService } from './destination-service.js';
+import { fetchImageURL } from '../apiClients/unsplash/images.js';
 const MAX_TRIP_DURATION_DAYS = 365;
 
 /**
@@ -40,8 +41,10 @@ const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
 
 const create = async (data: CreateTripInput, creatorId: string) => {
   let location: { latitude: number | null; longitude: number | null } = { latitude: null, longitude: null };
+  let image: string | null = null;
   if (data.destination) {
     location = await destinationService.getDestinationLatLng(data.destination) || { latitude: null, longitude: null };
+    image = await fetchImageURL(data.destination, 'regular');
   }
 
   const trip = await prisma.trip.create({
@@ -49,6 +52,7 @@ const create = async (data: CreateTripInput, creatorId: string) => {
       ...data,
       latitude: location.latitude,
       longitude: location.longitude,
+      image: image,
       createdById: creatorId,
       members: {
         create: {

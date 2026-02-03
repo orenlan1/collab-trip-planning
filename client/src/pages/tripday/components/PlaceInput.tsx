@@ -9,6 +9,7 @@ export interface Place {
     lat: number;
     lng: number;
   };
+  photoUrl?: string;
 }
 
 interface PlaceInputProps {
@@ -133,8 +134,15 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
     setIsTyping(false);
     onChange(suggestion.text.text || "");
 
-    suggestion.toPlace().fetchFields({fields: ['formattedAddress', 'location']})
+    suggestion.toPlace().fetchFields({fields: ['formattedAddress', 'location', 'photos']})
     .then(place => {
+        let photoUrl: string | undefined = undefined;
+        
+        if (place.place?.photos && place.place.photos.length > 0) {
+          const photo = place.place.photos[0];
+          photoUrl = photo.getURI({ maxWidth: 400 });
+        }
+        
         const selectedPlace: Place = {
             id: suggestion.placeId || "",
             name: suggestion.mainText?.text || "",
@@ -142,7 +150,8 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
             location: {
               lat: place.place?.location?.lat() || 0,
               lng: place.place?.location?.lng() || 0
-            }
+            },
+            photoUrl
           };
         console.log('Selected place details:', selectedPlace);
         onPlaceSelect?.(selectedPlace);

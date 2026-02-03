@@ -14,6 +14,11 @@ interface Place {
     };
     formattedAddress: string;
     location: PlaceLocation;
+    photos?: Array<{
+        name: string;
+        widthPx: number;
+        heightPx: number;
+    }>;
 }
 
 interface TextSearchResponse {
@@ -39,7 +44,7 @@ export async function getRestaurants(query: string, destination: string): Promis
         headers: {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": apiKey,
-            "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location",
+            "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.photos",
             "Referer": process.env.SERVER_URL || "http://localhost:3000"
         },
         body: JSON.stringify(requestBody)
@@ -52,4 +57,12 @@ export async function getRestaurants(query: string, destination: string): Promis
 
     const data = await response.json() as TextSearchResponse;
     return data.places || [];
+}
+
+export function getPlacePhotoUrl(photoName: string, maxWidth: number = 400): string {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        throw new Error("GOOGLE_MAPS_API_KEY is not defined");
+    }
+    return `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=${maxWidth}&key=${apiKey}`;
 }

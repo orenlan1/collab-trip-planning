@@ -43,7 +43,8 @@ const AddActivityDialog: React.FC<AddActivityDialogProps> = ({
           name: selectedPlace.name || placeName,
           address: selectedPlace.address || "",
           latitude: selectedPlace.location?.lat,
-          longitude: selectedPlace.location?.lng
+          longitude: selectedPlace.location?.lng,
+          image: selectedPlace.photoUrl
         });
         // Close dialog after successful submission
         onOpenChange(false);

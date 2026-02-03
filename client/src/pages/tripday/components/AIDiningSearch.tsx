@@ -76,6 +76,7 @@ const AIDiningSearch: React.FC<AIDiningSearchProps> = ({
       latitude: restaurant.location.latitude,
       longitude: restaurant.location.longitude,
       description: restaurant.description + `\nRecommended because: ${restaurant.whyRecommended}`,
+      image: restaurant.photoUrl
     });
   };
 
