@@ -3,7 +3,9 @@ import { useSocket } from "./SocketContext";
 import { useAuth } from "./AuthContext";
 import { notifySuccess } from "@/layouts/TripLayout";
 import { useParams } from "react-router-dom";
-import type { ActivitySocketData, ActivityDeletedSocketData, ActivityExpenseSocketData, ActivityExpenseDeletedSocketData } from "@/sockets/types";
+import type { ActivitySocketData, ActivityDeletedSocketData, ActivityExpenseSocketData, ActivityExpenseDeletedSocketData, TripDatesUpdatedData } from "@/sockets/types";
+import { useTripStore } from "@/stores/tripStore";
+import { tripsApi } from "@/pages/trips/services/api";
 
 
 interface TripItinerarySocketContextType {
@@ -15,6 +17,7 @@ export function TripItinerarySocketProvider({ children }: { children: React.Reac
   const { socket, isReady } = useSocket();
   const { user } = useAuth();
   const {tripId} = useParams<{ tripId: string }>();
+  const setTripData = useTripStore(state => state.setTripData);
 
 
   // Listen for new activities across all trip pages
@@ -71,6 +74,38 @@ export function TripItinerarySocketProvider({ children }: { children: React.Reac
       socket.off('activity:expense:deleted', handleExpenseDeleted);
     };
   }, [socket, isReady, tripId, user]);
+
+  // Listen for trip date changes
+  useEffect(() => {
+    if (!socket || !isReady || !tripId) {
+      return;
+    }
+
+    const handleTripDatesUpdated = async (data: TripDatesUpdatedData) => {
+      if (data.updatedBy.id !== user?.id) {
+        const formatDate = (dateStr: string | null): string => 
+          dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
+        
+        notifySuccess(
+          `${data.updatedBy.name} updated trip dates to ${formatDate(data.startDate)} - ${formatDate(data.endDate)}`
+        );
+      }
+      
+      // Refetch trip data to update UI
+      try {
+        const response = await tripsApi.getById(tripId);
+        await setTripData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch updated trip data:', error);
+      }
+    };
+
+    socket.on('trip:datesUpdated', handleTripDatesUpdated);
+
+    return () => {
+      socket.off('trip:datesUpdated', handleTripDatesUpdated);
+    };
+  }, [socket, isReady, tripId, user, setTripData]);
 
 
 

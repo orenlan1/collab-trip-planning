@@ -85,6 +85,28 @@ const updateTrip = async (req: Request, res: Response) => {
     const data : UpdateTripInput = req.body;
     try {
         const updatedTrip = await tripService.update(id, data);
+        
+        // Emit socket event if dates were changed
+        if (data.startDate !== undefined || data.endDate !== undefined) {
+            try {
+                const io = req.app.get('io');
+                if (io) {
+                    io.to(`trip:${id}`).emit('trip:datesUpdated', {
+                        tripId: id,
+                        startDate: updatedTrip.startDate ? (typeof updatedTrip.startDate === 'string' ? updatedTrip.startDate : updatedTrip.startDate.toISOString()) : null,
+                        endDate: updatedTrip.endDate ? (typeof updatedTrip.endDate === 'string' ? updatedTrip.endDate : updatedTrip.endDate.toISOString()) : null,
+                        updatedBy: {
+                            id: req.user.id,
+                            name: req.user.name
+                        },
+                        timestamp: new Date()
+                    });
+                }
+            } catch (socketError) {
+                console.error('Failed to emit trip:datesUpdated:', socketError);
+            }
+        }
+        
         res.status(200).json(updatedTrip);
     } catch (error) {
         res.status(500).json({ error: "Failed to update trip" });

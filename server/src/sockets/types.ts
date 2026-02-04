@@ -9,6 +9,7 @@ interface ServerToClientEvents {
   "trip:userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:joined": (data: { tripId: string; connectedUserIds: string[] }) => void;
+  "trip:datesUpdated": (data: TripDatesUpdatedData) => void;
   "chat:newMessage": (message: { 
     id: string; 
     userId: string; 
@@ -94,4 +95,15 @@ export interface ActivityExpenseDeletedSocketData {
   activityId: string;
   deletedById: string;
   deletedByName: string | null;
+}
+
+export interface TripDatesUpdatedData {
+  tripId: string;
+  startDate: string | null;
+  endDate: string | null;
+  updatedBy: {
+    id: string;
+    name: string;
+  };
+  timestamp: Date;
 }
