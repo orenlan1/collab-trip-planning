@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { Trip } from "@/types/trip";
 import { flightsApi, type Flight } from "@/pages/flights/services/api";
 import { lodgingsApi, type Lodging } from "@/pages/lodging/services/api";
+import { toast } from "react-toastify";
 
 
 interface TripStore extends Trip {
@@ -64,6 +65,7 @@ export const useTripStore = create<TripStore>()(
         set({ flights: response.data });
       } catch (error) {
         console.error('Failed to fetch flights:', error);
+        toast.error('Failed to load flights. Please try again.');
       }
     },
     setLodgings: (lodgings: Lodging[]) => set({ lodgings }),
@@ -82,6 +84,7 @@ export const useTripStore = create<TripStore>()(
         set({ lodgings: response.data });
       } catch (error) {
         console.error('Failed to fetch lodgings:', error);
+        toast.error('Failed to load lodgings. Please try again.');
       }
     },
     reset: () => set({

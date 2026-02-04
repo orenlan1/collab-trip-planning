@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import type { ActivitySocketData, ActivityDeletedSocketData, ActivityExpenseSocketData, ActivityExpenseDeletedSocketData, TripDatesUpdatedData } from "@/sockets/types";
 import { useTripStore } from "@/stores/tripStore";
 import { tripsApi } from "@/pages/trips/services/api";
+import { toast } from "react-toastify";
 
 
 interface TripItinerarySocketContextType {
@@ -97,6 +98,7 @@ export function TripItinerarySocketProvider({ children }: { children: React.Reac
         await setTripData(response.data);
       } catch (error) {
         console.error('Failed to fetch updated trip data:', error);
+        toast.error('Failed to sync trip dates. Please refresh the page.');
       }
     };
 
