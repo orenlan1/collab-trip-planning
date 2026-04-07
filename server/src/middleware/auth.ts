@@ -16,15 +16,15 @@ export async function isTripMember(req: Request, res: Response, next: NextFuncti
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const tripId = req.params.tripId;
-  
+  const tripId = req.params.tripId ?? req.params.id;
+
   if (!tripId) {
     return res.status(400).json({ error: "Trip ID is required" });
   }
 
   try {
     const isMember = await userService.isMemberOfTheTrip(req.user.id, tripId);
-    
+
     if (!isMember) {
       return res.status(403).json({ error: "You are not a member of this trip" });
     }
@@ -33,6 +33,40 @@ export async function isTripMember(req: Request, res: Response, next: NextFuncti
   } catch (error) {
     console.error("Error checking trip membership:", error);
     res.status(500).json({ error: "Failed to verify trip membership" });
+  }
+}
+
+// Middleware to check if user is the owner (creator) of the trip
+export async function isTripOwner(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const tripId = req.params.tripId ?? req.params.id;
+
+  if (!tripId) {
+    return res.status(400).json({ error: "Trip ID is required" });
+  }
+
+  try {
+    const { prisma } = await import("../prisma/client.js");
+
+    const member = await prisma.tripMember.findUnique({
+      where: { userId_tripId: { tripId, userId: req.user.id } },
+      select: { role: true },
+    });
+
+    if (!member) {
+      return res.status(403).json({ error: "You are not a member of this trip" });
+    }
+
+    if (member.role !== "creator") {
+      return res.status(403).json({ error: "Only the trip owner can perform this action" });
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ error: "Failed to verify trip ownership" });
   }
 }
 

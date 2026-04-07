@@ -26,7 +26,7 @@ const socketService = new SocketService(httpServer);
 // Express middleware setup
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

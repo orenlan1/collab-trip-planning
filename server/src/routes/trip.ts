@@ -1,5 +1,5 @@
 import express from 'express';
-import { isAuthenticated } from '../middleware/auth';
+import { isAuthenticated, isTripMember, isTripOwner } from '../middleware/auth';
 import validateResource from '../middleware/validateResource.js';
 import { createTripSchema, updateTripSchema } from '../schemas/trip-schema.js';
 import tripController from '../controllers/trip-controller.js'
@@ -16,8 +16,8 @@ router.post("/", isAuthenticated, validateResource(createTripSchema), tripContro
 router.get("/", isAuthenticated, tripController.getUserTrips);
 router.get("/newest", isAuthenticated, tripController.getNewestTripsByUserId);
 router.get("/:id", isAuthenticated, tripController.getTripDetails);
-router.patch("/:id", isAuthenticated, validateResource(updateTripSchema), tripController.updateTrip);
-router.delete("/:id", isAuthenticated, tripController.deleteTrip);
+router.patch("/:id", isAuthenticated, isTripMember, validateResource(updateTripSchema), tripController.updateTrip);
+router.delete("/:id", isAuthenticated, isTripOwner, tripController.deleteTrip);
 router.post("/:id/invite", isAuthenticated, tripController.inviteUserToTrip);
 
 // Nest sub-resources under /:tripId
