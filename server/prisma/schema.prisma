@@ -203,7 +203,7 @@ model Budget {
   id        String   @id @default(cuid())
   tripId    String   @unique
   trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  totalPerPerson Float?
+  totalPerPerson Decimal?
   currency  String @default("USD")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -216,7 +216,7 @@ model Expense {
   budgetId    String
   budget      Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   description String
-  cost        Float
+  cost        Decimal
   category    ExpenseCategory
   currency    String @default("USD")
   date        DateTime @db.Date
@@ -248,7 +248,7 @@ model ExpenseSplit {
   expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   memberId  String
   member    TripMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  share     Float
+  share     Decimal
   
   createdAt DateTime @default(now())
   
