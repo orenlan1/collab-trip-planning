@@ -33,7 +33,7 @@ const createExpenseSplits = async (
  * @param targetCurrency - Currency to convert all amounts to
  * @returns Promise resolving to expenses aggregated by category in target currency
  */
-const aggregateExpensesByCategoryWithConversion = async (
+export const aggregateExpensesByCategoryWithConversion = async (
     expenses: Array<{ cost: number; currency: string; category: ExpenseCategory }>,
     targetCurrency: string
 ): Promise<Record<ExpenseCategory, number>> => {
