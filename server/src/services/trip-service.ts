@@ -14,7 +14,7 @@ const MAX_TRIP_DURATION_DAYS = 365;
  * @returns Array of Date objects representing each day in the range
  * @throws Error if date range is invalid or exceeds maximum duration
  */
-const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
+export const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
   if (endDate < startDate) {
     throw new Error('End date must be after start date');
   }
