@@ -1,7 +1,8 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import itineraryService from "../services/itinerary-service";
 import type { TypedServer } from "../sockets/types";
 import { getDiningSuggestions } from "../apiClients/openai/dining";
+import { NotFoundError } from "../errors/AppError.js";
 
 export interface ItineraryFormData {
     tripId: string;
@@ -24,239 +25,150 @@ export interface ActivityFormData {
 }
 
 
-const getItinerary = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripId } = req.params;
-
-    if (!tripId) {
-        return res.status(400).json({ error: "Trip ID is required" });
-    }
+const getItinerary = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
     try {
         const itinerary = await itineraryService.getByTripId(tripId);
         if (!itinerary) {
-            return res.status(404).json({ error: "Itinerary not found" });
+            throw new NotFoundError("Itinerary not found");
         }
         res.status(200).json(itinerary);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch itinerary" });
+        next(error);
     }
 };
 
-const getTripDay = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripDayId } = req.params;
-
-    if (!tripDayId) {
-        return res.status(400).json({ error: "Trip Day ID is required" });
-    }
-
+const getTripDay = async (req: Request, res: Response, next: NextFunction) => {
+    const tripDayId = req.params.tripDayId!;
     try {
         const tripDay = await itineraryService.getTripDay(tripDayId);
         if (!tripDay) {
-            return res.status(404).json({ error: "Trip Day not found" });
+            throw new NotFoundError("Trip Day not found");
         }
         res.status(200).json(tripDay);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch trip day" });
+        next(error);
     }
 };
 
-const addTripDay = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripId } = req.params;
-    if (!tripId) {
-        return res.status(400).json({ error: "Trip ID is required" });
-    }
-
+const addTripDay = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
     const data: TripDayFormData = req.body;
     try {
-        // First get the itinerary by tripId
         const itinerary = await itineraryService.getByTripId(tripId);
         if (!itinerary) {
-            return res.status(404).json({ error: "Itinerary not found" });
+            throw new NotFoundError("Itinerary not found");
         }
         const tripDay = await itineraryService.addTripDay(itinerary.id, data);
         res.status(201).json(tripDay);
     } catch (error) {
-        res.status(500).json({ error: "Failed to add trip day" });
+        next(error);
     }
 };
 
-const addActivity = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripDayId, tripId } = req.params;
-    if (!tripDayId) {
-        return res.status(400).json({ error: "Trip Day ID is required" });
-    }
-
+const addActivity = async (req: Request, res: Response, next: NextFunction) => {
+    const tripDayId = req.params.tripDayId!;
+    const tripId = req.params.tripId!;
     const data: ActivityFormData = req.body;
     try {
-        const activity = await itineraryService.addActivity(tripDayId, data);    
-        const io : TypedServer = req.app.get('io');
-        const socketData = {
-           activity: activity,
-           tripDayId: tripDayId,
-           creatorId: req.user.id,
-           creatorName: req.user.name,
-        }
-        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:created', socketData);
-
+        const activity = await itineraryService.addActivity(tripDayId, data);
+        const io: TypedServer = req.app.get('io');
+        io.to(`trip:${tripId}`).except(`user:${req.user!.id}`).emit('activity:created', {
+           activity,
+           tripDayId,
+           creatorId: req.user!.id,
+           creatorName: req.user!.name,
+        });
         res.status(201).json(activity);
     } catch (error) {
-        console.error('Error adding activity:', error);
-        res.status(500).json({ error: "Failed to add activity" });
+        next(error);
     }
 };
 
-const updateActivity = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { activityId, tripId } = req.params;
-
-    if (!activityId) {
-        return res.status(400).json({ error: "Activity ID is required" });
-    }
-
+const updateActivity = async (req: Request, res: Response, next: NextFunction) => {
+    const activityId = req.params.activityId!;
+    const tripId = req.params.tripId!;
     const data: ActivityFormData = req.body;
     try {
         const activity = await itineraryService.updateActivity(activityId, data);
-        
-        const tripDay = await itineraryService.getTripDay(activity.tripDayId);
-        
         const isDescriptionOnlyUpdate = Object.keys(data).length === 1 && data.description !== undefined;
-        
         const io: TypedServer = req.app.get('io');
-        const socketData = {
-           activity: activity,
+        io.to(`trip:${tripId}`).except(`user:${req.user!.id}`).emit('activity:updated', {
+           activity,
            tripDayId: activity.tripDayId,
-           creatorId: req.user.id,
-           creatorName: req.user.name,
+           creatorId: req.user!.id,
+           creatorName: req.user!.name,
            excludeNotification: isDescriptionOnlyUpdate,
-        }
-        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:updated', socketData);
-        
+        });
         res.status(200).json(activity);
     } catch (error) {
-        console.error('Error updating activity:', error);
-        res.status(500).json({ error: "Failed to update activity" });
+        next(error);
     }
 };
 
-const deleteActivity = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { activityId, tripId } = req.params;
-    if (!activityId) {
-        return res.status(400).json({ error: "Activity ID is required" });
-    }
-
+const deleteActivity = async (req: Request, res: Response, next: NextFunction) => {
+    const activityId = req.params.activityId!;
+    const tripId = req.params.tripId!;
     try {
         const activity = await itineraryService.getActivityById(activityId);
         if (!activity) {
-            return res.status(404).json({ error: "Activity not found" });
+            throw new NotFoundError("Activity not found");
         }
-        
         await itineraryService.deleteActivity(activityId);
-        
         const io: TypedServer = req.app.get('io');
-        const socketData = {
-           activityId: activityId,
+        io.to(`trip:${tripId}`).except(`user:${req.user!.id}`).emit('activity:deleted', {
+           activityId,
            tripDayId: activity.tripDayId,
-           deletedById: req.user.id,
-           deletedByName: req.user.name,
-        }
-        io.to(`trip:${tripId}`).except(`user:${req.user.id}`).emit('activity:deleted', socketData);
-        
+           deletedById: req.user!.id,
+           deletedByName: req.user!.name,
+        });
         res.status(204).send();
     } catch (error) {
-        console.error('Error deleting activity:', error);
-        res.status(500).json({ error: "Failed to delete activity" });
+        next(error);
     }
 };
 
-const deleteTripDay = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripDayId } = req.params;
-
-    if (!tripDayId) {
-        return res.status(400).json({ error: "Trip Day ID is required" });
-    }
-
+const deleteTripDay = async (req: Request, res: Response, next: NextFunction) => {
+    const tripDayId = req.params.tripDayId!;
     try {
         await itineraryService.deleteTripDay(tripDayId);
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: "Failed to delete trip day" });
+        next(error);
     }
 };
 
-const getActivities = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripDayId } = req.params;
-    if (!tripDayId) {
-        return res.status(400).json({ error: "Trip Day ID is required" });
-    }
-
+const getActivities = async (req: Request, res: Response, next: NextFunction) => {
+    const tripDayId = req.params.tripDayId!;
     try {
         const activities = await itineraryService.getActivities(tripDayId);
         res.status(200).json(activities);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch activities" });
+        next(error);
     }
 };
 
-const getAllActivities = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { tripId } = req.params;
-    if (!tripId) {
-        return res.status(400).json({ error: "Trip ID is required" });
-    }
-
+const getAllActivities = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
     try {
         const itinerary = await itineraryService.getByTripId(tripId);
         if (!itinerary) {
-            return res.status(404).json({ error: "Itinerary not found" });
+            throw new NotFoundError("Itinerary not found");
         }
         const activities = await itineraryService.getActivitiesByItinerary(itinerary.id);
         res.status(200).json(activities);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch activities for itinerary" });
+        next(error);
     }
 };
 
-const getDiningSuggestionsController = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-
+const getDiningSuggestionsController = async (req: Request, res: Response, next: NextFunction) => {
     const { query, destination } = req.query;
-
-    if (!query || !destination) {
-        return res.status(400).json({ error: "Query and destination are required" });
-    }
-
     try {
         const suggestions = await getDiningSuggestions(query as string, destination as string);
         res.status(200).json(suggestions);
     } catch (error) {
-        console.error("Failed to get dining suggestions:", error);
-        res.status(500).json({ error: "Failed to get dining suggestions" });
+        next(error);
     }
 };
 

@@ -1,5 +1,6 @@
 import { prisma } from '../prisma/client.js';
 import type { CreateLodgingInput, UpdateLodgingInput } from '../schemas/lodging-schema.js';
+import { NotFoundError } from '../errors/AppError.js';
 
 const create = async (data: CreateLodgingInput, tripId: string) => {
     const isTripExists = await prisma.trip.findUnique({
@@ -7,7 +8,7 @@ const create = async (data: CreateLodgingInput, tripId: string) => {
     });
 
     if (!isTripExists) {
-        throw new Error("Trip not found");
+        throw new NotFoundError("Trip not found");
     }
 
     return prisma.lodging.create({
@@ -44,7 +45,7 @@ const update = async (lodgingId: string, data: UpdateLodgingInput) => {
     });
 
     if (!isLodgingExists) {
-        throw new Error("Lodging not found");
+        throw new NotFoundError("Lodging not found");
     }
 
     return prisma.lodging.update({

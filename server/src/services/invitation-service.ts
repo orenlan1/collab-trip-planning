@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { NotFoundError, ConflictError } from '../errors/AppError.js';
 
 const prisma = new PrismaClient();
 
@@ -53,7 +54,7 @@ export class InvitationService {
       });
 
       if (!invitation) {
-        throw new Error('Invalid or expired invitation');
+        throw new NotFoundError('Invalid or expired invitation');
       }
 
       // Check if user is already a member
@@ -65,7 +66,7 @@ export class InvitationService {
       });
 
       if (existingMember) {
-        throw new Error('User is already a member of this trip');
+        throw new ConflictError('User is already a member of this trip');
       }
 
       // Create trip member

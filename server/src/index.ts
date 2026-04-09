@@ -13,6 +13,7 @@ import destinationRoutes from './routes/destination.js';
 import cors from 'cors';
 import { createServer} from "http"
 import { SocketService } from './sockets/socket-service.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -47,6 +48,8 @@ app.use('/api/airports', airportRoutes);
 app.use('/api/airlines', airlineRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api', currencyRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

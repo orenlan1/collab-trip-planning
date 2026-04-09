@@ -5,6 +5,7 @@ import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.
 import type { CreateTripInput, UpdateTripInput } from '../schemas/trip-schema.js';
 import { destinationService } from './destination-service.js';
 import { fetchImageURL } from '../apiClients/unsplash/images.js';
+import { NotFoundError, ConflictError, BadRequestError } from '../errors/AppError.js';
 const MAX_TRIP_DURATION_DAYS = 365;
 
 /**
@@ -16,7 +17,7 @@ const MAX_TRIP_DURATION_DAYS = 365;
  */
 export const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
   if (endDate < startDate) {
-    throw new Error('End date must be after start date');
+    throw new BadRequestError('End date must be after start date');
   }
 
   const dates: Date[] = [];
@@ -32,7 +33,7 @@ export const generateDateRange = (startDate: Date, endDate: Date): Date[] => {
   }
   
   if (dayCount >= MAX_TRIP_DURATION_DAYS) {
-    throw new Error(`Trip duration exceeds maximum allowed length of ${MAX_TRIP_DURATION_DAYS} days`);
+    throw new BadRequestError(`Trip duration exceeds maximum allowed length of ${MAX_TRIP_DURATION_DAYS} days`);
   }
   
   return dates;
@@ -177,13 +178,13 @@ const update = async (id: string, data: UpdateTripInput) => {
     });
 
     if (!currentTrip) {
-      throw new Error('Trip not found');
+      throw new NotFoundError('Trip not found');
     }
 
     // Case 1: Initial date setting - trip has no dates yet but dates are being added
     if (!currentTrip.startDate && !currentTrip.endDate && data.startDate && data.endDate) {
       if (!currentTrip.itinerary) {
-        throw new Error('Trip itinerary not found');
+        throw new NotFoundError('Trip itinerary not found');
       }
 
       // Generate date range with validation
@@ -308,7 +309,7 @@ const inviteUser = async (tripId: string, invitedUserEmail: string, inviterId: s
   });
 
   if (!trip) {
-    throw new Error('Trip not found');
+    throw new NotFoundError('Trip not found');
   }
 
   const invitedUser = await prisma.user.findUnique({
@@ -316,12 +317,12 @@ const inviteUser = async (tripId: string, invitedUserEmail: string, inviterId: s
   });
 
   if (!invitedUser) {
-    throw new Error('Invited user not found');
+    throw new NotFoundError('Invited user not found');
   }
 
   const isAlreadyMember = trip.members.some(m => m.userId === invitedUser.id);
   if (isAlreadyMember) {
-    throw new Error('User is already a member of this trip');
+    throw new ConflictError('User is already a member of this trip');
   }
 
   // Create an invitation
