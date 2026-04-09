@@ -35,7 +35,7 @@ const getUserTrips = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const getTripDetails = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const id = req.params.id!;
 
     try {
         const trip = await tripService.getTripById(id);
@@ -57,7 +57,7 @@ export interface TripUpdateData {
 }
 
 const updateTrip = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const id = req.params.id!;
     const data: UpdateTripInput = req.body;
     try {
         const updatedTrip = await tripService.update(id, data);
@@ -89,7 +89,7 @@ const updateTrip = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteTrip = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const id = req.params.id!;
     try {
         await tripService.deleteTripById(id);
         res.status(204).send();
@@ -100,7 +100,7 @@ const deleteTrip = async (req: Request, res: Response, next: NextFunction) => {
 
 
 const inviteUserToTrip = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const id = req.params.id!;
     const { email: invitedUserEmail } = req.body;
     try {
         const invitation = await tripService.inviteUser(id, invitedUserEmail, req.user!.id);
