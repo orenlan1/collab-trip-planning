@@ -1,7 +1,8 @@
 import { prisma } from '../prisma/client.js';
-import type { ItineraryFormData, TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
+import type { TripDayFormData, ActivityFormData } from '../controllers/itinerary-controller.js';
 import { fetchImageURL } from '../apiClients/unsplash/images.js';
 import { normalizeDate, formatTripDayForAPI } from '../lib/utils.js';
+import { BadRequestError } from '../errors/AppError.js';
 
 const formatActivityTime = (date: Date | null): string | null => {
     if (!date) return null;
@@ -24,7 +25,7 @@ const createItineraryDays = async (itineraryId: string, startDate: Date | string
     const end = normalizeDate(endDate);
     
     if (!start || !end) {
-        throw new Error('Invalid start or end date provided');
+        throw new BadRequestError('Invalid start or end date provided');
     }
 
     // Use while loop for clearer logic

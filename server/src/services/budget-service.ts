@@ -2,6 +2,7 @@ import { prisma } from '../prisma/client.js';
 import type { CreateOrUpdateBudgetInput, CreateExpenseInput, UpdateExpenseInput } from '../schemas/budget-schema.js';
 import type { ExpenseCategory } from '@prisma/client';
 import { convertCurrency } from '../apiClients/unirate/unirate.js';
+import { NotFoundError, BadRequestError, ForbiddenError } from '../errors/AppError.js';
 
 /**
  * Create expense splits for selected members
@@ -186,7 +187,7 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
     });
 
     if (!budget) {
-        throw new Error('Budget does not exist for this trip. Please create a budget first.');
+        throw new NotFoundError('Budget does not exist for this trip. Please create a budget first.');
     }
 
     let expenseDate: Date;
@@ -210,11 +211,11 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         });
 
         if (!activity) {
-            throw new Error('Activity not found');
+            throw new NotFoundError('Activity not found');
         }
 
         if (activity.tripDay.itinerary.tripId !== tripId) {
-            throw new Error('Activity does not belong to this trip');
+            throw new BadRequestError('Activity does not belong to this trip');
         }
 
         // Use the trip day's date (already a Date object, strip time component)
@@ -302,7 +303,7 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
         if (members.length !== splitMemberIds.length) {
             // Clean up the created expense before throwing
             await prisma.expense.delete({ where: { id: expense.id } });
-            throw new Error('One or more members do not belong to this trip');
+            throw new BadRequestError('One or more members do not belong to this trip');
         }
         
         // Create the expense splits
@@ -376,7 +377,7 @@ const updateExpense = async (tripId: string, expenseId: string, data: UpdateExpe
     });
 
     if (!expense) {
-        throw new Error('Expense not found');
+        throw new NotFoundError('Expense not found');
     }
 
     const updateData: any = {
@@ -441,7 +442,7 @@ const updateExpense = async (tripId: string, expenseId: string, data: UpdateExpe
         });
         
         if (members.length !== data.splitMemberIds.length) {
-            throw new Error('One or more members do not belong to this trip');
+            throw new BadRequestError('One or more members do not belong to this trip');
         }
 
         // Delete existing splits
@@ -508,7 +509,7 @@ const deleteExpense = async (expenseId: string) => {
     });
 
     if (!expense) {
-        throw new Error('Expense not found');
+        throw new NotFoundError('Expense not found');
     }
 
     await prisma.expense.delete({
@@ -535,7 +536,7 @@ const getSummary = async (tripId: string) => {
     });
 
     if (!budget) {
-        throw new Error('Budget not found for this trip');
+        throw new NotFoundError('Budget not found for this trip');
     }
 
     // Get all expenses with their currencies
@@ -608,7 +609,7 @@ const getExpenses = async (tripId: string, page: number, limit: number): Promise
     });
 
     if (!budget) {
-        throw new Error('Budget not found for this trip');
+        throw new NotFoundError('Budget not found for this trip');
     }
 
     // Calculate offset for pagination
@@ -702,7 +703,7 @@ const getUserSpending = async (tripId: string, userId: string) => {
     });
 
     if (!budget) {
-        throw new Error('Budget not found for this trip');
+        throw new NotFoundError('Budget not found for this trip');
     }
 
     // Get the trip member ID for this user
@@ -717,7 +718,7 @@ const getUserSpending = async (tripId: string, userId: string) => {
     });
 
     if (!tripMember) {
-        throw new Error('User is not a member of this trip');
+        throw new ForbiddenError('User is not a member of this trip');
     }
 
     // Get all expense splits for this user and group by currency

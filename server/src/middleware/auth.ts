@@ -1,6 +1,6 @@
-// middlewares/isAuthenticated.ts
 import type { Request, Response, NextFunction } from "express";
 import userService from "../services/user-service.js";
+import { prisma } from "../prisma/client.js";
 
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated && req.isAuthenticated()) {
@@ -31,8 +31,7 @@ export async function isTripMember(req: Request, res: Response, next: NextFuncti
 
     next();
   } catch (error) {
-    console.error("Error checking trip membership:", error);
-    res.status(500).json({ error: "Failed to verify trip membership" });
+    next(error);
   }
 }
 
@@ -49,8 +48,6 @@ export async function isTripOwner(req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    const { prisma } = await import("../prisma/client.js");
-
     const member = await prisma.tripMember.findUnique({
       where: { userId_tripId: { tripId, userId: req.user.id } },
       select: { role: true },
@@ -66,7 +63,7 @@ export async function isTripOwner(req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error) {
-    res.status(500).json({ error: "Failed to verify trip ownership" });
+    next(error);
   }
 }
 
@@ -77,15 +74,12 @@ export async function isExpenseTripMember(req: Request, res: Response, next: Nex
   }
 
   const expenseId = req.params.expenseId;
-  
+
   if (!expenseId) {
     return res.status(400).json({ error: "Expense ID is required" });
   }
 
   try {
-    // Import prisma here to avoid circular dependencies
-    const { prisma } = await import("../prisma/client.js");
-    
     const expense = await prisma.expense.findUnique({
       where: { id: expenseId },
       include: {
@@ -103,14 +97,13 @@ export async function isExpenseTripMember(req: Request, res: Response, next: Nex
 
     const tripId = expense.budget.tripId;
     const isMember = await userService.isMemberOfTheTrip(req.user.id, tripId);
-    
+
     if (!isMember) {
       return res.status(403).json({ error: "You are not a member of this trip" });
     }
 
     next();
   } catch (error) {
-    console.error("Error checking expense trip membership:", error);
-    res.status(500).json({ error: "Failed to verify trip membership" });
+    next(error);
   }
 }

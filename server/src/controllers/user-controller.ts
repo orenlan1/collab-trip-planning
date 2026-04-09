@@ -1,25 +1,19 @@
-import { prisma } from '../prisma/client'
-import type { Request, Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import userService from '../services/user-service';
-
 
 interface UserUpdateData {
     name?: string;
     image?: string;
 }
 
-const updateUser = async (req : Request, res: Response) => {
-    const user = req.user;
-    if (!user) {
-        return res.status(401).json({ message: 'User not authenticated' });
-    }
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     const data: UserUpdateData = req.body;
     try {
-        const updatedUser = await userService.update(user, data);
+        const updatedUser = await userService.update(req.user!, data);
         res.json({ "updated user": updatedUser });
     }
     catch (error) {
-        res.status(500).json({ message: "Failed to update user" });
+        next(error);
     }
 }
 

@@ -1,6 +1,7 @@
 import { prisma } from '../prisma/client.js';
 import type { CreateFlightInput, UpdateFlightInput } from '../schemas/flight-schema.js';
 import type { Flight } from '@prisma/client';
+import { NotFoundError } from '../errors/AppError.js';
 
 const formatFlightTime = (date: Date | null): string | null => {
     if (!date) return null;
@@ -21,7 +22,7 @@ const create = async (tripId: string, data: CreateFlightInput): Promise<any> => 
     });
 
     if (!trip) {
-        throw new Error("Trip not found");
+        throw new NotFoundError("Trip not found");
     }
 
     const flight = await prisma.flight.create({
@@ -59,7 +60,7 @@ const update = async (flightId: string, data: UpdateFlightInput): Promise<any> =
     });
 
     if (!existingFlight) {
-        throw new Error("Flight not found");
+        throw new NotFoundError("Flight not found");
     }
 
     const updatedFlight = await prisma.flight.update({
@@ -88,7 +89,7 @@ const deleteFlight = async (flightId: string, tripId: string): Promise<any> => {
     });
 
     if (!trip) {
-        throw new Error("Trip not found");
+        throw new NotFoundError("Trip not found");
     }
 
     const flight = await prisma.flight.findUnique({
@@ -96,7 +97,7 @@ const deleteFlight = async (flightId: string, tripId: string): Promise<any> => {
     });
 
     if (!flight) {
-        throw new Error("Flight not found");
+        throw new NotFoundError("Flight not found");
     }
 
     return prisma.flight.delete({

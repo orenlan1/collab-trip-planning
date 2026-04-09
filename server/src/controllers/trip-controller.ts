@@ -1,8 +1,9 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import type { TypedSocket } from "../sockets/types";
 import type { CreateTripInput, UpdateTripInput } from "../schemas/trip-schema.js";
 import tripService from "../services/trip-service";
 import userService from "../services/user-service";
+import { NotFoundError } from "../errors/AppError.js";
 
 
 
@@ -14,55 +15,36 @@ export interface TripFormData {
     endDate?: Date | null;
 }
 
-const createTrip = async (req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  
+const createTrip = async (req: Request, res: Response, next: NextFunction) => {
   const data = req.body as CreateTripInput;
-  
   try {
-    const trip = await tripService.create(data, req.user.id);
+    const trip = await tripService.create(data, req.user!.id);
     res.status(201).json(trip);
   } catch (error) {
-    res.status(500).json({ error: "Failed to create trip" });
+    next(error);
   }
 };
 
-const getUserTrips = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
+const getUserTrips = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const trips = await tripService.getAllTripsByUserId(req.user.id);
+        const trips = await tripService.getAllTripsByUserId(req.user!.id);
         res.status(200).json(trips);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch trips" });
+        next(error);
     }
 };
 
-const getTripDetails = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ error: "Invalid trip ID" });
-    }
-
-    const isMember = await userService.isMemberOfTheTrip(req.user.id, id);
-    if (!isMember) {
-        return res.status(403).json({ error: "Forbidden" });
-    }
+const getTripDetails = async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id!;
 
     try {
         const trip = await tripService.getTripById(id);
         if (!trip) {
-            return res.status(404).json({ error: "Trip not found" });
+            throw new NotFoundError("Trip not found");
         }
         res.status(200).json(trip);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch trip details" });
+        next(error);
     }
 };
 
@@ -74,19 +56,12 @@ export interface TripUpdateData {
     description?: string;
 }
 
-const updateTrip = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ error: "Invalid trip ID" });
-    }
-    const data : UpdateTripInput = req.body;
+const updateTrip = async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id!;
+    const data: UpdateTripInput = req.body;
     try {
         const updatedTrip = await tripService.update(id, data);
-        
-        // Emit socket event if dates were changed
+
         if (data.startDate !== undefined || data.endDate !== undefined) {
             try {
                 const io = req.app.get('io');
@@ -96,8 +71,8 @@ const updateTrip = async (req: Request, res: Response) => {
                         startDate: updatedTrip.startDate ? (typeof updatedTrip.startDate === 'string' ? updatedTrip.startDate : updatedTrip.startDate.toISOString()) : null,
                         endDate: updatedTrip.endDate ? (typeof updatedTrip.endDate === 'string' ? updatedTrip.endDate : updatedTrip.endDate.toISOString()) : null,
                         updatedBy: {
-                            id: req.user.id,
-                            name: req.user.name
+                            id: req.user!.id,
+                            name: req.user!.name
                         },
                         timestamp: new Date()
                     });
@@ -106,47 +81,31 @@ const updateTrip = async (req: Request, res: Response) => {
                 console.error('Failed to emit trip:datesUpdated:', socketError);
             }
         }
-        
+
         res.status(200).json(updatedTrip);
     } catch (error) {
-        res.status(500).json({ error: "Failed to update trip" });
+        next(error);
     }
 };
 
-const deleteTrip = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ error: "Invalid trip ID" });
-    }
+const deleteTrip = async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id!;
     try {
         await tripService.deleteTripById(id);
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: "Failed to delete trip" });
+        next(error);
     }
 };
 
 
-const inviteUserToTrip = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    const { id } = req.params;
+const inviteUserToTrip = async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id!;
     const { email: invitedUserEmail } = req.body;
-    if (!id) {
-        return res.status(400).json({ error: "Invalid trip ID" });
-    }
     try {
-        const invitation = await tripService.inviteUser(id, invitedUserEmail, req.user.id);
-        
-        // Get the socket instance
-        // @ts-ignore - we'll add the io property to the request in index.ts
+        const invitation = await tripService.inviteUser(id, invitedUserEmail, req.user!.id);
+
         const io = req.app.get('io');
-        
-        // Emit to the invited user's room
         io.to(`user:${invitation.invitedUserId}`).emit('invite:created', {
             tripId: invitation.tripId,
             inviterId: invitation.inviterUserId
@@ -154,20 +113,17 @@ const inviteUserToTrip = async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "User invited successfully" });
     } catch (error) {
-        res.status(500).json({ error: "Failed to invite user" });
+        next(error);
     }
 };
 
-const getNewestTripsByUserId = async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
+const getNewestTripsByUserId = async (req: Request, res: Response, next: NextFunction) => {
     const { limit } = req.query;
     try {
-        const trips = await tripService.getNewestTripsMetadataByUserId(req.user.id, Number(limit) || 5);
+        const trips = await tripService.getNewestTripsMetadataByUserId(req.user!.id, Number(limit) || 5);
         res.status(200).json(trips);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch trips" });
+        next(error);
     }
 };
 
