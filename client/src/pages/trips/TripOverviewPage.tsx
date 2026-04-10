@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { DatesSetter } from './components/DatesSetter';
-import { tripsApi } from './services/api';
+
 import { TailSpin } from 'react-loader-spinner'
 
 

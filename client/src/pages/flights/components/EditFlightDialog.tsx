@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -107,9 +108,9 @@ export function EditFlightDialog({ open, onOpenChange, onFlightUpdated, flight }
 
       await onFlightUpdated(flightData);
       handleDialogClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update flight:', error);
-      setError(error.response?.data?.error || 'Failed to update flight. Please try again.');
+      setError(isAxiosError(error) ? (error.response?.data?.error ?? 'Failed to update flight. Please try again.') : 'Failed to update flight. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

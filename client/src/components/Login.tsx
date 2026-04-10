@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authApi } from '../services/api';
@@ -30,8 +31,8 @@ export function Login() {
       const params = new URLSearchParams(location.search);
       const redirect = params.get('redirect');
       navigate(redirect || '/my-trips');
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 401) {
         setError('root', {
           type: 'manual',
           message: 'Invalid email or password'

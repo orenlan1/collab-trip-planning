@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Expense } from '@/types/expense';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -14,7 +15,7 @@ export interface Lodging {
   checkOut: string; // YYYY-MM-DD format
   latitude?: number;
   longitude?: number;
-  expense?: any;
+  expense?: Expense | null;
 }
 
 export interface CreateLodgingInput {

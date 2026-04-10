@@ -77,6 +77,7 @@ export function TripSocketProvider({ children }: { children: React.ReactNode }) 
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTripSocket = () => {
     const context = useContext(TripSocketContext);
     if (!context) {

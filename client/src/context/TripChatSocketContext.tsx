@@ -1,9 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSocket } from "./SocketContext";
-import { useTripStore } from "@/stores/tripStore";
 import { useAuth } from "./AuthContext";
 import type { ChatMessage } from "@/types/chat";
-import { useParams } from "react-router-dom";
 
 interface TripSocketContextType {
   unreadCount: number;
@@ -66,6 +64,7 @@ export function TripChatSocketProvider({ children }: { children: React.ReactNode
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTripSocket = () => {
   const context = useContext(TripSocketContext);
   if (!context) {

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { IoDocumentTextOutline, IoSaveOutline, IoCheckmarkCircleOutline } from "react-icons/io5";
+import { IoDocumentTextOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { tripsApi } from "../services/api";
 import { useTripStore } from "@/stores/tripStore";

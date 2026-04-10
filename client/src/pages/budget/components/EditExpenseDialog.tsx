@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -92,8 +93,8 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
         date: dateString,
         splitMemberIds: formData.selectedMemberIds
       });
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update expense');
+    } catch (err) {
+      setError(isAxiosError(err) ? (err.response?.data?.error ?? 'Failed to update expense') : 'Failed to update expense');
     } finally {
       setIsSubmitting(false);
     }

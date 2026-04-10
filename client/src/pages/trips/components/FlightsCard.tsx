@@ -1,10 +1,11 @@
+import { isAxiosError } from "axios";
 import { AddFlightDialog } from "@/pages/flights/components/AddFlightDialog";
 import { EditFlightDialog } from "@/pages/flights/components/EditFlightDialog";
 import { DeleteFlightDialog } from "@/pages/flights/components/DeleteFlightDialog";
 import type { FlightFormData } from "@/pages/flights/components/AddFlightDialog";
 import { useState } from "react";
 import { IoAirplaneOutline } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { flightsApi, type Flight } from "@/pages/flights/services/api";
 import type { CreateFlightInput, UpdateFlightInput } from "@/pages/flights/services/api";
 import { toast } from "react-toastify";
@@ -20,7 +21,6 @@ import { formatCurrencyAmount } from "@/lib/currency";
 
 
 export function FlightsCard() {
-  const navigate = useNavigate();
   const { tripId } = useParams<{ tripId: string }>();
   const flights = useTripStore(state => state.flights);
   const addFlight = useTripStore(state => state.addFlight);
@@ -66,17 +66,13 @@ export function FlightsCard() {
       const response = await flightsApi.create(tripId, flightInput);
       addFlight(response.data);
       toast.success('Flight added successfully!');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to add flight:', error);
-      
-      // Log detailed validation errors if available
-      if (error.response?.data?.details) {
-        console.error('Validation errors:', error.response.data.details);
-        error.response.data.details.forEach((detail: any) => {
+      if (isAxiosError(error) && error.response?.data?.details) {
+        error.response.data.details.forEach((detail: { field: string; message: string }) => {
           console.error(`- ${detail.field}: ${detail.message}`);
         });
       }
-      
       throw error;
     }
   };
@@ -102,17 +98,13 @@ export function FlightsCard() {
       const response = await flightsApi.update(tripId, editingFlight.id, flightInput);
       updateFlight(editingFlight.id, response.data);
       toast.success('Flight updated successfully!');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update flight:', error);
-      
-      // Log detailed validation errors if available
-      if (error.response?.data?.details) {
-        console.error('Validation errors:', error.response.data.details);
-        error.response.data.details.forEach((detail: any) => {
+      if (isAxiosError(error) && error.response?.data?.details) {
+        error.response.data.details.forEach((detail: { field: string; message: string }) => {
           console.error(`- ${detail.field}: ${detail.message}`);
         });
       }
-      
       throw error;
     }
   };
@@ -137,9 +129,9 @@ export function FlightsCard() {
       toast.success('Flight deleted successfully!');
       setShowDeleteDialog(false);
       setDeletingFlight(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to delete flight:', error);
-      toast.error(error.response?.data?.error || 'Failed to delete flight');
+      toast.error(isAxiosError(error) ? (error.response?.data?.error ?? 'Failed to delete flight') : 'Failed to delete flight');
     } finally {
       setIsDeleting(false);
     }
@@ -165,43 +157,35 @@ export function FlightsCard() {
     const flightDate = new Date(expenseFlight.departure);
     const dateString = format(flightDate, 'yyyy-MM-dd');
 
-    try {
-      const response = await budgetApi.addExpense(tripId, { 
-        ...input,
-        flightId: expenseFlight.id,
-        date: dateString
-      });
-      
-      toast.success('Expense added successfully!');
-      
-      const updatedFlight = {
-        ...expenseFlight,
-        expense: response.data
-      };
-      updateFlight(expenseFlight.id, updatedFlight);
-      setShowAddExpenseDialog(false);
-    } catch (error: any) {
-      throw error;
-    }
+    const response = await budgetApi.addExpense(tripId, {
+      ...input,
+      flightId: expenseFlight.id,
+      date: dateString
+    });
+
+    toast.success('Expense added successfully!');
+
+    const updatedFlight = {
+      ...expenseFlight,
+      expense: response.data
+    };
+    updateFlight(expenseFlight.id, updatedFlight);
+    setShowAddExpenseDialog(false);
   };
 
   const handleEditExpense = async (expenseId: string, input: CreateExpenseInput) => {
     if (!expenseFlight || !tripId) return;
 
-    try {
-      const response = await budgetApi.updateExpense(tripId, expenseId, input);
-      
-      toast.success('Expense updated successfully!');
-      
-      const updatedFlight = {
-        ...expenseFlight,
-        expense: response.data
-      };
-      updateFlight(expenseFlight.id, updatedFlight);
-      setShowEditExpenseDialog(false);
-    } catch (error: any) {
-      throw error;
-    }
+    const response = await budgetApi.updateExpense(tripId, expenseId, input);
+
+    toast.success('Expense updated successfully!');
+
+    const updatedFlight = {
+      ...expenseFlight,
+      expense: response.data
+    };
+    updateFlight(expenseFlight.id, updatedFlight);
+    setShowEditExpenseDialog(false);
   };
 
   const handleOpenExpenseDialog = (flight: Flight) => {

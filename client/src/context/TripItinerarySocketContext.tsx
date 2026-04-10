@@ -9,8 +9,7 @@ import { tripsApi } from "@/pages/trips/services/api";
 import { toast } from "react-toastify";
 
 
-interface TripItinerarySocketContextType {
-}
+type TripItinerarySocketContextType = Record<string, never>;
 
 const TripItinerarySocketContext = createContext<TripItinerarySocketContextType | null>(null);
 
@@ -118,6 +117,7 @@ export function TripItinerarySocketProvider({ children }: { children: React.Reac
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTripItinerarySocket = () => {
   const context = useContext(TripItinerarySocketContext);
   if (!context) {

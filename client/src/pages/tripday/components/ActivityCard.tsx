@@ -111,36 +111,28 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
     const day = String(date.getDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
 
-    try {
-      const response = await budgetApi.addExpense(tripId, { 
-        ...input,
-        activityId: activity.id,
-        date: dateString
-      });
-      const expense = response.data;
-      toast.success('Expense added successfully!');
+    const response = await budgetApi.addExpense(tripId, {
+      ...input,
+      activityId: activity.id,
+      date: dateString
+    });
+    const expense = response.data;
+    toast.success('Expense added successfully!');
 
-      // Update activity in store to include the new expense
-      const updatedActivity = { ...activity, expense } as any;
-      updateActivity(activity.id!, updatedActivity);
-    } catch (error: any) {
-      throw error;
-    }
+    // Update activity in store to include the new expense
+    const updatedActivity: Activity = { ...activity, expense: expense as Activity['expense'] };
+    updateActivity(activity.id!, updatedActivity);
   };
 
   const handleEditExpense = async (expenseId: string, input: CreateExpenseInput) => {
     if (!tripId) return;
     
-    try {
-      const response = await budgetApi.updateExpense(tripId, expenseId, input);
-      const expense = response.data;
-      toast.success('Expense updated successfully!');
+    const response = await budgetApi.updateExpense(tripId, expenseId, input);
+    const expense = response.data;
+    toast.success('Expense updated successfully!');
 
-      const updatedActivity = { ...activity, expense } as any;
-      updateActivity(activity.id!, updatedActivity);
-    } catch (error: any) {
-      throw error;
-    }
+    const updatedActivity: Activity = { ...activity, expense: expense as Activity['expense'] };
+    updateActivity(activity.id!, updatedActivity);
   };
 
   const handleOnActivityHover = () => {

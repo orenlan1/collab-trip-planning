@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -116,8 +117,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       });
       setLinkToActivity(false);
       onOpenChange(false);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to add expense');
+    } catch (err) {
+      setError(isAxiosError(err) ? (err.response?.data?.error ?? 'Failed to add expense') : 'Failed to add expense');
     } finally {
       setIsSubmitting(false);
     }

@@ -60,11 +60,11 @@ export function dateToLocalDateString(date: Date): string {
  * @param tripData - Trip data from API with ISO string dates
  * @returns Trip data with Date objects
  */
-export function formatTripFromAPI(tripData: any) {
+export function formatTripFromAPI(tripData: Record<string, unknown>) {
   return {
     ...tripData,
-    startDate: isoStringToDate(tripData.startDate),
-    endDate: isoStringToDate(tripData.endDate),
+    startDate: isoStringToDate(tripData.startDate as string | null | undefined),
+    endDate: isoStringToDate(tripData.endDate as string | null | undefined),
   };
 }
 
@@ -73,10 +73,10 @@ export function formatTripFromAPI(tripData: any) {
  * @param tripDayData - TripDay data from API with ISO string date
  * @returns TripDay data with Date object
  */
-export function formatTripDayFromAPI(tripDayData: any) {
+export function formatTripDayFromAPI(tripDayData: Record<string, unknown>) {
   return {
     ...tripDayData,
-    date: isoStringToDate(tripDayData.date),
+    date: isoStringToDate(tripDayData.date as string | null | undefined),
   };
 }
 
@@ -85,10 +85,10 @@ export function formatTripDayFromAPI(tripDayData: any) {
  * @param itineraryData - Itinerary data from API with nested trip days
  * @returns Itinerary data with Date objects
  */
-export function formatItineraryFromAPI(itineraryData: any) {
+export function formatItineraryFromAPI(itineraryData: Record<string, unknown>) {
   return {
     ...itineraryData,
-    days: itineraryData.days?.map(formatTripDayFromAPI) || [],
+    days: (itineraryData.days as Record<string, unknown>[] | undefined)?.map(formatTripDayFromAPI) || [],
   };
 }
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Socket, io } from "socket.io-client";
+import { io } from "socket.io-client";
 import type { TypedSocket } from "@/sockets/types";
 import { useAuth } from "./AuthContext";
 
@@ -55,6 +55,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSocket = () => {
   const socket = useContext(SocketContext);
   if (!socket) {

@@ -1,9 +1,6 @@
 
 import { create } from "zustand";
-import { itinerariesApi } from "@/pages/itineraries/services/api";
 import { persist } from "zustand/middleware";
-import { tripDaysApi } from "@/pages/tripday/services/api";
-import { formatItineraryFromAPI } from "@/lib/utils";
 import type { TripDay } from "@/types/tripDay";
 import type { Activity } from "@/types/activity";
 import type { Itinerary } from "@/types/itinerary";

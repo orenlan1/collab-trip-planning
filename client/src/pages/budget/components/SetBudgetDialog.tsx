@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -50,8 +51,8 @@ export function SetBudgetDialog({
       await onSubmit(amount, currency);
       setTotalPerPerson('');
       onOpenChange(false);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to set budget');
+    } catch (err) {
+      setError(isAxiosError(err) ? (err.response?.data?.error ?? 'Failed to set budget') : 'Failed to set budget');
     } finally {
       setIsSubmitting(false);
     }
