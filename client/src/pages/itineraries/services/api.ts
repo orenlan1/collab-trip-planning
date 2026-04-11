@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Itinerary } from '@/types/itinerary';
+import type { ApiItinerary } from '@/types/itinerary';
 
 
 const api = axios.create({
@@ -9,6 +9,6 @@ const api = axios.create({
 
 
 export const itinerariesApi = {
-  getItinerary: (tripId: string) => api.get<Itinerary>(`/api/trips/${tripId}/itinerary`),
+  getItinerary: (tripId: string) => api.get<ApiItinerary>(`/api/trips/${tripId}/itinerary`),
   getActivitiesByItinerary: (tripId: string) => api.get(`/api/trips/${tripId}/itinerary/activities`),
 };

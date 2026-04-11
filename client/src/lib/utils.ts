@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { useItineraryStore } from "@/stores/itineraryStore"
+import type { Trip } from "@/types/trip"
+import type { ApiTripDay } from "@/types/tripDay"
+import type { ApiItinerary } from "@/types/itinerary"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -60,11 +63,11 @@ export function dateToLocalDateString(date: Date): string {
  * @param tripData - Trip data from API with ISO string dates
  * @returns Trip data with Date objects
  */
-export function formatTripFromAPI(tripData: Record<string, unknown>) {
+export function formatTripFromAPI(tripData: Trip) {
   return {
     ...tripData,
-    startDate: isoStringToDate(tripData.startDate as string | null | undefined),
-    endDate: isoStringToDate(tripData.endDate as string | null | undefined),
+    startDate: isoStringToDate(tripData.startDate ?? null),
+    endDate: isoStringToDate(tripData.endDate ?? null),
   };
 }
 
@@ -73,10 +76,10 @@ export function formatTripFromAPI(tripData: Record<string, unknown>) {
  * @param tripDayData - TripDay data from API with ISO string date
  * @returns TripDay data with Date object
  */
-export function formatTripDayFromAPI(tripDayData: Record<string, unknown>) {
+export function formatTripDayFromAPI(tripDayData: ApiTripDay) {
   return {
     ...tripDayData,
-    date: isoStringToDate(tripDayData.date as string | null | undefined),
+    date: isoStringToDate(tripDayData.date),
   };
 }
 
@@ -85,10 +88,10 @@ export function formatTripDayFromAPI(tripDayData: Record<string, unknown>) {
  * @param itineraryData - Itinerary data from API with nested trip days
  * @returns Itinerary data with Date objects
  */
-export function formatItineraryFromAPI(itineraryData: Record<string, unknown>) {
+export function formatItineraryFromAPI(itineraryData: ApiItinerary) {
   return {
     ...itineraryData,
-    days: (itineraryData.days as Record<string, unknown>[] | undefined)?.map(formatTripDayFromAPI) || [],
+    days: itineraryData.days.map(formatTripDayFromAPI),
   };
 }
 
