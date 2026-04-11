@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
@@ -15,8 +16,8 @@ export function Register() {
       const response = await authApi.register(data);
       setUser(response.data);
       navigate('/my-trips');
-    } catch (error: any) {
-      if (error.response?.status === 409) {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 409) {
         setError('email', {
           type: 'manual',
           message: 'This email is already registered. Please use a different email or try logging in.'

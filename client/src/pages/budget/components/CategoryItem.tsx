@@ -54,7 +54,7 @@ const categoryConfig: Record<ExpenseCategory, { icon: ReactElement; name: string
   },
 };
 
-export function CategoryItem({ category, spent, currency, totalSpent, numberOfMembers }: CategoryItemProps) {
+export function CategoryItem({ category, spent, currency, totalSpent }: CategoryItemProps) {
   const config = categoryConfig[category];
   const percentage = totalSpent > 0 ? (spent / totalSpent) * 100 : 0;
 

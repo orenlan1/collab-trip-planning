@@ -74,7 +74,7 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
     debounceTimeout.current = window.setTimeout(() => {
       setLoading(true);
       
-      const requestOptions: any = {
+      const requestOptions: { input: string; includedPrimaryTypes?: string[] } = {
         input: value
       };
 
@@ -208,7 +208,7 @@ const PlaceInput: React.FC<PlaceInputProps> = ({
                 maxHeight: "200px",
                 pointerEvents: "auto"
               }}
-              onMouseDown={(e) => {
+              onMouseDown={() => {
                 // Prevent default only if not clicking scrollbar (simple heuristic or just rely on item onMouseDown)
                 // Actually, preventing default on the list itself might break scrollbar dragging in some browsers if not careful.
                 // So we won't put preventDefault here, only on items.

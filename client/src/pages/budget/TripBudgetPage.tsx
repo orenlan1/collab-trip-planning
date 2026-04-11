@@ -65,7 +65,7 @@ export function TripBudgetPage() {
         hasMore: response.data.pagination.hasMore,
         total: response.data.pagination.total
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching expenses:', error);
       toast.error('Failed to load expenses');
     } finally {
@@ -88,7 +88,7 @@ export function TripBudgetPage() {
       setIsLoading(true);
       const response = await budgetApi.getSummary(tripId);
       setSummary(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching budget:', error);
     } finally {
       setIsLoading(false);
@@ -101,7 +101,7 @@ export function TripBudgetPage() {
     try {
       const response = await budgetApi.getUserSpending(tripId);
       setUserSpending(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching user spending:', error);
     }
   };
@@ -116,47 +116,35 @@ export function TripBudgetPage() {
   const handleSetBudget = async (totalPerPerson: number, currency: string): Promise<void> => {
     if (!tripId) return;
 
-    try {
-      await budgetApi.createOrUpdateBudget(tripId, { totalPerPerson, currency });
-      toast.success('Budget set successfully!');
-      await fetchBudgetSummary();
-    } catch (error: any) {
-      throw error;
-    }
+    await budgetApi.createOrUpdateBudget(tripId, { totalPerPerson, currency });
+    toast.success('Budget set successfully!');
+    await fetchBudgetSummary();
   };
 
   const handleAddExpense = async (input: CreateExpenseInput): Promise<void> => {
     if (!tripId) return;
 
-    try {
-      await budgetApi.addExpense(tripId, input);
-      toast.success('Expense added successfully!');
-      
-      await fetchBudgetSummary();
-      await fetchUserSpending();
-      await fetchActivities();
-      await fetchExpenses();
-    } catch (error: any) {
-      throw error;
-    }
+    await budgetApi.addExpense(tripId, input);
+    toast.success('Expense added successfully!');
+
+    await fetchBudgetSummary();
+    await fetchUserSpending();
+    await fetchActivities();
+    await fetchExpenses();
   };
 
   const handleEditExpense = async (expenseId: string, input: CreateExpenseInput): Promise<void> => {
     if (!tripId) return;
-    
-    try {
-      await budgetApi.updateExpense(tripId, expenseId, input);
-      setShowEditExpenseDialog(false);
-      setSelectedExpense(null);
-      toast.success('Expense updated successfully!');
-      
-      await fetchBudgetSummary();
-      await fetchUserSpending();
-      await fetchActivities();
-      await fetchExpenses();
-    } catch (error: any) {
-      throw error;
-    }
+
+    await budgetApi.updateExpense(tripId, expenseId, input);
+    setShowEditExpenseDialog(false);
+    setSelectedExpense(null);
+    toast.success('Expense updated successfully!');
+
+    await fetchBudgetSummary();
+    await fetchUserSpending();
+    await fetchActivities();
+    await fetchExpenses();
   };
 
   const handleDeleteExpense = async (expenseId: string): Promise<void> => {
@@ -170,7 +158,8 @@ export function TripBudgetPage() {
       await fetchUserSpending();
       await fetchActivities();
       await fetchExpenses();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('Error deleting expense:', error);
       toast.error('Failed to delete expense');
       throw error;
     }

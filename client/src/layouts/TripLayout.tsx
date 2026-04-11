@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { tripsApi } from '@/pages/trips/services/api';
 import { TailSpin } from 'react-loader-spinner';
 import { TripSocketProvider } from '@/context/TripSocketContext';
+// eslint-disable-next-line react-refresh/only-export-components
 export const notifySuccess = (message: string) => toast.success(message);
 
 export function TripLayout() {
@@ -60,7 +61,7 @@ export function TripLayout() {
     return () => {
       reset();
     };
-  }, []);
+  }, [reset]);
 
 
 

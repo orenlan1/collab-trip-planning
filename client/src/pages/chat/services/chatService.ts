@@ -1,5 +1,4 @@
-import type { ChatMessage, SendMessagePayload, TypingIndicator } from "@/types/chat";
-import type { Socket } from "socket.io-client";
+import type { SendMessagePayload } from "@/types/chat";
 import axios from "axios";
 
 // Base API configuration

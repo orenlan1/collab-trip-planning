@@ -5,3 +5,10 @@ export interface TripDay {
   date: Date;
   activities: Activity[];
 }
+
+export interface ApiTripDay {
+  id: string;
+  itineraryId: string;
+  date: string;
+  activities: Activity[];
+}

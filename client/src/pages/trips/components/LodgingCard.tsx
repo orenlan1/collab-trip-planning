@@ -63,7 +63,7 @@ export function LodgingCard() {
       const response = await lodgingsApi.create(tripId, lodgingInput);
       addLodging(response.data);
       toast.success('Lodging added successfully!');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to add lodging:', error);
       throw error;
     }
@@ -87,7 +87,7 @@ export function LodgingCard() {
       const response = await lodgingsApi.update(tripId, editingLodging.id, lodgingInput);
       updateLodging(editingLodging.id, response.data);
       toast.success('Lodging updated successfully!');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update lodging:', error);
       throw error;
     }
@@ -134,43 +134,35 @@ export function LodgingCard() {
     const lodgingDate = new Date(expenseLodging.checkIn);
     const dateString = format(lodgingDate, 'yyyy-MM-dd');
 
-    try {
-      const response = await budgetApi.addExpense(tripId, { 
-        ...input,
-        lodgingId: expenseLodging.id,
-        date: dateString
-      });
-      
-      toast.success('Expense added successfully!');
-      
-      const updatedLodging = {
-        ...expenseLodging,
-        expense: response.data
-      };
-      updateLodging(expenseLodging.id, updatedLodging);
-      setShowAddExpenseDialog(false);
-    } catch (error: any) {
-      throw error;
-    }
+    const response = await budgetApi.addExpense(tripId, {
+      ...input,
+      lodgingId: expenseLodging.id,
+      date: dateString
+    });
+
+    toast.success('Expense added successfully!');
+
+    const updatedLodging = {
+      ...expenseLodging,
+      expense: response.data
+    };
+    updateLodging(expenseLodging.id, updatedLodging);
+    setShowAddExpenseDialog(false);
   };
 
   const handleEditExpense = async (expenseId: string, input: CreateExpenseInput) => {
     if (!expenseLodging || !tripId) return;
 
-    try {
-      const response = await budgetApi.updateExpense(tripId, expenseId, input);
-      
-      setShowEditExpenseDialog(false);
-      toast.success('Expense updated successfully!');
-      
-      const updatedLodging = {
-        ...expenseLodging,
-        expense: response.data
-      };
-      updateLodging(expenseLodging.id, updatedLodging);
-    } catch (error: any) {
-      throw error;
-    }
+    const response = await budgetApi.updateExpense(tripId, expenseId, input);
+
+    setShowEditExpenseDialog(false);
+    toast.success('Expense updated successfully!');
+
+    const updatedLodging = {
+      ...expenseLodging,
+      expense: response.data
+    };
+    updateLodging(expenseLodging.id, updatedLodging);
   };
 
   const handleOpenExpenseDialog = (lodging: Lodging) => {
