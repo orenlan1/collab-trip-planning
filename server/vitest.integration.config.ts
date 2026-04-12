@@ -8,7 +8,7 @@ export default defineConfig({
     // Run all integration test files sequentially in the same process.
     // This prevents parallel test files from colliding on shared DB rows.
     pool: 'forks',
-    singleFork: true,
+    maxWorkers: 1,
     // Give real DB calls more time than the default 5 s
     testTimeout: 15000,
     hookTimeout: 15000,
@@ -21,6 +21,9 @@ export default defineConfig({
       SESSION_SECRET: 'integration-test-secret',
       GOOGLE_CLIENT_ID: 'test-placeholder',
       GOOGLE_CLIENT_SECRET: 'test-placeholder',
+      // OpenAI client is instantiated at module level in dining.ts — needs a
+      // non-empty value at import time or it throws before any test runs.
+      OPENAI_API_KEY: 'test-placeholder',
     },
   },
 });
