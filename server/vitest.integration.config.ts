@@ -12,5 +12,15 @@ export default defineConfig({
     // Give real DB calls more time than the default 5 s
     testTimeout: 15000,
     hookTimeout: 15000,
+    // Non-sensitive defaults committed here so CI doesn't need .env.test.
+    // DATABASE_URL must be provided via CI secret or local .env.test —
+    // it is intentionally absent here since it contains credentials.
+    env: {
+      NODE_ENV: 'test',
+      CLIENT_URL: 'http://localhost:5173',
+      SESSION_SECRET: 'integration-test-secret',
+      GOOGLE_CLIENT_ID: 'test-placeholder',
+      GOOGLE_CLIENT_SECRET: 'test-placeholder',
+    },
   },
 });
