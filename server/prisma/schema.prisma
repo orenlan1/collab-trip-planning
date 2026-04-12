@@ -61,7 +61,7 @@ model Trip {
   description String?
   startDate   DateTime?
   endDate     DateTime?
-  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String
   image       String?
   latitude    Float?
@@ -83,7 +83,7 @@ model TripMember {
   id       String   @id @default(cuid())
   trip     Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
   tripId   String
-  user     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
   role     String   @default("member")
   joinedAt DateTime @default(now())
