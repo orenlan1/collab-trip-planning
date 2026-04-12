@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import passport from './auth/passport.js';
 import { sessionMiddleware } from './middleware/session.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { globalRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
 import { SocketService } from './sockets/socket-service.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
@@ -19,6 +20,7 @@ export function createApp() {
   const httpServer = createServer(app);
   const socketService = new SocketService(httpServer);
 
+  app.use(globalRateLimiter);
   app.use(express.json());
   app.use(
     cors({
@@ -34,7 +36,7 @@ export function createApp() {
 
   app.set('io', socketService.getIO());
 
-  app.use('/auth', authRoutes);
+  app.use('/auth', authRateLimiter, authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/trips/invite', invitationRoutes);
   app.use('/api/trips', tripRoutes);

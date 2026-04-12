@@ -1,6 +1,7 @@
 import express from 'express';
 import { isAuthenticated } from '../middleware/auth';
 import itineraryController from '../controllers/itinerary-controller';
+import { aiRateLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router({ mergeParams: true });
 
@@ -9,7 +10,7 @@ router.get("/", isAuthenticated, itineraryController.getItinerary);
 router.get("/activities", isAuthenticated, itineraryController.getAllActivities);
 
 // Dining suggestions route
-router.get("/dining/suggestions", isAuthenticated, itineraryController.getDiningSuggestionsController);
+router.get("/dining/suggestions", isAuthenticated, aiRateLimiter, itineraryController.getDiningSuggestionsController);
 
 // Trip day routes
 router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);
