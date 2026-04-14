@@ -52,7 +52,7 @@ export const TripOverviewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm">
         <TailSpin
           height="80"
           width="80"
@@ -64,44 +64,42 @@ export const TripOverviewPage = () => {
   }
 
   return (
-    <div className="flex-1 ">
-      <div className="relative h-[300px]">
+    <div className="flex-1">
+      {/* Hero */}
+      <div className="relative h-[360px]">
         <div className="absolute inset-0">
           <img
             src={image || "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e"}
             alt="Trip cover"
             className="w-full h-full object-cover rounded-t-2xl"
           />
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          {/* Deeper gradient overlay */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent rounded-t-2xl" />
         </div>
 
-        <div className="absolute bottom-6 left-6 right-6 text-white ">
+        <div className="absolute bottom-6 left-6 right-6 text-white">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl font-semibold">
-                {title}
-              </h1>
-            </div>
-            <div className='flex items-center gap-2'>
-             
+            <h1 className="text-4xl font-bold drop-shadow-lg">
+              {title}
+            </h1>
+            <div className="flex items-center gap-2.5">
               <div
-                className='relative flex flex-col items-center justify-center w-8 h-8 bg-white/80 border border-indigo-500 rounded-lg shadow-md cursor-pointer transition-transform duration-200 hover:scale-110 hover:bg-indigo-100 group'
-                title='View trip dates'
+                className="relative flex flex-col items-center justify-center w-8 h-8 bg-white/90 border border-primary/60 rounded-lg shadow-md cursor-pointer transition-all duration-200 hover:scale-110 hover:bg-primary/10 group"
+                title="View trip dates"
               >
-                <div className='absolute top-0 left-0 w-full h-1.5 bg-indigo-500 rounded-t-lg' />
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-primary to-violet-500 rounded-t-lg" />
                 <Popover>
                   <PopoverTrigger asChild>
-                    <div className='flex items-center justify-center w-full h-full'>
-                      <BsCalendar4 className='text-indigo-600 z-10' size={16} />
+                    <div className="flex items-center justify-center w-full h-full">
+                      <BsCalendar4 className="text-primary z-10" size={16} />
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent side='bottom' align='start' className='w-auto p-0'>
+                  <PopoverContent side="bottom" align="start" className="w-auto p-0">
                     <DatesSetter />
                   </PopoverContent>
                 </Popover>
               </div>
-              <p className="text-md text-slate-200 font-semibold">
+              <p className="text-sm text-white/90 font-medium">
                 {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "creator")?.user.name}
               </p>
             </div>
@@ -109,27 +107,26 @@ export const TripOverviewPage = () => {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 px-4 md:px-0'>
-        <div className='md:col-span-2'>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 px-4 md:px-0 animate-fade-slide-up">
+        <div className="md:col-span-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
           <DestinationCard />
         </div>
-        <div>
+        <div className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl animation-delay-50">
           <ParticipantsCard tripId={tripId!} />
-        </div>   
+        </div>
       </div>
 
-      <div className='mt-6'>
+      <div className="mt-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl animate-fade-slide-up animation-delay-100">
         <DescriptionCard />
       </div>
 
-      <div className='mt-6'>
+      <div className="mt-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl animate-fade-slide-up animation-delay-150">
         <FlightsCard />
       </div>
 
-      <div className='mt-6'>
+      <div className="mt-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl animate-fade-slide-up animation-delay-200">
         <LodgingCard />
       </div>
-
     </div>
   );
 };

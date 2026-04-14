@@ -103,15 +103,15 @@ export function TripItineraryPage() {
     return (
       <div className="flex flex-col items-center justify-center p-8">
         <div className="text-center mb-6 max-w-md">
-          <h2 className="text-xl font-semibold mb-3">Your trip has no dates</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl font-semibold mb-3 text-foreground">Your trip has no dates</h2>
+          <p className="text-muted-foreground">
             Add trip dates to start working on your itinerary.
           </p>
         </div>
         {!showDatesSetter ? (
           <button
             onClick={() => setShowDatesSetter(true)}
-            className="bg-indigo-500 hover:bg-indigo-600 transition text-white px-6 py-3 rounded-md"
+            className="bg-linear-to-r from-primary to-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-white px-6 py-3 rounded-lg font-medium"
           >
             Set Trip Dates
           </button>
@@ -127,7 +127,7 @@ export function TripItineraryPage() {
   return (
     <div className="h-[calc(100vh-73px)]">
       {isLoading ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm">
           <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
         </div>
       ) : error ? (
@@ -137,9 +137,9 @@ export function TripItineraryPage() {
           {/* Left Section: Dates Picker + Activity Cards */}
           <div className="w-full md:w-3/5 flex flex-col mt-2">
             {/* Sticky Dates Picker */}
-            <div className="sticky top-0 z-40 bg-sky-50/60 dark:bg-slate-900  border-neutral-200/40 dark:border-neutral-800/60">
+            <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border/60">
               <div className="py-3 px-4">
-                <div 
+                <div
                   className={`overflow-x-auto scrollbar-hide flex gap-3 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   onMouseDown={handleMouseDown}
@@ -148,31 +148,31 @@ export function TripItineraryPage() {
                   onMouseLeave={handleMouseLeave}
                 >
                   {days.map((day, index) => (
-                    <DateCard 
+                    <DateCard
                       key={day.id}
-                      date={new Date(day.date)} 
-                      index={index} 
-                      setDay={() => selectDay(day.id)} 
-                      isSelected={selectedDayId === day.id} 
+                      date={new Date(day.date)}
+                      index={index}
+                      setDay={() => selectDay(day.id)}
+                      isSelected={selectedDayId === day.id}
                     />
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Date and New Activity Button */}
+            {/* Date header */}
             {selectedDay && (
-              <div className="sticky top-[73px] z-30 bg-sky-50/60 dark:bg-slate-900 border-b border-neutral-200/40 dark:border-neutral-800/60 flex justify-between items-center p-4">
-                <div className="text-lg font-semibold">
-                  <h2>{new Date(selectedDay.date).getDate()} {monthNames[new Date(selectedDay.date).getMonth()]}, {new Date(selectedDay.date).getFullYear()}</h2>
-                </div>
+              <div className="sticky top-[73px] z-30 bg-background/90 backdrop-blur-sm border-b border-border/60 flex justify-between items-center px-4 py-3">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {new Date(selectedDay.date).getDate()} {monthNames[new Date(selectedDay.date).getMonth()]}, {new Date(selectedDay.date).getFullYear()}
+                </h2>
               </div>
             )}
 
             {/* Activity Cards - Scrollable */}
             <div className="flex-1 overflow-y-auto p-2">
               {selectedDay && (
-                <TripDayPage 
+                <TripDayPage
                   id={selectedDay.id}
                   onActivityHover={handleActivityHover}
                   onActivityLeave={handleActivityLeave}
@@ -182,9 +182,10 @@ export function TripItineraryPage() {
           </div>
 
           {/* Right Section: Google Map - Desktop Only */}
-          <div className="hidden md:block w-2/5 h-full">
+          <div className="hidden md:block w-2/5 h-full p-3">
+            <div className="w-full h-full rounded-xl overflow-hidden shadow-lg ring-1 ring-border/40">
             {selectedDay && tripDay && (
-              <GoogleMaps 
+              <GoogleMaps
                 center={latitude && longitude ? { lat: latitude, lng: longitude } : undefined}
                 markers={tripDay.activities
                   .filter(activity => activity.latitude && activity.longitude)
@@ -203,12 +204,13 @@ export function TripItineraryPage() {
                 hoveredMarkerId={hoveredActivityId || undefined}
               />
             )}
+            </div>
           </div>
 
           {/* Mobile Map Button */}
           <button
             onClick={() => setShowMobileMap(true)}
-            className="md:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-full shadow-lg flex items-center gap-2 z-40"
+            className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-linear-to-r from-primary to-violet-500 hover:shadow-lg hover:-translate-y-0.5 text-white font-medium py-3 px-6 rounded-full shadow-lg flex items-center gap-2 z-40 transition-all duration-200"
           >
             <FaMap />
             View Map
@@ -217,10 +219,10 @@ export function TripItineraryPage() {
           {/* Mobile Map Modal */}
           {showMobileMap && (
             <div className="md:hidden fixed top-[180px] left-0 right-0 bottom-0 z-40 flex items-end justify-center">
-              <div className="bg-white dark:bg-slate-900 w-full h-[calc(100%-20px)] rounded-t-2xl overflow-hidden relative">
+              <div className="bg-background w-full h-[calc(100%-20px)] rounded-t-2xl overflow-hidden relative">
                 <button
                   onClick={() => setShowMobileMap(false)}
-                  className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 p-2 rounded-full shadow-lg"
+                  className="absolute top-4 right-4 z-10 bg-card hover:bg-secondary p-2 rounded-full shadow-lg transition-colors"
                 >
                   <IoClose className="text-2xl text-gray-700 dark:text-gray-300" />
                 </button>

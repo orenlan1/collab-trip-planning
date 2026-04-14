@@ -153,29 +153,29 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
       <div className="flex flex-col items-center min-w-[60px]">
         {activity.startTime ? (
           <div className="flex flex-col items-center">
-            <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+            <div className="text-xs font-medium text-muted-foreground mb-2">
               {formatTimeDisplay(activity.startTime, activity.endTime)}
             </div>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900">
+            <div className="w-8 h-8 bg-linear-to-br from-primary to-violet-500 rounded-full flex items-center justify-center shadow-md border-2 border-background">
               <span className="text-white font-bold text-sm">{index}</span>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="text-xs font-medium text-gray-400 mb-2">
+            <div className="text-xs font-medium text-muted-foreground/60 mb-2">
               Add time
             </div>
-            <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center shadow-sm">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+            <div className="w-6 h-6 bg-border rounded-full flex items-center justify-center shadow-sm">
+              <div className="w-2 h-2 bg-background rounded-full"></div>
             </div>
           </div>
         )}
-        <div className="w-0.5 h-24 bg-gray-300 dark:bg-gray-600 mt-3"></div>
+        <div className="w-0.5 h-24 bg-border/70 mt-3"></div>
       </div>
 
       {/* Activity Card */}
       <div onMouseEnter={handleOnActivityHover} onMouseLeave={handleOnActivityLeave} className="flex-1">
-        <div className={`border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-md hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-800 ${isAnimated ? 'animate-pulse-border' : ''}`}>
+        <div className={`border border-border/60 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 bg-card ${isAnimated ? 'animate-pulse-border' : ''}`}>
           {/* Top: image | name+status+description | trash */}
           <div className="flex flex-col">
             <div className="flex items-start gap-4 p-4">
@@ -208,7 +208,7 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Add any important notes"
-                    className="p-3 w-full resize-none rounded-md bg-gray-100 dark:bg-slate-700 border border-transparent focus:border-neutral-300 focus:ring-0 text-slate-900 dark:text-slate-300 placeholder:text-slate-500 dark:placeholder:text-slate-300"
+                    className="p-3 w-full resize-none rounded-md bg-transparent border-2 border-border focus:border-primary/60 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground transition-colors"
                     rows={3}
                   />
                 </div>
@@ -216,13 +216,13 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
             </div>
 
             {/* Bottom: time and location */}
-            <div className="border-t border-gray-100 dark:border-slate-700 px-4 py-3 flex gap-4 items-center text-sm text-slate-700 dark:text-slate-300 font-semibold">
+            <div className="border-t border-border/50 bg-secondary/30 px-4 py-3 flex gap-4 items-center text-sm text-foreground font-medium">
 
-              <div className="flex items-center dark:hover:text-slate-200 hover:text-slate-800 cursor-pointer">
+              <div className="flex items-center hover:text-foreground cursor-pointer transition-colors">
                 <FaMoneyBillWave className="text-green-600 hover:text-green-700" />
                 {activity.expense ? (
                   <span 
-                    className="ml-2 font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-800 cursor-pointer"
+                    className="ml-2 font-semibold text-foreground hover:text-primary cursor-pointer transition-colors"
                     onClick={() => setShowEditExpenseDialog(true)}
                   >
                     {formatCurrencyAmount(activity.expense.cost, activity.expense.currency)}
@@ -248,7 +248,7 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
                 onSubmit={handleEditExpense}
               />
 
-              <div className="flex items-center hover:text-slate-800 cursor-pointer dark:hover:text-slate-200">
+              <div className="flex items-center hover:text-primary cursor-pointer transition-colors">
                 <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                   <PopoverTrigger asChild>
                     <div className="flex items-center">

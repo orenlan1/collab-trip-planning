@@ -42,7 +42,7 @@ export function TripSidebar() {
       {/* Mobile menu button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-22 left-4 z-[120] lg:hidden bg-white dark:bg-slate-800 p-2 rounded-md shadow-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-slate-700 transition"
+        className="fixed top-22 left-4 z-[120] lg:hidden bg-card p-2 rounded-md shadow-lg border border-border/60 hover:bg-secondary transition-colors"
         aria-label="Toggle menu"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -63,59 +63,60 @@ export function TripSidebar() {
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:static 
-        w-64 bg-white/80 dark:bg-slate-800 backdrop-blur-sm
-        min-h-[calc(100vh-64px)] 
-        border-r border-neutral-200/40 dark:border-neutral-700/40
+        fixed lg:static
+        w-64 bg-card/90 dark:bg-card backdrop-blur-sm
+        min-h-[calc(100vh-64px)]
+        border-r border-border/60
+        shadow-[2px_0_12px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_12px_rgba(0,0,0,0.25)]
         transition-transform duration-300 ease-in-out
         z-[100]
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-      <nav className="flex flex-col p-4 sticky top-20">
-        <Link 
-          to={`/trips/${tripId}/overview`} 
-          className={`font-semibold py-2 px-4 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700 transition
-             ${activeLink === "overview" ? "text-indigo-700  bg-slate-200/60 dark:bg-slate-700  dark:text-white"  : "text-slate-500 "}`}
+      <nav className="flex flex-col gap-1 p-4 sticky top-20">
+        <Link
+          to={`/trips/${tripId}/overview`}
+          className={`flex items-center font-semibold py-2.5 px-4 rounded-lg transition-all duration-150
+             ${activeLink === "overview"
+               ? "bg-linear-to-r from-primary/15 to-violet-500/10 text-primary border-l-2 border-primary"
+               : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-0.5"}`}
         >
-          <LayoutDashboard className="inline-block mr-2" />
-          <div className="inline-block">
-            Overview
-          </div>
+          <LayoutDashboard size={18} className="mr-2.5 shrink-0" />
+          Overview
         </Link>
-        <Link 
-          to={`/trips/${tripId}/itinerary`} 
-          className={`font-semibold py-2 px-4 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700 transition
-             ${activeLink === "itinerary" ? "text-indigo-700 bg-slate-200/60 dark:bg-slate-700  dark:text-white" : "text-slate-500 "}`}
+        <Link
+          to={`/trips/${tripId}/itinerary`}
+          className={`flex items-center font-semibold py-2.5 px-4 rounded-lg transition-all duration-150
+             ${activeLink === "itinerary"
+               ? "bg-linear-to-r from-primary/15 to-violet-500/10 text-primary border-l-2 border-primary"
+               : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-0.5"}`}
         >
-          <Map className="inline-block mr-2" />
+          <Map size={18} className="mr-2.5 shrink-0" />
           Itinerary
         </Link>
-        <Link 
-          to={`/trips/${tripId}/budget`} 
-          className={` font-semibold py-2 px-4 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700 transition
-             ${activeLink === "budget" ? "text-indigo-700 bg-slate-200/60 dark:bg-slate-700  dark:text-white" : "text-slate-500 "}`}
+        <Link
+          to={`/trips/${tripId}/budget`}
+          className={`flex items-center font-semibold py-2.5 px-4 rounded-lg transition-all duration-150
+             ${activeLink === "budget"
+               ? "bg-linear-to-r from-primary/15 to-violet-500/10 text-primary border-l-2 border-primary"
+               : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-0.5"}`}
         >
-          <DollarSignIcon className="inline-block mr-2" />
+          <DollarSignIcon size={18} className="mr-2.5 shrink-0" />
           Budget
         </Link>
-        <Link 
-          to={`/trips/${tripId}/chat`} 
-          className={` font-semibold py-2 px-4 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700 transition
-             ${activeLink === "chat" ? "text-indigo-700 bg-slate-200/60 dark:bg-slate-700  dark:text-white" : "text-slate-500 "}`}
+        <Link
+          to={`/trips/${tripId}/chat`}
+          className={`flex items-center font-semibold py-2.5 px-4 rounded-lg transition-all duration-150
+             ${activeLink === "chat"
+               ? "bg-linear-to-r from-primary/15 to-violet-500/10 text-primary border-l-2 border-primary"
+               : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-0.5"}`}
         >
-          <div className="flex justify-between items-center">
-            <div>
-              <MessageSquareIcon className="inline-block mr-2" />
-              Chat
-            </div>
-            <div>
-              {unreadCount > 0 && (
-                <span className="bg-indigo-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </div>
-          </div>
+          <MessageSquareIcon size={18} className="mr-2.5 shrink-0" />
+          <span className="flex-1">Chat</span>
+          {unreadCount > 0 && (
+            <span className="bg-linear-to-r from-primary to-violet-500 text-white text-xs rounded-full min-w-[1.35rem] h-[1.35rem] flex items-center justify-center px-1">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </Link>
       </nav>
     </aside>

@@ -199,7 +199,7 @@ export function FlightsCard() {
 
 
   return (
-    <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
+    <div className="border border-border/60 rounded-xl py-3 bg-card shadow-sm">
       <div className="flex px-4 gap-3 items-center justify-between mb-4">
         <div className="flex gap-3 items-center">
           <IoAirplaneOutline className="text-xl text-indigo-500" />
@@ -228,7 +228,7 @@ export function FlightsCard() {
           {flights.map((flight) => (
             <div 
               key={flight.id} 
-              className="border border-gray-200 dark:bg-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-border/60 bg-card rounded-lg p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">

@@ -175,7 +175,7 @@ export function LodgingCard() {
   };
 
   return (
-    <div className="border-1 rounded-xl py-3 bg-white/80 dark:bg-slate-800 shadow-sm">
+    <div className="border border-border/60 rounded-xl py-3 bg-card shadow-sm">
       <div className="flex px-4 gap-3 items-center justify-between">
         <div className="flex gap-3 items-center">
           <GoHome className="text-xl text-indigo-500" />
@@ -214,7 +214,7 @@ export function LodgingCard() {
           {lodgings.map((lodging) => (
             <div
               key={lodging.id}
-              className="border border-gray-200 dark:bg-slate-700 rounded-lg p-4 hover:shadow-md transition"
+              className="border border-border/60 bg-card rounded-lg p-4 hover:shadow-md transition"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">

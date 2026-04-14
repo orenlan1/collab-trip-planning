@@ -88,7 +88,7 @@ export function DestinationCard() {
 
 
   return (
-    <div className="border-1 rounded-xl py-3 h-full bg-white/80 dark:bg-slate-800 shadow-sm">
+    <div className="border border-border/60 rounded-xl py-3 h-full bg-card shadow-sm">
       <div className="flex px-4 gap-3 items-center">
         <FiMapPin className="text-xl text-indigo-500" />
         <h1 className="font-semibold text-xl">Destination</h1>
@@ -109,21 +109,21 @@ export function DestinationCard() {
         <input
           type="text"
           value={destination ?? ""}
-          className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm bg-white/90 dark:bg-slate-700 border-neutral-200/60 border rounded-lg pt-3 pr-4 pb-3 pl-8"
+          className="w-full focus:outline-none focus:ring-0 focus:border-primary/60 transition-colors text-sm bg-transparent border-2 border-border rounded-lg pt-3 pr-4 pb-3 pl-8 text-foreground placeholder:text-muted-foreground"
           onChange={(e) => handleDestinationChange(e.target.value)}
           onFocus={() => setShowDestinationSuggestions(true)}
           autoComplete="off"
         />
         {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto left-0 right-0 mx-4">
+          <div className="absolute z-50 w-full mt-1 bg-card border border-border/60 rounded-xl shadow-lg max-h-60 overflow-auto left-0 right-0 mx-4">
             {destinationSuggestions.map((dest) => (
               <div
                 key={`${dest.type}-${dest.id}`}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                className="px-3 py-2.5 cursor-pointer hover:bg-secondary transition-colors text-sm first:rounded-t-xl last:rounded-b-xl"
                 onClick={() => handleDestinationSelect(dest)}
               >
                 <div className="font-medium">{dest.name}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-muted-foreground">
                   {dest.type === 'city' ? `${dest.country} • City` : 'Country'}
                 </div>
               </div>
@@ -132,7 +132,7 @@ export function DestinationCard() {
         )}
       </div>
       <div>
-        <p className="ml-4 text-sm text-gray-500">
+        <p className="ml-4 text-sm text-muted-foreground">
           {!selectedDestination && destination
             ? "Please select a destination from the suggestions" 
             : hasUnsavedChanges
