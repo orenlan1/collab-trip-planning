@@ -38,15 +38,15 @@ export function UserMenu({ user }: UserMenuProps) {
             className="w-full h-full object-cover"
           />
         </Menu.Button>
-        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white dark:bg-slate-800 rounded-md shadow-lg ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-card rounded-xl shadow-lg ring-1 ring-border/60 focus:outline-none border border-border/60">
           <div className="py-1">
             <Menu.Item>
               {({ active }) => (
                 <button
                   onClick={() => navigate('/profile')}
                   className={`${
-                    active ? 'bg-gray-100 dark:bg-slate-700' : ''
-                  } block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-200`}
+                    active ? 'bg-secondary' : ''
+                  } block w-full text-left px-4 py-2 text-sm text-foreground rounded-lg transition-colors`}
                 >
                   Profile
                 </button>
@@ -57,8 +57,8 @@ export function UserMenu({ user }: UserMenuProps) {
                 <button
                   onClick={() => navigate('/settings')}
                   className={`${
-                    active ? 'bg-gray-100 dark:bg-slate-700' : ''
-                  } block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-200`}
+                    active ? 'bg-secondary' : ''
+                  } block w-full text-left px-4 py-2 text-sm text-foreground rounded-lg transition-colors`}
                 >
                   Settings
                 </button>
@@ -69,8 +69,8 @@ export function UserMenu({ user }: UserMenuProps) {
                 <button
                   onClick={handleLogout}
                   className={`${
-                    active ? 'bg-gray-100 dark:bg-slate-700' : ''
-                  } block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-200`}
+                    active ? 'bg-secondary' : ''
+                  } block w-full text-left px-4 py-2 text-sm text-foreground rounded-lg transition-colors`}
                 >
                   Logout
                 </button>

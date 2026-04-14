@@ -68,8 +68,8 @@ export const TripDayPage = ({ id, onActivityHover, onActivityLeave }: TripDayPag
     return (
         <div className="p-4">
             <div className="mb-4 flex justify-end">
-                <button 
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-md"
+                <button
+                    className="bg-linear-to-r from-primary to-violet-500 hover:shadow-md hover:-translate-y-0.5 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-all duration-200"
                     onClick={() => setShowChooseActivityDialog(true)}
                 >
                     New Activity
@@ -92,15 +92,15 @@ export const TripDayPage = ({ id, onActivityHover, onActivityLeave }: TripDayPag
                 );
             })}
             
-            <div 
-                onClick={() => setShowChooseActivityDialog(true)} 
-                className="border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center p-6 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer transition-all"
+            <div
+                onClick={() => setShowChooseActivityDialog(true)}
+                className="border-2 border-dashed border-border/60 flex flex-col items-center justify-center p-6 rounded-xl hover:border-primary/40 hover:text-primary hover:bg-primary/5 cursor-pointer transition-all duration-200 group"
             >
-                <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-full mb-3">
-                    <IoAdd className="text-2xl text-slate-500 dark:text-slate-400" />
+                <div className="bg-secondary p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
+                    <IoAdd className="text-2xl text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
                 <h3 className="text-lg font-medium">Add New Activity</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm text-center mt-1">Create another activity for this day</p>
+                <p className="text-muted-foreground text-sm text-center mt-1">Create another activity for this day</p>
             </div>
 
             <ChooseActivityTypeDialog

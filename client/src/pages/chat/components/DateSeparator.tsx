@@ -12,10 +12,12 @@ export function DateSeparator({ date }: DateSeparatorProps) {
   };
 
   return (
-    <div className="flex items-center justify-center my-4">
-      <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+    <div className="flex items-center gap-3 my-4 px-2">
+      <div className="flex-1 h-px bg-border/60" />
+      <div className="bg-secondary text-muted-foreground text-xs px-3 py-1 rounded-full border border-border/60 shrink-0">
         {getDateLabel(date)}
       </div>
+      <div className="flex-1 h-px bg-border/60" />
     </div>
   );
 }

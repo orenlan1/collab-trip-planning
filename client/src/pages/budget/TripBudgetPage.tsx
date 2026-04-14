@@ -177,7 +177,7 @@ export function TripBudgetPage() {
 
   if (isLoading || !summary) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-slate-900/60">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm">
         <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
       </div>
     );

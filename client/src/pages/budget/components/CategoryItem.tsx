@@ -62,32 +62,32 @@ export function CategoryItem({ category, spent, currency, totalSpent }: Category
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`p-2 ${config.bgIconColor} rounded-lg`}>
+          <div className={`p-2 ${config.bgIconColor} dark:bg-white/10 rounded-lg`}>
             {config.icon}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900 dark:text-white">{config.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-300">{config.description}</p>
+            <h3 className="font-medium text-foreground">{config.name}</h3>
+            <p className="text-sm text-muted-foreground">{config.description}</p>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500 dark:text-gray-300">Spent</div>
-          <div className="font-medium text-lg">
+          <div className="text-sm text-muted-foreground">Spent</div>
+          <div className="font-semibold text-lg tabular-nums text-foreground">
             {formatCurrencyAmount(spent, currency)}
           </div>
         </div>
       </div>
 
-      {/* Percentage bar showing proportion of total spending */}
+      {/* Percentage bar */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-300">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>{percentage.toFixed(1)}% of total spending</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-secondary rounded-full h-2.5">
           <div
-            className={`${config.color} h-2 rounded-full transition-all`}
+            className={`${config.color} h-2.5 rounded-full transition-all duration-500`}
             style={{ width: `${percentage}%` }}
-          ></div>
+          />
         </div>
       </div>
     </div>

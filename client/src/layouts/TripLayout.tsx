@@ -24,6 +24,7 @@ export function TripLayout() {
   const [error, setError] = useState<string | null>(null);
   
   const isItineraryPage = location.pathname.includes('/itinerary');
+  const isChatPage = location.pathname.includes('/chat');
   
   useEffect(() => {
     const fetchTripData = async () => {
@@ -67,7 +68,7 @@ export function TripLayout() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-sky-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <TailSpin height="80" width="80" color="#4F46E5" ariaLabel="loading" />
       </div>
     );
@@ -75,7 +76,7 @@ export function TripLayout() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-sky-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
           <p className="text-gray-600">{error}</p>
@@ -85,7 +86,7 @@ export function TripLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased">
+    <div className="min-h-screen bg-background text-foreground antialiased">
       <Navbar />
       <TripSocketProvider>
         <TripChatSocketProvider>
@@ -93,7 +94,7 @@ export function TripLayout() {
             <ScrollToTop excludePaths={['/chat']} />
             <div className="flex relative">
               <TripSidebar />
-              <main className={`flex-1 w-full ${isItineraryPage ? 'h-[calc(100vh-73px)] overflow-hidden' : 'lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0'}`}>
+              <main className={`flex-1 w-full ${isItineraryPage || isChatPage ? 'h-[calc(100vh-64px)] overflow-hidden' : 'lg:max-w-[1400px] mx-auto py-8 px-4 lg:px-6 mt-16 lg:mt-0'}`}>
                 <ToastContainer 
                   position="top-right"
                   autoClose={5000}

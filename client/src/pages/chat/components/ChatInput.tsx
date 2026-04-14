@@ -82,27 +82,29 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t bg-white p-4">
+    <div className="border-t border-border/60 bg-card px-4 py-3 shrink-0">
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         {/* Message input */}
-        <div className="flex-1">
+        <div className={cn(
+          "flex-1 rounded-2xl border-2 border-border/70 bg-background transition-all duration-200 focus-within:border-primary/50 focus-within:shadow-sm",
+          disabled && "opacity-60"
+        )}>
           <Input
             value={message}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             disabled={disabled}
+            className="border-0 shadow-none bg-transparent focus-visible:ring-0 rounded-2xl"
           />
         </div>
 
         {/* Send button */}
         <Button
           type="submit"
+          size="icon"
           disabled={!message.trim() || disabled}
-          className={cn(
-            "flex-shrink-0",
-            message.trim() ? "bg-blue-500 hover:bg-blue-600" : ""
-          )}
+          className="shrink-0 rounded-xl h-10 w-10"
         >
           <Send className="h-4 w-4" />
         </Button>

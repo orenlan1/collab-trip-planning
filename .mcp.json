@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "C:\\nvm4w\\nodejs\\playwright-mcp.cmd",
+      "args": []
+    }
+  }
+}

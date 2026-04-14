@@ -33,21 +33,21 @@ const categoryLabels: Record<string, string> = {
 export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit, onDelete }: ExpensesListProps) {
   if (expenses.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-        <p className="text-gray-500 dark:text-gray-400">No expenses yet</p>
+      <div className="bg-card rounded-xl shadow-sm border border-border/60 p-6 text-center">
+        <p className="text-muted-foreground">No expenses yet</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Expenses</h2>
+    <div className="bg-card rounded-xl shadow-sm border border-border/60">
+      <div className="p-6 border-b border-border/60">
+        <h2 className="text-xl font-semibold text-foreground">Recent Expenses</h2>
       </div>
-      
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+
+      <div className="divide-y divide-border/50">
         {expenses.map((expense) => (
-          <div key={expense.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <div key={expense.id} className="p-4 hover:bg-secondary/40 transition-colors duration-150">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -57,37 +57,37 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit,
                     {categoryLabels[expense.category] || expense.category}
                   </span>
                   {expense.activity?.name && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <span className="text-xs text-muted-foreground truncate">
                       • {expense.activity.name}
                     </span>
                   )}
                 </div>
-                
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+
+                <p className="text-sm font-medium text-foreground truncate">
                   {expense.description}
                 </p>
-                
+
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     {format(new Date(expense.date), 'MMM d, yyyy')}
                   </p>
-                  
+
                   {expense.splits && expense.splits.length > 0 && (
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-muted-foreground">•</span>
                       <div className="flex -space-x-2">
                         {expense.splits.slice(0, 3).map((split) => (
-                          <Avatar 
-                            key={split.id} 
-                            className="h-5 w-5 border-2 border-white dark:border-gray-800"
+                          <Avatar
+                            key={split.id}
+                            className="h-5 w-5 border-2 border-card"
                             src={split.member.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(split.member.user.name!)}`}
                             alt={split.member.user.name || ''}
                             fallback={split.member.user.name?.charAt(0).toUpperCase() || 'U'}
                           />
                         ))}
                         {expense.splits.length > 3 && (
-                          <div className="h-5 w-5 rounded-full bg-gray-200 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center">
-                            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                          <div className="h-5 w-5 rounded-full bg-secondary border-2 border-card flex items-center justify-center">
+                            <span className="text-[10px] font-medium text-muted-foreground">
                               +{expense.splits.length - 3}
                             </span>
                           </div>
@@ -97,29 +97,19 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit,
                   )}
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <div className="text-right">
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg font-semibold tabular-nums text-foreground">
                     {formatCurrencyAmount(expense.cost, expense.currency)}
                   </p>
                 </div>
-                
+
                 <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(expense)}
-                    className="h-8 w-8"
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => onEdit(expense)} className="h-8 w-8">
                     <FaEdit className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(expense)}
-                    className="h-8 w-8 text-slate-400 hover:text-red-500 "
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => onDelete(expense)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
                     <FaTrash className="h-4 w-4" />
                   </Button>
                 </div>
@@ -128,15 +118,10 @@ export function ExpensesList({ expenses, hasMore, isLoading, onLoadMore, onEdit,
           </div>
         ))}
       </div>
-      
+
       {hasMore && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <Button
-            onClick={onLoadMore}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full"
-          >
+        <div className="p-4 border-t border-border/60">
+          <Button onClick={onLoadMore} disabled={isLoading} variant="outline" className="w-full">
             {isLoading ? 'Loading...' : 'Load More'}
           </Button>
         </div>
