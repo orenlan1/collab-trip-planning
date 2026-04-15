@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -12,5 +13,13 @@ export default defineConfig({
       alias: {
         '@': '/src'
       }
-    }
+    },
+    test: {
+      globals: true,
+      environment: 'node',
+      setupFiles: ['./src/tests/setup.ts'],
+      alias: {
+        '@': '/src'
+      },
+    },
 })
