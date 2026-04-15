@@ -2,6 +2,10 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { linkify } from '@/lib/linkify';
 
+type LinkProps = { href: string; className: string; target: string; rel: string };
+const isLinkElement = (n: React.ReactNode): n is React.ReactElement<LinkProps> =>
+  React.isValidElement(n) && n.type === 'a';
+
 describe('linkify', () => {
   it('returns the plain string when there are no URLs', () => {
     const result = linkify('Hello world', false);
@@ -14,7 +18,7 @@ describe('linkify', () => {
 
     const nodes = result as React.ReactNode[];
     const link = nodes.find(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(link).toBeDefined();
     expect(link!.props.href).toBe('https://example.com');
@@ -28,7 +32,7 @@ describe('linkify', () => {
     expect(nodes).toContain(' today');
 
     const link = nodes.find(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(link).toBeDefined();
     expect(link!.props.href).toBe('https://example.com');
@@ -39,7 +43,7 @@ describe('linkify', () => {
     const nodes = result as React.ReactNode[];
 
     const links = nodes.filter(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(links).toHaveLength(2);
     expect(links[0].props.href).toBe('https://foo.com');
@@ -51,7 +55,7 @@ describe('linkify', () => {
     const nodes = result as React.ReactNode[];
 
     const link = nodes.find(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(link!.props.className).toContain('text-blue-600');
   });
@@ -61,7 +65,7 @@ describe('linkify', () => {
     const nodes = result as React.ReactNode[];
 
     const link = nodes.find(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(link!.props.className).toContain('underline');
     expect(link!.props.className).not.toContain('text-blue-600');
@@ -72,7 +76,7 @@ describe('linkify', () => {
     const nodes = result as React.ReactNode[];
 
     const link = nodes.find(
-      (n): n is React.ReactElement => React.isValidElement(n) && n.type === 'a'
+      isLinkElement
     );
     expect(link!.props.target).toBe('_blank');
     expect(link!.props.rel).toBe('noopener noreferrer');
