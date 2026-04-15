@@ -205,6 +205,12 @@ export function FlightsCard() {
           <IoAirplaneOutline className="text-xl text-indigo-500" />
           <h1 className="font-semibold text-xl">Flights</h1>
         </div>
+        <button
+          onClick={() => setShowAddDialog(true)}
+          className="bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition text-sm font-semibold"
+        >
+          Add Flight
+        </button>
       </div>
 
       {flights.length === 0 ? (
