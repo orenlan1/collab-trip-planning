@@ -2,11 +2,12 @@ import type { Socket } from "socket.io-client";
 import type { Activity } from '@/types/activity';
 import type { ChatMessage } from "@/types/chat";
 import type { Expense } from "@/types/expense";
+import type { DraftDay } from "@/types/draft";
 
 // Define your custom events here
 interface ServerToClientEvents {
   "invite:created": (invitation: { tripId: string; inviterId: string }) => void;
-  
+
   "trip:userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:joined": (data: { tripId: string; connectedUserIds: string[] }) => void;
@@ -21,6 +22,15 @@ interface ServerToClientEvents {
   "activity:expense:created": (data: ActivityExpenseSocketData) => void;
   "activity:expense:updated": (data: ActivityExpenseSocketData) => void;
   "activity:expense:deleted": (data: ActivityExpenseDeletedSocketData) => void;
+
+  // Draft events
+  "draft:day-ready":        (data: { day: DraftDay }) => void;
+  "draft:ready":            () => void;
+  "draft:accepted":         () => void;
+  "draft:discarded":        () => void;
+  "draft:error":            (data: { message: string }) => void;
+  "draft:activity-removed": (data: { tripDayId: string; activityIndex: number; removedBy: string }) => void;
+
   "error": (data: { message: string }) => void;
 }
 
