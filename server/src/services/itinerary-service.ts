@@ -4,7 +4,7 @@ import { fetchImageURL } from '../apiClients/unsplash/images.js';
 import { normalizeDate, formatTripDayForAPI } from '../lib/utils.js';
 import { BadRequestError, NotFoundError } from '../errors/AppError.js';
 import { generateDraftDay } from '../apiClients/openai/itinerary.js';
-import type { UserPreferences, DraftData, DraftDay, DraftActivity, DayTravelContext } from '../apiClients/openai/itinerary.js';
+import type { UserPreferences, DraftData, DraftDay, DraftActivity, DayTravelContext, ExistingActivityContext, ExistingActivityForDisplay } from '../apiClients/openai/itinerary.js';
 import { resolvePlaceByName } from '../apiClients/google-maps/places.js';
 
 const formatActivityTime = (date: Date | null): string | null => {
@@ -283,6 +283,16 @@ const enrichActivity = async (activity: DraftActivity): Promise<DraftActivity> =
     };
 };
 
+// ─── Draft: existing activity helpers ────────────────────────────────────────
+
+const getTimeSlot = (startTime: Date | null): 'morning' | 'afternoon' | 'evening' | null => {
+    if (!startTime) return null;
+    const hour = startTime.getUTCHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    return 'evening';
+};
+
 // ─── Draft: travel context helpers ───────────────────────────────────────────
 
 const getLocalDateStr = (date: Date, timezoneId: string): string =>
@@ -373,14 +383,31 @@ const generateDraft = async (
         try {
             const travelContext = buildDayTravelContext(dateStr, trip.flights, trip.lodgings);
 
+            const existingActivities: ExistingActivityContext[] = day.activities.map(a => ({
+                name:      a.name ?? '',
+                timeSlot:  getTimeSlot(a.startTime),
+                address:   a.address,
+                latitude:  a.latitude,
+                longitude: a.longitude,
+            })).filter(a => a.name);
+
+            const existingForDisplay: ExistingActivityForDisplay[] = day.activities.map(a => ({
+                name:     a.name ?? '',
+                timeSlot: getTimeSlot(a.startTime),
+                address:  a.address,
+                image:    a.image,
+            })).filter(a => a.name);
+
             const rawDay = await generateDraftDay({
-                tripDayId:   day.id,
-                date:        dateStr,
-                dayNumber:   i + 1,
-                totalDays:   itinerary.days.length,
-                destination: trip.destination,
+                tripDayId:          day.id,
+                date:               dateStr,
+                dayNumber:          i + 1,
+                totalDays:          itinerary.days.length,
+                destination:        trip.destination,
                 preferences,
-                alreadyUsed: usedNames,
+                alreadyUsed:        usedNames,
+                existingActivities,
+                existingForDisplay,
                 ...(travelContext ? { travelContext } : {}),
             });
 

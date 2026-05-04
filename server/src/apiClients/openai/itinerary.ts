@@ -37,6 +37,21 @@ export interface ActivitySuggestion {
     url?: string;
 }
 
+export interface ExistingActivityContext {
+    name:      string;
+    timeSlot:  'morning' | 'afternoon' | 'evening' | null;
+    address:   string | null;
+    latitude:  number | null;
+    longitude: number | null;
+}
+
+export interface ExistingActivityForDisplay {
+    name:     string;
+    timeSlot: 'morning' | 'afternoon' | 'evening' | null;
+    address:  string | null;
+    image:    string | null;
+}
+
 export interface DraftActivity {
     name:          string;
     description:   string;
@@ -53,10 +68,11 @@ export interface DraftActivity {
 }
 
 export interface DraftDay {
-    tripDayId:  string;
-    date:       string;
-    theme:      string;
-    activities: DraftActivity[];
+    tripDayId:          string;
+    date:               string;
+    theme:              string;
+    activities:         DraftActivity[];
+    existingActivities: ExistingActivityForDisplay[];
 }
 
 export interface DraftData {
@@ -117,8 +133,10 @@ Rules:
 - For neighborhood_walk, experience, day_trip, and nightlife activities: always provide startingPoint — the actual meeting point or start of THIS activity itself (e.g., for a park: "Park HaYarkon, Rokach Blvd, Tel Aviv"; for a street walk: "Dizengoff Center, Dizengoff St, Tel Aviv"). NEVER use the previous activity's location as the startingPoint. Also provide 2-3 suggestions of real named venues (bars, clubs, cruise operators, restaurants) that fit the activity.
 - For attraction and food types: startingPoint must be null and suggestions must be an empty array.
 - URLs in suggestions: ONLY include a url if you are certain it is the venue's real, working official website (e.g. "https://www.lokalbeer.cz"). If you are not 100% sure the URL is correct, set url to null — never guess. Each suggestion across all activities in this day must be a different venue; do not repeat the same venue in multiple activities.
+- Time slot uniqueness: each time slot label (morning, afternoon, evening) must appear AT MOST ONCE in the day's activity list. Never assign two separate unrelated activities to the same slot. If the pace requires 4 activities and only 3 slots exist, one slot may carry a second activity ONLY when the two are directly sequential and complementary (e.g., museum visit → nearby lunch, or evening dinner → evening bar crawl that starts right after). Never put a day trip and a restaurant lunch both in "afternoon" — a day trip by definition fills the entire afternoon.
 - Avoid activities that are nearly identical to each other or to anything in alreadyUsed. If two activities share the same physical location, they must serve a clearly different purpose.
 - Avoid repeating any activity names from the alreadyUsed list.
+- If "Already planned" activities are listed for the day, they are FIXED. Plan only for the remaining time slots. For activities scheduled after an already-planned event, prioritize venues near that event's location. Consider the realistic travel distance and energy level after the previous activity.
 - If a "Travel context" section is listed in the user message, it OVERRIDES normal day planning. Use common sense about travel logistics:
   - Arrival flight: factor in airport → accommodation transfer time (typically 1–2 hours in most cities). If arrival is in the evening, plan only light low-effort activities (dinner near hotel, short neighborhood walk). If arriving late at night, plan at most 1 activity or none, with a restful theme. Never schedule sightseeing before the group has had time to settle in.
   - Departure flight: account for the full pre-flight window — check-out, travel to airport, and security (typically 2–3 hours before flight). Nothing should run into this window. If departure is early morning, plan at most 1 light activity (farewell breakfast near hotel). If departure is very early, plan 0 activities and use a short farewell theme.
@@ -146,16 +164,18 @@ function buildTravelContextNote(ctx?: DayTravelContext): string {
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 export async function generateDraftDay(params: {
-    tripDayId:     string;
-    date:          string;
-    dayNumber:     number;
-    totalDays:     number;
-    destination:   string;
-    preferences:   UserPreferences;
-    alreadyUsed:   string[];
-    travelContext?: DayTravelContext;
+    tripDayId:          string;
+    date:               string;
+    dayNumber:          number;
+    totalDays:          number;
+    destination:        string;
+    preferences:        UserPreferences;
+    alreadyUsed:        string[];
+    travelContext?:     DayTravelContext;
+    existingActivities: ExistingActivityContext[];
+    existingForDisplay: ExistingActivityForDisplay[];
 }): Promise<DraftDay> {
-    const { tripDayId, date, dayNumber, totalDays, destination, preferences, alreadyUsed, travelContext } = params;
+    const { tripDayId, date, dayNumber, totalDays, destination, preferences, alreadyUsed, travelContext, existingActivities, existingForDisplay } = params;
 
     const targetActivities = ACTIVITIES_BY_PACE[preferences.pace];
 
@@ -172,13 +192,30 @@ export async function generateDraftDay(params: {
     const travelContextNote = buildTravelContextNote(travelContext);
     const hasFlightConstraint = !!(travelContext?.arrivalFlight || travelContext?.departureFlight);
 
+    // Reduce target activity count by number of existing activities with a known time slot
+    const occupiedSlots = existingActivities.map(a => a.timeSlot).filter(Boolean);
+    const adjustedTarget = Math.max(1, targetActivities - occupiedSlots.length);
+
+    const existingNote = existingActivities.length > 0
+        ? `\nAlready planned for this day (FIXED — do not replace or conflict with these):\n${
+            existingActivities.map(a => {
+                const slot = a.timeSlot
+                    ? a.timeSlot.charAt(0).toUpperCase() + a.timeSlot.slice(1)
+                    : 'No time set';
+                const location = a.address ? ` at ${a.address}` : '';
+                const coords   = (a.latitude && a.longitude) ? ` (${a.latitude.toFixed(4)}, ${a.longitude.toFixed(4)})` : '';
+                return `- ${slot}: "${a.name}"${location}${coords}`;
+            }).join('\n')
+          }\n→ Plan activities for the REMAINING time slots only. Where logical, suggest venues near the above locations.`
+        : '';
+
     const paceLine = hasFlightConstraint
         ? `Pace preference: ${preferences.pace} (overridden by Travel context below)`
-        : `Pace: ${preferences.pace} — plan exactly ${targetActivities} activities`;
+        : `Pace: ${preferences.pace} — plan exactly ${adjustedTarget} activities`;
 
     const planLine = hasFlightConstraint
         ? `Plan activities for this day. The Travel context above is a hard constraint — it may result in 0, 1, or 2 activities regardless of pace. Give the day a theme that reflects its travel situation.`
-        : `Plan ${targetActivities} activities for this day. Give the day a geographic theme and make it feel like a real trip experience.`;
+        : `Plan ${adjustedTarget} activities for this day. Give the day a geographic theme and make it feel like a real trip experience.`;
 
     const userPrompt = `Destination: ${destination}
 Day ${dayNumber} of ${totalDays} (${date})
@@ -189,6 +226,7 @@ Budget: ${preferences.budgetTier}
 ${exclusionsNote}
 ${dayTripNote}
 Already used activity names (do not repeat): ${alreadyUsed.length ? alreadyUsed.join(', ') : 'none'}
+${existingNote}
 ${travelContextNote}
 ${planLine}`;
 
@@ -219,5 +257,5 @@ ${planLine}`;
         suggestions:   a.suggestions.map(s => s.url ? { name: s.name, url: s.url } : { name: s.name }),
     }));
 
-    return { tripDayId, date, theme: parsed.theme, activities };
+    return { tripDayId, date, theme: parsed.theme, activities, existingActivities: existingForDisplay };
 }

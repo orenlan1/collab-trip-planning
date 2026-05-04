@@ -27,11 +27,19 @@ export interface DraftActivity {
     suggestions:   ActivitySuggestion[];
 }
 
+export interface ExistingActivity {
+    name:     string;
+    timeSlot: 'morning' | 'afternoon' | 'evening' | null;
+    address:  string | null;
+    image:    string | null;
+}
+
 export interface DraftDay {
-    tripDayId:  string;
-    date:       string;
-    theme:      string;
-    activities: DraftActivity[];
+    tripDayId:          string;
+    date:               string;
+    theme:              string;
+    activities:         DraftActivity[];
+    existingActivities: ExistingActivity[];
 }
 
 export interface DraftData {

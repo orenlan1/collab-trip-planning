@@ -10,7 +10,11 @@
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_console_messages",
       "Bash(npx prisma *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "mcp__playwright__browser_network_requests",
+      "Bash(xargs grep *)",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_press_key"
     ]
   }
 }

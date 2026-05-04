@@ -331,6 +331,7 @@ export function TripItineraryPage() {
                   id={selectedDay.id}
                   onActivityHover={handleActivityHover}
                   onActivityLeave={handleActivityLeave}
+                  onGenerateWithAI={() => setShowGenerateDialog(true)}
                 />
               ) : null}
             </div>
