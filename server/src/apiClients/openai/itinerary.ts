@@ -17,6 +17,21 @@ export interface UserPreferences {
     dayTripWillingness: 'yes' | 'no' | 'maybe';
 }
 
+export interface DayTravelContext {
+    arrivalFlight?: {
+        localTime: string;   // "22:30"
+        from:      string;   // e.g. "New York (JFK)"
+    };
+    departureFlight?: {
+        localTime: string;   // "07:15"
+        to:        string;   // e.g. "London (LHR)"
+    };
+    lodging?: {
+        name:    string;
+        address: string;
+    };
+}
+
 export interface ActivitySuggestion {
     name: string;
     url?: string;
@@ -68,7 +83,7 @@ const ActivitySchema = z.object({
 
 const DraftDaySchema = z.object({
     theme:      z.string(),
-    activities: z.array(ActivitySchema).min(2).max(4),
+    activities: z.array(ActivitySchema).min(1).max(4),
 });
 
 // ─── Slot counts by pace ──────────────────────────────────────────────────────
@@ -104,21 +119,43 @@ Rules:
 - URLs in suggestions: ONLY include a url if you are certain it is the venue's real, working official website (e.g. "https://www.lokalbeer.cz"). If you are not 100% sure the URL is correct, set url to null — never guess. Each suggestion across all activities in this day must be a different venue; do not repeat the same venue in multiple activities.
 - Avoid activities that are nearly identical to each other or to anything in alreadyUsed. If two activities share the same physical location, they must serve a clearly different purpose.
 - Avoid repeating any activity names from the alreadyUsed list.
+- If a "Travel context" section is listed in the user message, it OVERRIDES normal day planning. Use common sense about travel logistics:
+  - Arrival flight: factor in airport → accommodation transfer time (typically 1–2 hours in most cities). If arrival is in the evening, plan only light low-effort activities (dinner near hotel, short neighborhood walk). If arriving late at night, plan at most 1 activity or none, with a restful theme. Never schedule sightseeing before the group has had time to settle in.
+  - Departure flight: account for the full pre-flight window — check-out, travel to airport, and security (typically 2–3 hours before flight). Nothing should run into this window. If departure is early morning, plan at most 1 light activity (farewell breakfast near hotel). If departure is very early, plan 0 activities and use a short farewell theme.
+  - Lodging address: use it as the geographic anchor — prioritize activities within walking distance or a short commute, especially on arrival and departure days.
 - If real events are listed, weave them into the day naturally where they fit the time slot.
 - Respect exclusions strictly — if "churches" is excluded, never suggest a church or cathedral.`;
+
+// ─── Travel context formatter ─────────────────────────────────────────────────
+
+function buildTravelContextNote(ctx?: DayTravelContext): string {
+    if (!ctx) return '';
+    const lines: string[] = ['Travel context for this day:'];
+    if (ctx.arrivalFlight) {
+        lines.push(`- Arrival flight landing at ${ctx.arrivalFlight.localTime} local time, arriving from ${ctx.arrivalFlight.from}.`);
+    }
+    if (ctx.departureFlight) {
+        lines.push(`- Departure flight at ${ctx.departureFlight.localTime} local time, flying to ${ctx.departureFlight.to}.`);
+    }
+    if (ctx.lodging) {
+        lines.push(`- Accommodation: ${ctx.lodging.name}, ${ctx.lodging.address}.`);
+    }
+    return '\n' + lines.join('\n');
+}
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 export async function generateDraftDay(params: {
-    tripDayId:   string;
-    date:        string;
-    dayNumber:   number;
-    totalDays:   number;
-    destination: string;
-    preferences: UserPreferences;
-    alreadyUsed: string[];
+    tripDayId:     string;
+    date:          string;
+    dayNumber:     number;
+    totalDays:     number;
+    destination:   string;
+    preferences:   UserPreferences;
+    alreadyUsed:   string[];
+    travelContext?: DayTravelContext;
 }): Promise<DraftDay> {
-    const { tripDayId, date, dayNumber, totalDays, destination, preferences, alreadyUsed } = params;
+    const { tripDayId, date, dayNumber, totalDays, destination, preferences, alreadyUsed, travelContext } = params;
 
     const targetActivities = ACTIVITIES_BY_PACE[preferences.pace];
 
@@ -132,17 +169,28 @@ export async function generateDraftDay(params: {
         ? 'A day trip outside the city is acceptable if it is truly iconic.'
         : 'A day trip outside the city is welcome if it fits the group.';
 
+    const travelContextNote = buildTravelContextNote(travelContext);
+    const hasFlightConstraint = !!(travelContext?.arrivalFlight || travelContext?.departureFlight);
+
+    const paceLine = hasFlightConstraint
+        ? `Pace preference: ${preferences.pace} (overridden by Travel context below)`
+        : `Pace: ${preferences.pace} — plan exactly ${targetActivities} activities`;
+
+    const planLine = hasFlightConstraint
+        ? `Plan activities for this day. The Travel context above is a hard constraint — it may result in 0, 1, or 2 activities regardless of pace. Give the day a theme that reflects its travel situation.`
+        : `Plan ${targetActivities} activities for this day. Give the day a geographic theme and make it feel like a real trip experience.`;
+
     const userPrompt = `Destination: ${destination}
 Day ${dayNumber} of ${totalDays} (${date})
 Group: ${preferences.groupType}
-Pace: ${preferences.pace} — plan exactly ${targetActivities} activities
+${paceLine}
 Interests: ${preferences.interests.join(', ')}
 Budget: ${preferences.budgetTier}
 ${exclusionsNote}
 ${dayTripNote}
 Already used activity names (do not repeat): ${alreadyUsed.length ? alreadyUsed.join(', ') : 'none'}
-
-Plan ${targetActivities} activities for this day. Give the day a geographic theme and make it feel like a real trip experience.`;
+${travelContextNote}
+${planLine}`;
 
     const response = await openai.chat.completions.parse({
         model: 'gpt-4o',

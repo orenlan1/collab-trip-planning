@@ -7,6 +7,8 @@ interface GenerateItineraryDialogProps {
     onGenerate: (preferences: UserPreferences) => void;
     isGenerating: boolean;
     hasExistingActivities: boolean;
+    hasFlights: boolean;
+    hasLodging: boolean;
 }
 
 const INTERESTS = [
@@ -35,6 +37,8 @@ export function GenerateItineraryDialog({
     onGenerate,
     isGenerating,
     hasExistingActivities,
+    hasFlights,
+    hasLodging,
 }: GenerateItineraryDialogProps) {
     const [step, setStep] = useState(1);
     const [groupType,          setGroupType]          = useState<UserPreferences['groupType']>('friends');
@@ -243,6 +247,15 @@ export function GenerateItineraryDialog({
                             {hasExistingActivities && (
                                 <p className="text-xs text-muted-foreground mt-4 bg-secondary/50 rounded-lg p-3">
                                     AI will consider your existing activities and won&apos;t suggest duplicates.
+                                </p>
+                            )}
+                            {(hasFlights || hasLodging) && (
+                                <p className="text-xs text-muted-foreground mt-2 bg-primary/6 border border-primary/20 rounded-lg p-3">
+                                    {hasFlights && hasLodging
+                                        ? 'Your flights and accommodation will be considered — arrival and departure days will be planned around your travel schedule, and activities will be anchored near your lodging.'
+                                        : hasFlights
+                                        ? 'Your flights will be considered — arrival and departure days will be planned around your travel schedule.'
+                                        : 'Your accommodation location will be used as a geographic anchor when suggesting activities.'}
                                 </p>
                             )}
                         </div>

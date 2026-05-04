@@ -4,7 +4,7 @@ import { fetchImageURL } from '../apiClients/unsplash/images.js';
 import { normalizeDate, formatTripDayForAPI } from '../lib/utils.js';
 import { BadRequestError, NotFoundError } from '../errors/AppError.js';
 import { generateDraftDay } from '../apiClients/openai/itinerary.js';
-import type { UserPreferences, DraftData, DraftDay, DraftActivity } from '../apiClients/openai/itinerary.js';
+import type { UserPreferences, DraftData, DraftDay, DraftActivity, DayTravelContext } from '../apiClients/openai/itinerary.js';
 import { resolvePlaceByName } from '../apiClients/google-maps/places.js';
 
 const formatActivityTime = (date: Date | null): string | null => {
@@ -283,6 +283,59 @@ const enrichActivity = async (activity: DraftActivity): Promise<DraftActivity> =
     };
 };
 
+// ─── Draft: travel context helpers ───────────────────────────────────────────
+
+const getLocalDateStr = (date: Date, timezoneId: string): string =>
+    new Intl.DateTimeFormat('en-CA', {
+        timeZone: timezoneId,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(date);
+
+const getLocalTimeStr = (date: Date, timezoneId: string): string =>
+    new Intl.DateTimeFormat('en-GB', {
+        timeZone: timezoneId,
+        hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(date);
+
+type FlightRow  = { arrival: Date; arrivalTimezoneId: string; departure: Date; departureTimezoneId: string; from: string; to: string };
+type LodgingRow = { name: string; address: string; checkIn: Date; checkOut: Date };
+
+const buildDayTravelContext = (
+    dateStr:  string,
+    flights:  FlightRow[],
+    lodgings: LodgingRow[],
+): DayTravelContext | undefined => {
+    const ctx: DayTravelContext = {};
+
+    const arrivalFlight = flights.find(f => getLocalDateStr(f.arrival, f.arrivalTimezoneId) === dateStr);
+    if (arrivalFlight) {
+        ctx.arrivalFlight = {
+            localTime: getLocalTimeStr(arrivalFlight.arrival, arrivalFlight.arrivalTimezoneId),
+            from:      arrivalFlight.from,
+        };
+    }
+
+    const departureFlight = flights.find(f => getLocalDateStr(f.departure, f.departureTimezoneId) === dateStr);
+    if (departureFlight) {
+        ctx.departureFlight = {
+            localTime: getLocalTimeStr(departureFlight.departure, departureFlight.departureTimezoneId),
+            to:        departureFlight.to,
+        };
+    }
+
+    const lodging = lodgings.find(l => {
+        const checkIn  = getLocalDateStr(l.checkIn,  'UTC');
+        const checkOut = getLocalDateStr(l.checkOut, 'UTC');
+        return dateStr >= checkIn && dateStr <= checkOut;
+    });
+    if (lodging) {
+        ctx.lodging = { name: lodging.name, address: lodging.address };
+    }
+
+    if (!ctx.arrivalFlight && !ctx.departureFlight && !ctx.lodging) return undefined;
+    return ctx;
+};
+
 // ─── Draft: generate ──────────────────────────────────────────────────────────
 
 const generateDraft = async (
@@ -294,7 +347,7 @@ const generateDraft = async (
     const itinerary = await prisma.itinerary.findUnique({
         where: { tripId },
         include: {
-            trip: true,
+            trip: { include: { flights: true, lodgings: true } },
             days: { include: { activities: true }, orderBy: { date: 'asc' } },
             draft: true,
         },
@@ -318,6 +371,8 @@ const generateDraft = async (
         const dateStr = day.date.toISOString().split('T')[0]!;
 
         try {
+            const travelContext = buildDayTravelContext(dateStr, trip.flights, trip.lodgings);
+
             const rawDay = await generateDraftDay({
                 tripDayId:   day.id,
                 date:        dateStr,
@@ -326,6 +381,7 @@ const generateDraft = async (
                 destination: trip.destination,
                 preferences,
                 alreadyUsed: usedNames,
+                ...(travelContext ? { travelContext } : {}),
             });
 
             // Resolve places and images in parallel

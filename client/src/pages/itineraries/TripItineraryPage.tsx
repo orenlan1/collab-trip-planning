@@ -31,6 +31,8 @@ export function TripItineraryPage() {
   const endDate = useTripStore(state => state.endDate);
   const latitude = useTripStore(state => state.latitude);
   const longitude = useTripStore(state => state.longitude);
+  const hasFlights = useTripStore(state => state.flights.length > 0);
+  const hasLodging = useTripStore(state => state.lodgings.length > 0);
   const tripDay = useTripDayStore(state => state.tripDay);
   const [showDatesSetter, setShowDatesSetter] = useState(false);
   const [showMobileMap, setShowMobileMap] = useState(false);
@@ -422,6 +424,8 @@ export function TripItineraryPage() {
           onGenerate={handleGenerate}
           isGenerating={isGenerating}
           hasExistingActivities={hasExistingActivities}
+          hasFlights={hasFlights}
+          hasLodging={hasLodging}
         />
       )}
     </div>
