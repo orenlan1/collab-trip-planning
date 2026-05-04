@@ -124,9 +124,19 @@ model Session {
 
 model Itinerary {
   id        String   @id @default(cuid())
-  tripId    String  @unique 
+  tripId    String  @unique
   trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
   days      TripDay[]
+  draft     ItineraryDraft?
+}
+
+model ItineraryDraft {
+  id          String    @id @default(cuid())
+  itineraryId String    @unique
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model TripDay {
@@ -150,6 +160,7 @@ model Activity {
   image       String?
   latitude    Float?
   longitude   Float?
+  suggestions Json?    // [{name, url?}] for experiential activities
 
   expense    Expense?
 

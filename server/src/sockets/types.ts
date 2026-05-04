@@ -1,22 +1,23 @@
 import type { Socket, Server } from 'socket.io';
 import type { Activity } from '@prisma/client';
-import type { Expense} from '@prisma/client'
+import type { Expense} from '@prisma/client';
+import type { DraftDay, DraftData } from '../apiClients/openai/itinerary.js';
 
 
 interface ServerToClientEvents {
   "invite:created": (invitation: { tripId: string; inviterId: string }) => void;
-  
+
   "trip:userJoined": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:userLeft": (data: { userId: string; tripId: string; timestamp: Date }) => void;
   "trip:joined": (data: { tripId: string; connectedUserIds: string[] }) => void;
   "trip:datesUpdated": (data: TripDatesUpdatedData) => void;
-  "chat:newMessage": (message: { 
-    id: string; 
-    userId: string; 
-    tripId: string; 
-    content: string; 
-    type: 'text' | 'image' | 'file'; 
-    timestamp: Date 
+  "chat:newMessage": (message: {
+    id: string;
+    userId: string;
+    tripId: string;
+    content: string;
+    type: 'text' | 'image' | 'file';
+    timestamp: Date
   }) => void;
   "chat:messageDelivered": (data: { messageId: string }) => void;
   "chat:userTyping": (data: { userId: string; isTyping: boolean; tripId: string; name: string }) => void;
@@ -27,6 +28,15 @@ interface ServerToClientEvents {
   "activity:expense:created": (data: ActivityExpenseSocketData) => void;
   "activity:expense:updated": (data: ActivityExpenseSocketData) => void;
   "activity:expense:deleted": (data: ActivityExpenseDeletedSocketData) => void;
+
+  // Draft events
+  "draft:day-ready":        (data: { day: DraftDay }) => void;
+  "draft:ready":            () => void;
+  "draft:accepted":         () => void;
+  "draft:discarded":        () => void;
+  "draft:error":            (data: { message: string }) => void;
+  "draft:activity-removed": (data: { tripDayId: string; activityIndex: number; removedBy: string }) => void;
+
   "error": (data: { message: string }) => void;
 }
 

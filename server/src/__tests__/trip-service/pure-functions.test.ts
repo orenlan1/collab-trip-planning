@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { generateDateRange } from '../../services/trip-service.js';
+
+vi.mock('../../services/itinerary-service.js', () => ({ default: {} }));
 
 describe('generateDateRange', () => {
   describe('valid ranges', () => {

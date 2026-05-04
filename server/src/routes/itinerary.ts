@@ -12,6 +12,13 @@ router.get("/activities", isAuthenticated, itineraryController.getAllActivities)
 // Dining suggestions route
 router.get("/dining/suggestions", isAuthenticated, aiRateLimiter, itineraryController.getDiningSuggestionsController);
 
+// Draft routes
+router.get("/draft", isAuthenticated, itineraryController.getDraft);
+router.post("/draft/generate", isAuthenticated, aiRateLimiter, itineraryController.generateDraft);
+router.post("/draft/accept", isAuthenticated, itineraryController.acceptDraft);
+router.post("/draft/discard", isAuthenticated, itineraryController.discardDraft);
+router.delete("/draft/days/:tripDayId/activities/:activityIndex", isAuthenticated, itineraryController.removeDraftActivity);
+
 // Trip day routes
 router.get("/days/:tripDayId", isAuthenticated, itineraryController.getTripDay);
 router.post("/days", isAuthenticated, itineraryController.addTripDay);

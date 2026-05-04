@@ -1,17 +1,53 @@
-import { Map, AdvancedMarker, Pin, AdvancedMarkerAnchorPoint } from "@vis.gl/react-google-maps";
+import { Map, AdvancedMarker, Pin, AdvancedMarkerAnchorPoint, useMap } from "@vis.gl/react-google-maps";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+
+interface Marker {
+    id: string;
+    lat: number;
+    lng: number;
+    placeName?: string;
+    index?: number;
+    hasTime?: boolean;
+}
 
 interface GoogleMapsProps {
     center?: { lat: number; lng: number };
-    markers?: { id: string; lat: number; lng: number; placeName?: string; index?: number; hasTime?: boolean }[];
+    markers?: Marker[];
     pin?: React.ReactNode;
     hoveredMarkerId?: string;
 }
 
+// Fits the map viewport to contain all markers whenever the marker list changes.
+function MapBoundsUpdater({ markers, fallbackCenter }: { markers: Marker[]; fallbackCenter: { lat: number; lng: number } }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (!map) return;
+
+        if (!markers || markers.length === 0) {
+            map.setCenter(fallbackCenter);
+            map.setZoom(12);
+            return;
+        }
+
+        if (markers.length === 1) {
+            map.setCenter({ lat: markers[0]!.lat, lng: markers[0]!.lng });
+            map.setZoom(14);
+            return;
+        }
+
+        const bounds = new window.google.maps.LatLngBounds();
+        markers.forEach(m => bounds.extend({ lat: m.lat, lng: m.lng }));
+        map.fitBounds(bounds, 80); // 80px padding on all sides
+    }, [map, markers, fallbackCenter]);
+
+    return null;
+}
+
 export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMapsProps) => {
-    const defaultCenter = center || { lat: 37.7749, lng: -122.4194 }; // Default to San Francisco
+    const defaultCenter = center || { lat: 37.7749, lng: -122.4194 };
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const [localHoveredId, setLocalHoveredId] = useState<string | null>(null);
 
@@ -48,21 +84,22 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
                     fullscreenControl={true}
                     reuseMaps={true}
                 >
+                    <MapBoundsUpdater
+                        markers={markers ?? []}
+                        fallbackCenter={defaultCenter}
+                    />
+
                     {markers && markers.map((marker) => {
                         const isHovered = hoveredMarkerId === marker.id || localHoveredId === marker.id;
-                    
+
                         return (
                             <>
                                 <AdvancedMarker
                                     key={marker.id}
                                     position={{ lat: marker.lat, lng: marker.lng }}
                                     anchorPoint={AdvancedMarkerAnchorPoint.CENTER}
-                                    onMouseEnter={() => {
-                                        setLocalHoveredId(marker.id);
-                                    }}
-                                    onMouseLeave={() => {
-                                        setLocalHoveredId(null);
-                                    }}
+                                    onMouseEnter={() => setLocalHoveredId(marker.id)}
+                                    onMouseLeave={() => setLocalHoveredId(null)}
                                 >
                                     <div>
                                         {pin ? pin : marker.hasTime ? (
@@ -78,7 +115,7 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
                                         position={{ lat: marker.lat, lng: marker.lng }}
                                         anchorPoint={AdvancedMarkerAnchorPoint.BOTTOM}
                                     >
-                                        <div 
+                                        <div
                                             className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
                                             style={{
                                                 padding: '6px 12px',
@@ -89,7 +126,6 @@ export const GoogleMaps = ({ center, markers, pin, hoveredMarkerId }: GoogleMaps
                                                 whiteSpace: 'nowrap',
                                                 position: 'relative',
                                                 top: '-30px',
-                                                
                                             }}
                                         >
                                             {marker.placeName}
