@@ -11,10 +11,12 @@ export interface Flight {
   tripId: string;
   flightNumber: string;
   airline: string;
-  departure: string; // ISO 8601 format: "2025-10-30T14:45:00Z"
-  arrival: string;   // ISO 8601 format: "2025-10-30T14:45:00Z"
+  departure: string;
+  arrival: string;
   from: string;
   to: string;
+  departureTimezoneId: string;
+  arrivalTimezoneId: string;
   expense?: Expense | null;
 }
 

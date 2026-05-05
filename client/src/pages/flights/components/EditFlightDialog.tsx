@@ -36,7 +36,9 @@ export function EditFlightDialog({ open, onOpenChange, onFlightUpdated, flight }
       setFlightNumber(flight.flightNumber);
       setFrom(flight.from);
       setTo(flight.to);
-      
+      setDepartureTimezoneId(flight.departureTimezoneId || 'UTC');
+      setArrivalTimezoneId(flight.arrivalTimezoneId || 'UTC');
+
       // Parse departure date and time
       const depDate = new Date(flight.departure);
       setDepartureDate(depDate);
@@ -60,6 +62,8 @@ export function EditFlightDialog({ open, onOpenChange, onFlightUpdated, flight }
     setDepartureTime(null);
     setArrivalDate(undefined);
     setArrivalTime(null);
+    setDepartureTimezoneId('UTC');
+    setArrivalTimezoneId('UTC');
     setError('');
   };
 

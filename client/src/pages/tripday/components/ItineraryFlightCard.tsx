@@ -9,14 +9,37 @@ interface Props {
   flight: Flight;
 }
 
+function getTimezoneOffsetMs(date: Date, timezone: string): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: false,
+  }).formatToParts(date).reduce<Record<string, string>>(
+    (acc, p) => ({ ...acc, [p.type]: p.value }), {}
+  );
+  const localMs = Date.UTC(
+    +parts.year, +parts.month - 1, +parts.day,
+    +parts.hour % 24, +parts.minute, +parts.second
+  );
+  return localMs - date.getTime();
+}
+
+function localStringToUTCMs(localStr: string, timezone: string): number {
+  const naiveMs = new Date(localStr + "Z").getTime();
+  return naiveMs - getTimezoneOffsetMs(new Date(naiveMs), timezone);
+}
+
 export function ItineraryFlightCard({ flight }: Props) {
   const depTime = flight.departure.split("T")[1].substring(0, 5);
   const arrTime = flight.arrival.split("T")[1].substring(0, 5);
 
-  const durationMs = new Date(flight.arrival).getTime() - new Date(flight.departure).getTime();
+  const durationMs =
+    localStringToUTCMs(flight.arrival, flight.arrivalTimezoneId) -
+    localStringToUTCMs(flight.departure, flight.departureTimezoneId);
   const hours = Math.floor(durationMs / (1000 * 60 * 60));
   const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-  const duration = `${hours}h ${minutes > 0 ? ` ${minutes}m` : ""}`.trim();
+  const duration = `${hours}h${minutes > 0 ? ` ${minutes}m` : ""}`;
 
   const arrivalDate = new Date(flight.arrival);
   const departureDate = new Date(flight.departure);
