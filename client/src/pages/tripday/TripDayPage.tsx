@@ -10,6 +10,7 @@ import { useTripStore } from "@/stores/tripStore";
 import { useActivitySocketListeners } from "./hooks/useActivitySocketListeners";
 import type { CreateActivityRequest } from "@/types/activity";
 import { Sparkles } from "lucide-react";
+import { ItineraryFlightCard } from "./components/ItineraryFlightCard";
 
 interface TripDayPageProps {
     id: string;
@@ -25,6 +26,7 @@ export const TripDayPage = ({ id, onActivityHover, onActivityLeave, onGenerateWi
     const [showAddDiningActivityDialog, setShowAddDiningActivityDialog] = useState(false);
     const { tripDay, setTripDay, addActivity } = useTripDayStore();
     const tripId = useTripStore(state => state.id);
+    const flights = useTripStore(state => state.flights);
 
     const { animatedActivityIds } = useActivitySocketListeners(id);
 
@@ -67,10 +69,22 @@ export const TripDayPage = ({ id, onActivityHover, onActivityLeave, onGenerateWi
     };
 
 
+    const dayFlights = tripDay
+        ? flights.filter(f => {
+            const d = tripDay.date;
+            const dayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+            return f.departure.split("T")[0] === dayStr;
+          })
+        : [];
+
     const isEmpty = tripDay !== null && tripDay.activities.length === 0;
 
     return (
         <div className="p-4">
+            {dayFlights.map(flight => (
+                <ItineraryFlightCard key={flight.id} flight={flight} />
+            ))}
+
             {isEmpty && onGenerateWithAI ? (
                 <div className="mb-6 rounded-2xl bg-linear-to-br from-primary/10 to-violet-500/10 border border-primary/20 p-6 flex flex-col items-center gap-3 text-center">
                     <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
