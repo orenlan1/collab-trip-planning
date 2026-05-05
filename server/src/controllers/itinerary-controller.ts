@@ -2,7 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import itineraryService from "../services/itinerary-service";
 import type { TypedServer } from "../sockets/types";
 import { getDiningSuggestions } from "../apiClients/openai/dining";
-import { NotFoundError } from "../errors/AppError.js";
+import { NotFoundError, BadRequestError } from "../errors/AppError.js";
+import type { UserPreferences } from "../apiClients/openai/itinerary.js";
 
 export interface ItineraryFormData {
     tripId: string;
@@ -172,6 +173,102 @@ const getDiningSuggestionsController = async (req: Request, res: Response, next:
     }
 };
 
+// ─── Draft controllers ────────────────────────────────────────────────────────
+
+const generateDraft = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
+    const preferences: UserPreferences = req.body.preferences;
+
+    if (!preferences?.pace || !preferences?.interests || !preferences?.budgetTier || !preferences?.groupType) {
+        return next(new BadRequestError('preferences.pace, interests, budgetTier and groupType are required'));
+    }
+
+    // Provide defaults for optional fields
+    preferences.exclusions         = preferences.exclusions         ?? [];
+    preferences.dayTripWillingness = preferences.dayTripWillingness ?? 'maybe';
+
+    try {
+        const io: TypedServer = req.app.get('io');
+
+        res.status(202).json({ message: 'Draft generation started' });
+
+        await itineraryService.generateDraft(
+            tripId,
+            preferences,
+            (day) => {
+                io.to(`trip:${tripId}`).emit('draft:day-ready', { day });
+            },
+            (message) => {
+                io.to(`trip:${tripId}`).emit('draft:error', { message });
+            }
+        );
+
+        io.to(`trip:${tripId}`).emit('draft:ready');
+    } catch (error) {
+        const io: TypedServer = req.app.get('io');
+        io.to(`trip:${tripId}`).emit('draft:error', {
+            message: error instanceof Error ? error.message : 'Generation failed',
+        });
+    }
+};
+
+const getDraft = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
+    try {
+        const draft = await itineraryService.getDraft(tripId);
+        res.status(200).json(draft);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const acceptDraft = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
+    try {
+        await itineraryService.acceptDraft(tripId);
+        const io: TypedServer = req.app.get('io');
+        io.to(`trip:${tripId}`).emit('draft:accepted');
+        res.status(200).json({ message: 'Draft accepted' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const discardDraft = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.tripId!;
+    try {
+        await itineraryService.discardDraft(tripId);
+        const io: TypedServer = req.app.get('io');
+        io.to(`trip:${tripId}`).emit('draft:discarded');
+        res.status(200).json({ message: 'Draft discarded' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const removeDraftActivity = async (req: Request, res: Response, next: NextFunction) => {
+    const tripId       = req.params.tripId!;
+    const tripDayId    = req.params.tripDayId!;
+    const activityIndex = parseInt(req.params.activityIndex!, 10);
+
+    if (isNaN(activityIndex)) {
+        return next(new BadRequestError('activityIndex must be a number'));
+    }
+
+    try {
+        const draftData = await itineraryService.removeDraftActivity(tripId, tripDayId, activityIndex);
+        const io: TypedServer = req.app.get('io');
+        io.to(`trip:${tripId}`).except(`user:${req.user!.id}`).emit('draft:activity-removed', {
+            tripDayId,
+            activityIndex,
+            removedBy: req.user!.id,
+        });
+        res.status(200).json(draftData);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     getItinerary,
     getTripDay,
@@ -182,5 +279,11 @@ export default {
     deleteTripDay,
     getActivities,
     getAllActivities,
-    getDiningSuggestionsController
+    getDiningSuggestionsController,
+    // Draft
+    generateDraft,
+    getDraft,
+    acceptDraft,
+    discardDraft,
+    removeDraftActivity,
 };

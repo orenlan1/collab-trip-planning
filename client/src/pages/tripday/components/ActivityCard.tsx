@@ -1,5 +1,7 @@
 import { GrLocationPin } from "react-icons/gr";
 import { MdAccessTimeFilled } from "react-icons/md";
+import { ExternalLink } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useAutoSaveInput } from "@/hooks/useAutoSaveInput";
 import { useCallback, useState } from "react";
 import { tripDaysApi } from "../services/api";
@@ -81,7 +83,7 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
   const {value : description,
      updateValue: setDescription,
      saveState,
-     hasUnsavedChanges   
+     hasUnsavedChanges
   } = useAutoSaveInput({
     saveFunction: saveDescription,
     debounceMs: 1000,
@@ -89,6 +91,14 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
     minSavingMs: 500,
     initialValue: activity.description || "",
   });
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [description]);
 
   const removeActivity = useTripDayStore(state => state.removeActivity);
   
@@ -205,11 +215,12 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
 
                 <div className="mt-3">
                   <textarea
+                    ref={textareaRef}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Add any important notes"
-                    className="p-3 w-full resize-none rounded-md bg-transparent border-2 border-border focus:border-primary/60 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground transition-colors"
-                    rows={3}
+                    className="p-3 w-full resize-none rounded-md bg-transparent border-2 border-border focus:border-primary/60 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground transition-colors overflow-hidden"
+                    rows={1}
                   />
                 </div>
               </div>
@@ -273,7 +284,35 @@ export const ActivityCard = ({ activity, date, index, onHover, onLeave, isAnimat
                 <GrLocationPin className="text-gray-500" />
                 <span className="ml-1">{activity.address || "No address provided"}</span>
               </div>
+
             </div>
+
+            {/* Suggestion pills for experiential activities */}
+            {activity.suggestions && activity.suggestions.length > 0 && (
+              <div className="px-4 pb-3 pt-2 flex flex-wrap gap-1.5">
+                {activity.suggestions.map((s, i) =>
+                  s.url ? (
+                    <a
+                      key={i}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline bg-primary/6 px-2 py-0.5 rounded-full border border-primary/20 transition-colors"
+                    >
+                      {s.name}
+                      <ExternalLink size={9} />
+                    </a>
+                  ) : (
+                    <span
+                      key={i}
+                      className="text-xs text-muted-foreground bg-secondary/60 px-2 py-0.5 rounded-full"
+                    >
+                      {s.name}
+                    </span>
+                  )
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

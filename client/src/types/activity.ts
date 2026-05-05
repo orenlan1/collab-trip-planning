@@ -1,4 +1,9 @@
 
+export interface ActivitySuggestion {
+  name: string;
+  url?: string;
+}
+
 export interface Activity {
   id: string;
   description?: string;
@@ -7,6 +12,7 @@ export interface Activity {
   name?: string;
   address?: string;
   image?: string;
+  suggestions?: ActivitySuggestion[];
   latitude?: number;
   longitude?: number;
   // Optional expense object returned from the server (may be null)
