@@ -195,6 +195,229 @@ describe('addExpense', () => {
 
         expect(prisma.expense.delete).toHaveBeenCalledWith({ where: { id: 'expense-1' } });
     });
+
+    it('stores each member\'s specified amount when splitAmounts is provided', async () => {
+        vi.mocked(prisma.budget.findUnique).mockResolvedValue(baseBudget as any);
+        vi.mocked(prisma.expense.create).mockResolvedValue(baseExpense as any);
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([
+            { id: 'm1' }, { id: 'm2' }, { id: 'm3' },
+        ] as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 3 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValue({ ...baseExpense, splits: [] } as any);
+
+        await budgetService.addExpense('trip-1', {
+            description: 'Dinner',
+            cost: 90,
+            currency: 'USD',
+            category: 'FOOD',
+            splitAmounts: [
+                { memberId: 'm1', amount: 50 },
+                { memberId: 'm2', amount: 25 },
+                { memberId: 'm3', amount: 15 },
+            ],
+        } as any);
+
+        expect(prisma.expenseSplit.createMany).toHaveBeenCalledWith({
+            data: [
+                { expenseId: 'expense-1', memberId: 'm1', share: 50 },
+                { expenseId: 'expense-1', memberId: 'm2', share: 25 },
+                { expenseId: 'expense-1', memberId: 'm3', share: 15 },
+            ],
+        });
+    });
+
+    it('throws BadRequestError and deletes the expense when splitAmounts do not sum to total cost', async () => {
+        vi.mocked(prisma.budget.findUnique).mockResolvedValue(baseBudget as any);
+        vi.mocked(prisma.expense.create).mockResolvedValue(baseExpense as any);
+        vi.mocked(prisma.expense.delete).mockResolvedValue(baseExpense as any);
+
+        await expect(
+            budgetService.addExpense('trip-1', {
+                description: 'Dinner',
+                cost: 90,
+                currency: 'USD',
+                category: 'FOOD',
+                splitAmounts: [
+                    { memberId: 'm1', amount: 50 },
+                    { memberId: 'm2', amount: 20 }, // 70 total ≠ 90
+                ],
+            } as any)
+        ).rejects.toThrow(BadRequestError);
+
+        expect(prisma.expense.delete).toHaveBeenCalledWith({ where: { id: 'expense-1' } });
+        expect(prisma.expenseSplit.createMany).not.toHaveBeenCalled();
+    });
+
+    it('accepts splitAmounts whose sum is within floating-point tolerance (< 0.01)', async () => {
+        // 33.33 + 33.33 + 33.34 = 100.00 but FP may produce 99.99999...
+        vi.mocked(prisma.budget.findUnique).mockResolvedValue(baseBudget as any);
+        const expense100 = { ...baseExpense, cost: 100 };
+        vi.mocked(prisma.expense.create).mockResolvedValue(expense100 as any);
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([
+            { id: 'm1' }, { id: 'm2' }, { id: 'm3' },
+        ] as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 3 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValue({ ...expense100, splits: [] } as any);
+
+        await expect(
+            budgetService.addExpense('trip-1', {
+                description: 'Dinner',
+                cost: 100,
+                currency: 'USD',
+                category: 'FOOD',
+                splitAmounts: [
+                    { memberId: 'm1', amount: 33.33 },
+                    { memberId: 'm2', amount: 33.33 },
+                    { memberId: 'm3', amount: 33.34 },
+                ],
+            } as any)
+        ).resolves.not.toThrow();
+
+        expect(prisma.expenseSplit.createMany).toHaveBeenCalled();
+    });
+
+    it('derives member IDs from splitAmounts and ignores splitMemberIds when both are provided', async () => {
+        vi.mocked(prisma.budget.findUnique).mockResolvedValue(baseBudget as any);
+        vi.mocked(prisma.expense.create).mockResolvedValue(baseExpense as any);
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([{ id: 'm1' }, { id: 'm2' }] as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValue({ ...baseExpense, splits: [] } as any);
+
+        await budgetService.addExpense('trip-1', {
+            description: 'Dinner',
+            cost: 90,
+            currency: 'USD',
+            category: 'FOOD',
+            splitMemberIds: ['m1', 'm2', 'm3'], // should be ignored
+            splitAmounts: [
+                { memberId: 'm1', amount: 60 },
+                { memberId: 'm2', amount: 30 },
+            ],
+        } as any);
+
+        // Should use custom amounts, not equal split of m1/m2/m3
+        expect(prisma.expenseSplit.createMany).toHaveBeenCalledWith({
+            data: [
+                { expenseId: 'expense-1', memberId: 'm1', share: 60 },
+                { expenseId: 'expense-1', memberId: 'm2', share: 30 },
+            ],
+        });
+    });
+});
+
+// ─── updateExpense — splits ───────────────────────────────────────────────────
+
+describe('updateExpense', () => {
+    const existingExpense = {
+        id: 'expense-1',
+        budgetId: 'budget-1',
+        description: 'Lunch',
+        cost: 60,
+        currency: 'USD',
+        category: 'FOOD',
+        date: new Date(),
+        activityId: null,
+        budget: { tripId: 'trip-1' },
+        splits: [
+            { memberId: 'm1', share: 30 },
+            { memberId: 'm2', share: 30 },
+        ],
+    };
+
+    const updatedExpenseResult = {
+        ...existingExpense,
+        budget: undefined,
+        activity: null,
+        lodging: null,
+    };
+
+    it('updates splits with custom per-member amounts when splitAmounts is provided', async () => {
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce(existingExpense as any);
+        vi.mocked(prisma.expense.update).mockResolvedValue(updatedExpenseResult as any);
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([{ id: 'm1' }, { id: 'm2' }] as any);
+        vi.mocked(prisma.expenseSplit.deleteMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce({ ...updatedExpenseResult, splits: [] } as any);
+
+        await budgetService.updateExpense('trip-1', 'expense-1', {
+            cost: 90,
+            splitAmounts: [
+                { memberId: 'm1', amount: 70 },
+                { memberId: 'm2', amount: 20 },
+            ],
+        } as any);
+
+        expect(prisma.expenseSplit.deleteMany).toHaveBeenCalledWith({ where: { expenseId: 'expense-1' } });
+        expect(prisma.expenseSplit.createMany).toHaveBeenCalledWith({
+            data: [
+                { expenseId: 'expense-1', memberId: 'm1', share: 70 },
+                { expenseId: 'expense-1', memberId: 'm2', share: 20 },
+            ],
+        });
+    });
+
+    it('uses the new cost from the update payload when validating splitAmounts sum', async () => {
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce(existingExpense as any);
+        vi.mocked(prisma.expense.update).mockResolvedValue(updatedExpenseResult as any);
+
+        // splitAmounts sum to 90 but cost is updated to 90 → should pass
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([{ id: 'm1' }, { id: 'm2' }] as any);
+        vi.mocked(prisma.expenseSplit.deleteMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce({ ...updatedExpenseResult, splits: [] } as any);
+
+        await expect(
+            budgetService.updateExpense('trip-1', 'expense-1', {
+                cost: 90,
+                splitAmounts: [
+                    { memberId: 'm1', amount: 60 },
+                    { memberId: 'm2', amount: 30 },
+                ],
+            } as any)
+        ).resolves.not.toThrow();
+    });
+
+    it('throws BadRequestError when splitAmounts do not sum to updated cost', async () => {
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce(existingExpense as any);
+        vi.mocked(prisma.expense.update).mockResolvedValue(updatedExpenseResult as any);
+
+        await expect(
+            budgetService.updateExpense('trip-1', 'expense-1', {
+                cost: 90,
+                splitAmounts: [
+                    { memberId: 'm1', amount: 40 },
+                    { memberId: 'm2', amount: 40 }, // 80 ≠ 90
+                ],
+            } as any)
+        ).rejects.toThrow(BadRequestError);
+
+        expect(prisma.expenseSplit.deleteMany).not.toHaveBeenCalled();
+        expect(prisma.expenseSplit.createMany).not.toHaveBeenCalled();
+    });
+
+    it('falls back to existing expense cost when splitAmounts provided without a cost update', async () => {
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce(existingExpense as any); // cost = 60
+        vi.mocked(prisma.expense.update).mockResolvedValue(updatedExpenseResult as any);
+        vi.mocked(prisma.tripMember.findMany).mockResolvedValue([{ id: 'm1' }, { id: 'm2' }] as any);
+        vi.mocked(prisma.expenseSplit.deleteMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expenseSplit.createMany).mockResolvedValue({ count: 2 } as any);
+        vi.mocked(prisma.expense.findUnique).mockResolvedValueOnce({ ...updatedExpenseResult, splits: [] } as any);
+
+        await budgetService.updateExpense('trip-1', 'expense-1', {
+            splitAmounts: [
+                { memberId: 'm1', amount: 45 },
+                { memberId: 'm2', amount: 15 },
+            ],
+        } as any);
+
+        // sum 60 = existing cost 60 → valid
+        expect(prisma.expenseSplit.createMany).toHaveBeenCalledWith({
+            data: [
+                { expenseId: 'expense-1', memberId: 'm1', share: 45 },
+                { expenseId: 'expense-1', memberId: 'm2', share: 15 },
+            ],
+        });
+    });
 });
 
 // ─── getSummary ───────────────────────────────────────────────────────────────

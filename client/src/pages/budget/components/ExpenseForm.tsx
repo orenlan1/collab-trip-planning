@@ -19,6 +19,8 @@ export interface ExpenseFormData {
   selectedActivityId?: string;
   selectedMemberIds: string[];
   date?: Date;
+  splitMode: 'equal' | 'custom';
+  customSplitAmounts: Record<string, string>;
 }
 
 interface ExpenseFormProps {
@@ -227,7 +229,11 @@ export function ExpenseForm({
               selectedMemberIds={formData.selectedMemberIds}
               totalCost={totalCost}
               currency={formData.currency}
+              splitMode={formData.splitMode}
+              customSplitAmounts={formData.customSplitAmounts}
               onSelectionChange={(ids) => handleChange('selectedMemberIds', ids)}
+              onSplitModeChange={(mode) => onFormDataChange({ splitMode: mode })}
+              onCustomAmountsChange={(amounts) => onFormDataChange({ customSplitAmounts: amounts })}
             />
           </div>
         )}

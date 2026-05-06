@@ -25,23 +25,36 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
     selectedActivityId: '',
     selectedMemberIds: [],
     date: new Date(),
+    splitMode: 'equal',
+    customSplitAmounts: {},
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (expense) {
-      // If no splits, default to all trip members
       const defaultMemberIds = tripMembers.map(m => m.id || m.userId).filter(id => id);
-      
+      const splits = expense.splits ?? [];
+      const memberIds = splits.length > 0 ? splits.map(s => s.memberId) : defaultMemberIds;
+
+      // Detect unequal split: any share differs from the first
+      const isCustom = splits.length > 1 &&
+        splits.some(s => Math.abs(s.share - splits[0].share) > 0.01);
+
+      const customSplitAmounts = isCustom
+        ? Object.fromEntries(splits.map(s => [s.memberId, s.share.toString()]))
+        : {};
+
       setFormData({
         description: expense.description,
         cost: expense.cost.toString(),
         category: expense.category as ExpenseCategory,
         currency: expense.currency,
         selectedActivityId: expense.activityId || '',
-        selectedMemberIds: expense.splits?.map(s => s.memberId) || defaultMemberIds,
+        selectedMemberIds: memberIds,
         date: new Date(expense.date),
+        splitMode: isCustom ? 'custom' : 'equal',
+        customSplitAmounts,
       });
       setError('');
     }
@@ -77,6 +90,16 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       setError('Please select a date');
       return;
     }
+ 
+    if (formData.splitMode === 'custom') {
+      const customTotal = formData.selectedMemberIds.reduce((sum, id) => {
+        return sum + (parseFloat(formData.customSplitAmounts[id] || '0') || 0);
+      }, 0);
+      if (Math.abs(customTotal - amount) > 0.01) {
+        setError(`Custom split amounts must sum to the total cost (${amount.toFixed(2)}). Current sum: ${customTotal.toFixed(2)}`);
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -84,14 +107,22 @@ export function EditExpenseDialog({ open, expense, onOpenChange, onSubmit }: Edi
       const month = String(formData.date.getMonth() + 1).padStart(2, '0');
       const day = String(formData.date.getDate()).padStart(2, '0');
       const dateString = `${year}-${month}-${day}`;
-      
+
+      const splitAmounts = formData.splitMode === 'custom'
+        ? formData.selectedMemberIds.map(memberId => ({
+            memberId,
+            amount: parseFloat(formData.customSplitAmounts[memberId] || '0'),
+          }))
+        : undefined;
+
       await onSubmit(expense.id, {
         description: formData.description,
         cost: amount,
         category: formData.category,
         currency: formData.currency,
         date: dateString,
-        splitMemberIds: formData.selectedMemberIds
+        splitMemberIds: formData.splitMode === 'equal' ? formData.selectedMemberIds : undefined,
+        splitAmounts,
       });
     } catch (err) {
       setError(isAxiosError(err) ? (err.response?.data?.error ?? 'Failed to update expense') : 'Failed to update expense');

@@ -14,17 +14,14 @@ import { NotFoundError, BadRequestError, ForbiddenError } from '../errors/AppErr
 const createExpenseSplits = async (
     expenseId: string,
     memberIds: string[],
-    totalCost: number
+    totalCost: number,
+    customAmounts?: Array<{ memberId: string; amount: number }>
 ) => {
-    const sharePerMember = totalCost / memberIds.length;
-    
-    await prisma.expenseSplit.createMany({
-        data: memberIds.map(memberId => ({
-            expenseId,
-            memberId,
-            share: sharePerMember
-        }))
-    });
+    const data = customAmounts && customAmounts.length > 0
+        ? customAmounts.map(({ memberId, amount }) => ({ expenseId, memberId, share: amount }))
+        : memberIds.map(memberId => ({ expenseId, memberId, share: totalCost / memberIds.length }));
+
+    await prisma.expenseSplit.createMany({ data });
 };
 
 /**
@@ -280,34 +277,42 @@ const addExpense = async (tripId: string, data: CreateExpenseInput) => {
     });
 
     // Handle expense splits
-    let splitMemberIds = data.splitMemberIds;
-    
-    // Default to all trip members if no specific members selected
-    if (!splitMemberIds || splitMemberIds.length === 0) {
+    let splitMemberIds: string[];
+    let customAmounts: Array<{ memberId: string; amount: number }> | undefined;
+
+    if (data.splitAmounts && data.splitAmounts.length > 0) {
+        customAmounts = data.splitAmounts;
+        splitMemberIds = data.splitAmounts.map(s => s.memberId);
+        const sum = data.splitAmounts.reduce((acc, s) => acc + s.amount, 0);
+        if (Math.abs(sum - data.cost) > 0.01) {
+            await prisma.expense.delete({ where: { id: expense.id } });
+            throw new BadRequestError(`Custom split amounts (${sum.toFixed(2)}) must equal the total cost (${data.cost})`);
+        }
+    } else if (data.splitMemberIds && data.splitMemberIds.length > 0) {
+        splitMemberIds = data.splitMemberIds;
+    } else {
         const tripMembers = await prisma.tripMember.findMany({
             where: { tripId },
             select: { id: true }
         });
         splitMemberIds = tripMembers.map(m => m.id);
     }
-    
+
     // Validate all member IDs belong to the trip
     if (splitMemberIds.length > 0) {
         const members = await prisma.tripMember.findMany({
-            where: { 
+            where: {
                 id: { in: splitMemberIds },
-                tripId: tripId 
+                tripId: tripId
             }
         });
-        
+
         if (members.length !== splitMemberIds.length) {
-            // Clean up the created expense before throwing
             await prisma.expense.delete({ where: { id: expense.id } });
             throw new BadRequestError('One or more members do not belong to this trip');
         }
-        
-        // Create the expense splits
-        await createExpenseSplits(expense.id, splitMemberIds, data.cost);
+
+        await createExpenseSplits(expense.id, splitMemberIds, data.cost, customAmounts);
     }
 
     // Return expense with splits
@@ -432,16 +437,31 @@ const updateExpense = async (tripId: string, expenseId: string, data: UpdateExpe
     });
 
     // Handle expense splits update
-    if (data.splitMemberIds) {
+    if (data.splitAmounts || data.splitMemberIds) {
+        const costToUse = data.cost !== undefined ? data.cost : Number(expense.cost);
+        let updateMemberIds: string[];
+        let updateCustomAmounts: Array<{ memberId: string; amount: number }> | undefined;
+
+        if (data.splitAmounts && data.splitAmounts.length > 0) {
+            updateCustomAmounts = data.splitAmounts;
+            updateMemberIds = data.splitAmounts.map(s => s.memberId);
+            const sum = data.splitAmounts.reduce((acc, s) => acc + s.amount, 0);
+            if (Math.abs(sum - costToUse) > 0.01) {
+                throw new BadRequestError(`Custom split amounts (${sum.toFixed(2)}) must equal the total cost (${costToUse})`);
+            }
+        } else {
+            updateMemberIds = data.splitMemberIds!;
+        }
+
         // Validate all member IDs belong to the trip
         const members = await prisma.tripMember.findMany({
-            where: { 
-                id: { in: data.splitMemberIds },
-                tripId: expense.budget.tripId 
+            where: {
+                id: { in: updateMemberIds },
+                tripId: expense.budget.tripId
             }
         });
-        
-        if (members.length !== data.splitMemberIds.length) {
+
+        if (members.length !== updateMemberIds.length) {
             throw new BadRequestError('One or more members do not belong to this trip');
         }
 
@@ -451,8 +471,7 @@ const updateExpense = async (tripId: string, expenseId: string, data: UpdateExpe
         });
 
         // Create new splits with updated cost
-        const costToUse = data.cost !== undefined ? data.cost : expense.cost;
-        await createExpenseSplits(expenseId, data.splitMemberIds, costToUse);
+        await createExpenseSplits(expenseId, updateMemberIds, costToUse, updateCustomAmounts);
 
         // Fetch and return expense with updated splits
         return await prisma.expense.findUnique({

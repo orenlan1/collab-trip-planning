@@ -26,6 +26,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
     selectedActivityId: '',
     selectedMemberIds: [],
     date: new Date(),
+    splitMode: 'equal',
+    customSplitAmounts: {},
   });
   const [linkToActivity, setLinkToActivity] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,11 +84,21 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       return;
     }
 
+    if (formData.splitMode === 'custom') {
+      const customTotal = formData.selectedMemberIds.reduce((sum, id) => {
+        return sum  + (parseFloat(formData.customSplitAmounts[id] || '0') || 0);
+      }, 0);
+      if (Math.abs(customTotal - amount) > 0.01) {
+        setError(`Custom split amounts must sum to the total cost (${amount.toFixed(2)}). Current sum: ${customTotal.toFixed(2)}`);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       // Use selectedActivityId if in activities mode, otherwise use activity?.id
       const activityId = activities ? (formData.selectedActivityId || undefined) : activity?.id;
-      
+
       // Format date as YYYY-MM-DD in local time, only pass if not linked to activity
       let dateString: string | undefined;
       if (!activityId && formData.date) {
@@ -95,6 +107,14 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
         const day = String(formData.date.getDate()).padStart(2, '0');
         dateString = `${year}-${month}-${day}`;
       }
+
+      const splitAmounts = formData.splitMode === 'custom'
+        ? formData.selectedMemberIds.map(memberId => ({
+            memberId,
+            amount: parseFloat(formData.customSplitAmounts[memberId] || '0'),
+          }))
+        : undefined;
+
       await onSubmit({
         description: formData.description,
         cost: amount,
@@ -102,7 +122,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
         activityId,
         currency: formData.currency,
         date: dateString,
-        splitMemberIds: formData.selectedMemberIds
+        splitMemberIds: formData.splitMode === 'equal' ? formData.selectedMemberIds : undefined,
+        splitAmounts,
       });
       
       // Reset form
@@ -114,6 +135,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
         selectedActivityId: '',
         selectedMemberIds: tripMembers.map((m: typeof tripMembers[number]) => m.id || m.userId).filter(id => id),
         date: new Date(),
+        splitMode: 'equal',
+        customSplitAmounts: {},
       });
       setLinkToActivity(false);
       onOpenChange(false);
@@ -134,6 +157,8 @@ export function AddExpenseDialog({ open, activity, activities, onOpenChange, onS
       selectedActivityId: '',
       selectedMemberIds: tripMembers.map((m: typeof tripMembers[number]) => m.id || m.userId).filter(id => id),
       date: new Date(),
+      splitMode: 'equal',
+      customSplitAmounts: {},
     });
     setLinkToActivity(false);
     setError('');

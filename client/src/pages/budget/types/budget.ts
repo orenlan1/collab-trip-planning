@@ -67,4 +67,5 @@ export interface CreateExpenseInput {
   lodgingId?: string | null;
   date?: string;
   splitMemberIds?: string[];
+  splitAmounts?: { memberId: string; amount: number }[];
 }
