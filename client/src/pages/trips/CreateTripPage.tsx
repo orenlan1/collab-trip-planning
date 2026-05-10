@@ -117,179 +117,190 @@ export const CreateTripPage = () => {
     }
   };
 
+  const inputClass = "w-full focus:outline-none focus:ring-2 focus:ring-ring transition text-sm bg-background text-foreground border border-border rounded-lg py-3 px-4 placeholder:text-muted-foreground";
+  const dateInputClass = "w-full focus:outline-none focus:ring-2 focus:ring-ring transition text-sm bg-background text-foreground border border-border rounded-lg py-2 pr-10 pl-10 cursor-pointer placeholder:text-muted-foreground";
+
   return (
-    <div className="bg-white/80 dark:bg-slate-800 border-neutral-200/60 dark:border-gray-700 border rounded-2xl pt-6 pr-6 pb-6 pl-6 shadow-sm backdrop-blur-sm mt-10">
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm mt-10">
       <div className="flex gap-6 items-start justify-between">
         <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Create trip</h1>
-            <p className="text-sm text-slate-600 dark:text-gray-400">Start a new trip. Title and destination are required - everything else is optional and can be updated later.</p>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight mb-1">Create trip</h1>
+          <p className="text-sm text-muted-foreground">Start a new trip. Title and destination are required — everything else is optional and can be updated later.</p>
         </div>
-        <div className="flex gap-3 items-center">
-            <button className="hover:bg-slate-200 dark:hover:bg-gray-700 transition text-slate-900 dark:text-white bg-white/80 dark:bg-gray-800 border-sky-100 dark:border-gray-600 border rounded-md pt-2 pr-3 pb-2 pl-3">
-                Cancel
-            </button>
-            <button form="createTripForm" onClick={handleSubmit(onSubmit)} className=" px-4 py-2 rounded-md bg-indigo-400 hover:bg-indigo-500 text-white font-semibold tracking-tight transition">
-                Create
-            </button>
+        <div className="flex gap-3 items-center shrink-0">
+          <button
+            type="button"
+            onClick={() => navigate('/my-trips')}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-foreground bg-background border border-border hover:bg-muted transition"
+          >
+            Cancel
+          </button>
+          <button
+            form="createTripForm"
+            onClick={handleSubmit(onSubmit)}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 transition shadow-sm"
+          >
+            Create
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <form id="createTripForm" onSubmit={handleSubmit(onSubmit)} className="md:col-span-2 space-y-5" >
-            <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" htmlFor="">Title <span className="text-rose-500">*</span>{errors.title && <span className="text-rose-500">{errors.title.message}</span>}</label>
-                <input {...register("title", { required: "Title is required" })} type="text" placeholder="e.g., Kyoto Spring Getaway" className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 transition text-sm bg-white/90 dark:bg-slate-900/50 dark:text-white border-neutral-200/60 dark:border-gray-700 border rounded-lg pt-3 pr-4 pb-3 pl-4 placeholder:text-gray-400 dark:placeholder:text-gray-500"/>
-                <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">This is required to create the trip. You can add more details later.</p>
-            </div>
-            <div ref={destinationRef}>
-                 <label className="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" htmlFor="">Destination <span className="text-rose-500">*</span>{destinationError && <span className="text-rose-500"> {destinationError}</span>}</label>
-                 <div className="relative">
-                    <FiMapPin className="absolute top-1/2 left-3 -translate-y-1/2 text-indigo-500"/>
-                    <input 
-                      type="text" 
-                      placeholder="Search and select a destination, city or country" 
-                      className={`w-full focus:outline-none focus:ring-2 transition text-sm bg-white/90 dark:bg-gray-900/50 dark:text-white border rounded-lg pt-3 pr-4 pb-3 pl-8 placeholder:text-gray-400 dark:placeholder:text-gray-500 ${
-                        destinationError ? 'border-rose-300 focus:ring-rose-300 dark:border-rose-500 dark:focus:ring-rose-500' : 'border-neutral-200/60 focus:ring-indigo-300 dark:border-gray-700 dark:focus:ring-indigo-500'
-                      } ${
-                        selectedDestination ? 'border-green-300 dark:border-green-500' : ''
-                      }`}
-                      value={destination}
-                      onChange={(e) => handleDestinationChange(e.target.value)}
-                      onFocus={() => setShowDestinationSuggestions(true)}
-                      autoComplete="off"
-                    />
-                    {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-                        {destinationSuggestions.map((dest) => (
-                          <div
-                            key={`${dest.type}-${dest.id}`}
-                            className="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
-                            onClick={() => handleDestinationSelect(dest)}
-                          >
-                            <div className="font-medium">{dest.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {dest.type === 'city' ? `${dest.country} • City` : 'Country'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                 </div>
-                <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">{selectedDestination ? '✓ Destination selected' : 'Type to search and select a destination from the list'}</p>
-            </div>
-            <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" htmlFor="">Description</label>
-                <textarea {...register("description")} className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 transition text-sm bg-white/90 dark:bg-gray-900/50 dark:text-white border-neutral-200/60 dark:border-gray-700 border rounded-lg pt-3 pr-4 pb-3 pl-4 placeholder:text-gray-400 dark:placeholder:text-gray-500" placeholder="Add notes, purpose, or an overview for this trip - optional"></textarea>
-                <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">Optional. This helps collaborators understand the plan at a glance</p>
-            </div>
-            <div className="text-xs text-slate-500 dark:text-gray-400">
-                Fields marked with <span className="text-rose-500">*</span> are required. Other fields are labeled "Optional" and can be filled now or later.
-            </div>
+        <form id="createTripForm" onSubmit={handleSubmit(onSubmit)} className="md:col-span-2 space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Title <span className="text-destructive">*</span>
+              {errors.title && <span className="text-destructive font-normal ml-1">{errors.title.message}</span>}
+            </label>
+            <input
+              {...register("title", { required: "Title is required" })}
+              type="text"
+              placeholder="e.g., Kyoto Spring Getaway"
+              className={inputClass}
+            />
+            <p className="text-xs text-muted-foreground mt-2">This is required to create the trip. You can add more details later.</p>
+          </div>
 
+          <div ref={destinationRef}>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Destination <span className="text-destructive">*</span>
+              {destinationError && <span className="text-destructive font-normal ml-1">{destinationError}</span>}
+            </label>
+            <div className="relative">
+              <FiMapPin className="absolute top-1/2 left-3 -translate-y-1/2 text-primary" />
+              <input
+                type="text"
+                placeholder="Search and select a destination, city or country"
+                className={`w-full focus:outline-none focus:ring-2 transition text-sm bg-background text-foreground border rounded-lg py-3 pr-4 pl-8 placeholder:text-muted-foreground ${
+                  destinationError
+                    ? 'border-destructive focus:ring-destructive/40'
+                    : selectedDestination
+                    ? 'border-green-500 focus:ring-green-400/40'
+                    : 'border-border focus:ring-ring'
+                }`}
+                value={destination}
+                onChange={(e) => handleDestinationChange(e.target.value)}
+                onFocus={() => setShowDestinationSuggestions(true)}
+                autoComplete="off"
+              />
+              {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {destinationSuggestions.map((dest) => (
+                    <div
+                      key={`${dest.type}-${dest.id}`}
+                      className="px-3 py-2 cursor-pointer hover:bg-muted text-sm text-foreground"
+                      onClick={() => handleDestinationSelect(dest)}
+                    >
+                      <div className="font-medium">{dest.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {dest.type === 'city' ? `${dest.country} • City` : 'Country'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {selectedDestination ? '✓ Destination selected' : 'Type to search and select a destination from the list'}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Description</label>
+            <textarea
+              {...register("description")}
+              className={inputClass}
+              placeholder="Add notes, purpose, or an overview for this trip — optional"
+            />
+            <p className="text-xs text-muted-foreground mt-2">Optional. This helps collaborators understand the plan at a glance.</p>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Fields marked with <span className="text-destructive">*</span> are required. Other fields can be filled now or later.
+          </p>
         </form>
 
-        <div className="bg-white/90 dark:bg-gray-900/50 border-neutral-200/60 dark:border-gray-700 border rounded-lg pt-4 pr-4 pb-4 pl-4">
-            <div className="flex mb-3 items-center justify-between">
-                <h3 className="text-sm font-semibold tracking-tight dark:text-white">Dates</h3>
-                <p className="text-xs text-slate-500 dark:text-gray-400">Optional</p>
+        <div className="bg-muted/40 border border-border rounded-lg p-4">
+          <div className="flex mb-3 items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground tracking-tight">Dates</h3>
+            <p className="text-xs text-muted-foreground">Optional</p>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-2">Start date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="relative cursor-pointer">
+                    <BsCalendar4 className="absolute top-1/2 left-3 -translate-y-1/2 text-primary" />
+                    <input
+                      readOnly
+                      placeholder="Pick a date"
+                      value={startDate ? format(startDate, "PP") : ""}
+                      className={dateInputClass}
+                    />
+                    {startDate && (
+                      <IoClose
+                        className="absolute top-1/2 right-3 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-destructive cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); setStartDate(undefined); setDateError(""); }}
+                      />
+                    )}
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => { setStartDate(date); setDateError(""); }}
+                    disabled={(date) => date < new Date() || (endDate ? date > endDate : false)}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
-            <div className="space-y-3">
-                <div>
-                    <label htmlFor="" className="block text-xs text-slate-600 dark:text-gray-400 mb-2">Start date <span>(optional)</span></label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <div className="relative cursor-pointer">
-                                <BsCalendar4 className="absolute top-1/2 left-3 -translate-y-1/2 text-indigo-500" />
-                                <input 
-                                    readOnly
-                                    placeholder="Pick a date"
-                                    value={startDate ? format(startDate, "PP") : ""}
-                                    className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 transition text-sm bg-white/90 dark:bg-gray-900/50 dark:text-white border-neutral-200/60 dark:border-gray-700 border rounded-lg pt-2 pr-10 pb-2 pl-10 cursor-pointer placeholder:text-gray-400 dark:placeholder:text-gray-500" 
-                                />
-                                {startDate && (
-                                    <IoClose
-                                        className="absolute top-1/2 right-3 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-gray-400 hover:text-destructive cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setStartDate(undefined);
-                                            setDateError(""); // Clear error when user clears date
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={startDate}
-                                onSelect={(date) => {
-                                    setStartDate(date);
-                                    setDateError(""); // Clear error when user selects a date
-                                }}
-                                disabled={(date) =>
-                                    date < new Date() || (endDate ? date > endDate : false)
-                                }
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-                <div>
-                    <label htmlFor="" className="block text-xs text-slate-600 dark:text-gray-400 mb-2">End date <span>(optional)</span></label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <div className="relative cursor-pointer">
-                                <BsCalendar4 className="absolute top-1/2 left-3 -translate-y-1/2 text-indigo-500" />
-                                <input
-                                    readOnly
-                                    placeholder="Pick a date"
-                                    value={endDate ? format(endDate, "PP") : ""}
-                                    className="w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 transition text-sm bg-white/90 dark:bg-gray-900/50 dark:text-white border-neutral-200/60 dark:border-gray-700 border rounded-lg pt-2 pr-10 pb-2 pl-10 cursor-pointer placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                                />
-                                {endDate && (
-                                    <IoClose
-                                        className="absolute top-1/2 right-3 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-gray-400 hover:text-destructive cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEndDate(undefined);
-                                            setDateError(""); // Clear error when user clears date
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={endDate}
-                                onSelect={(date) => {
-                                    setEndDate(date);
-                                    setDateError(""); // Clear error when user selects a date
-                                }}
-                                disabled={(date) =>
-                                    date < new Date() || (startDate ? date < startDate : false)
-                                }
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-2">End date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="relative cursor-pointer">
+                    <BsCalendar4 className="absolute top-1/2 left-3 -translate-y-1/2 text-primary" />
+                    <input
+                      readOnly
+                      placeholder="Pick a date"
+                      value={endDate ? format(endDate, "PP") : ""}
+                      className={dateInputClass}
+                    />
+                    {endDate && (
+                      <IoClose
+                        className="absolute top-1/2 right-3 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-destructive cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); setEndDate(undefined); setDateError(""); }}
+                      />
+                    )}
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => { setEndDate(date); setDateError(""); }}
+                    disabled={(date) => date < new Date() || (startDate ? date < startDate : false)}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            
-            {dateError && (
-                <div className="mt-3 p-2 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
-                    <p className="text-xs text-rose-600 dark:text-rose-400">{dateError}</p>
-                </div>
-            )}
-            
-            <p className="text-xs text-slate-500 dark:text-gray-400 mt-3">Both start and end dates must be provided together, or leave both empty to make the trip open-ended. End date must be the same or after the start date.</p>
-            
+          </div>
 
+          {dateError && (
+            <div className="mt-3 p-2 bg-destructive/10 border border-destructive/30 rounded-lg">
+              <p className="text-xs text-destructive">{dateError}</p>
+            </div>
+          )}
 
+          <p className="text-xs text-muted-foreground mt-3">
+            Both dates must be provided together, or leave both empty for an open-ended trip. End date must be on or after the start date.
+          </p>
         </div>
-    
       </div>
-      
-     
     </div>
   );
 };
