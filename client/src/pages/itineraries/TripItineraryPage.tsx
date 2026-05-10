@@ -10,6 +10,7 @@ import { itinerariesApi } from "./services/api";
 import { formatItineraryFromAPI } from "@/lib/utils";
 import type { Itinerary } from "@/types/itinerary";
 import { DatesSetter } from "../trips/components/DatesSetter";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { GoogleMaps } from "@/components/GoogleMaps";
 import { FaMap } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
@@ -191,18 +192,20 @@ export function TripItineraryPage() {
             Add trip dates to start working on your itinerary.
           </p>
         </div>
-        {!showDatesSetter ? (
-          <button
-            onClick={() => setShowDatesSetter(true)}
-            className="bg-linear-to-r from-primary to-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Set Trip Dates
-          </button>
-        ) : (
-          <div className="mt-4">
+        <button
+          onClick={() => setShowDatesSetter(true)}
+          className="bg-linear-to-r from-primary to-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-white px-6 py-3 rounded-lg font-medium"
+        >
+          Set Trip Dates
+        </button>
+        <Dialog open={showDatesSetter} onOpenChange={setShowDatesSetter}>
+          <DialogContent className="w-auto max-w-fit p-0 overflow-hidden">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Set Trip Dates</DialogTitle>
+            </DialogHeader>
             <DatesSetter />
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }

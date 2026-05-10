@@ -16,6 +16,13 @@ export const DatesSetter = () => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [datesWithActivities, setDatesWithActivities] = useState<Date[]>([]);
+    const [numberOfMonths, setNumberOfMonths] = useState(() => window.innerWidth >= 768 ? 2 : 1);
+
+    useEffect(() => {
+        const handler = () => setNumberOfMonths(window.innerWidth >= 768 ? 2 : 1);
+        window.addEventListener('resize', handler);
+        return () => window.removeEventListener('resize', handler);
+    }, []);
    
 
     // Set initial dates from trip store when component mounts
@@ -104,17 +111,22 @@ export const DatesSetter = () => {
     };
 
   return (
-    <div>
-      <Calendar 
+    <div className="pt-7">
+      {!startDate && !endDate && (
+        <div className="px-4 pb-1">
+          <p className="text-sm font-medium text-foreground">Select trip dates</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Choose a start and end date for your trip</p>
+        </div>
+      )}
+      <Calendar
         mode="range"
-        numberOfMonths={2}
+        numberOfMonths={numberOfMonths}
         selected={dateRange}
         onSelect={setDateRange}
-        // disabled={(date) => date < new Date()}
         initialFocus
       />
-      <button 
-        onClick={handleSaveDates} 
+      <button
+        onClick={handleSaveDates}
         className="bg-indigo-500 hover:bg-indigo-600 transition text-white m-4 px-4 py-2 rounded-md"
       >
         Save
@@ -123,21 +135,18 @@ export const DatesSetter = () => {
       {/* Warning Modal - Using Portal to escape component boundaries */}
       {showWarningModal && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Backdrop overlay - Transparent but clickable */}
-          <div 
+          <div
             className="absolute inset-0"
             onClick={handleCancelChange}
           />
-          
-          {/* Modal content */}
-          <div className="relative bg-white rounded-lg shadow-xl w-96 p-6 max-w-[90vw] max-h-[90vh] overflow-auto">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+          <div className="relative bg-background border border-border rounded-lg shadow-xl w-96 p-6 max-w-[90vw] max-h-[90vh] overflow-auto">
+            <h3 className="text-lg font-semibold mb-4 text-foreground">
               Warning: Activities Will Be Deleted
             </h3>
-            <p className="text-gray-700 mb-4">
+            <p className="text-muted-foreground mb-4">
               The following dates have activities planned that will be deleted if you proceed:
             </p>
-            <ul className="list-disc list-inside mb-6 text-gray-700">
+            <ul className="list-disc list-inside mb-6 text-muted-foreground">
               {datesWithActivities.map((date, index) => (
                 <li key={index}>
                   {date.toLocaleDateString()}
@@ -147,13 +156,13 @@ export const DatesSetter = () => {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleCancelChange}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 transition"
+                className="px-4 py-2 text-foreground bg-secondary rounded hover:bg-secondary/80 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 transition"
+                className="px-4 py-2 text-white bg-destructive rounded hover:bg-destructive/90 transition"
               >
                 Delete Activities & Save Dates
               </button>

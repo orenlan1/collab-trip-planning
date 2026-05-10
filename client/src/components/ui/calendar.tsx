@@ -174,6 +174,7 @@ function CalendarDayButton({
   className,
   day,
   modifiers,
+  children,
   ...props
 }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames()
@@ -204,7 +205,12 @@ function CalendarDayButton({
         className
       )}
       {...props}
-    />
+    >
+      {children}
+      {modifiers.today && (
+        <span className="size-1 rounded-full bg-current opacity-60 mx-auto" />
+      )}
+    </Button>
   )
 }
 

@@ -7,11 +7,7 @@ import { DescriptionCard} from './components/DescriptionCard';
 import { LodgingCard } from './components/LodgingCard';
 import { useTripStore } from '@/stores/tripStore';
 import { BsCalendar4 } from "react-icons/bs";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DatesSetter } from './components/DatesSetter';
 
 import { TailSpin } from 'react-loader-spinner'
@@ -28,6 +24,7 @@ export const TripOverviewPage = () => {
   const fetchFlights = useTripStore(state => state.fetchFlights);
   const fetchLodgings = useTripStore(state => state.fetchLodgings);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDateDialog, setShowDateDialog] = useState(false);
 
     useEffect(() => {
     const fetchFlightsAndLodgings = async () => {
@@ -86,19 +83,19 @@ export const TripOverviewPage = () => {
               <div
                 className="relative flex flex-col items-center justify-center w-8 h-8 bg-white/90 border border-primary/60 rounded-lg shadow-md cursor-pointer transition-all duration-200 hover:scale-110 hover:bg-primary/10 group"
                 title="View trip dates"
+                onClick={() => setShowDateDialog(true)}
               >
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-primary to-violet-500 rounded-t-lg" />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <div className="flex items-center justify-center w-full h-full">
-                      <BsCalendar4 className="text-primary z-10" size={16} />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent side="bottom" align="start" className="w-auto p-0">
-                    <DatesSetter />
-                  </PopoverContent>
-                </Popover>
+                <BsCalendar4 className="text-primary z-10" size={16} />
               </div>
+              <Dialog open={showDateDialog} onOpenChange={setShowDateDialog}>
+                <DialogContent className="w-auto max-w-fit p-0 overflow-hidden">
+                  <DialogHeader className="sr-only">
+                    <DialogTitle>Set Trip Dates</DialogTitle>
+                  </DialogHeader>
+                  <DatesSetter />
+                </DialogContent>
+              </Dialog>
               <p className="text-sm text-white/90 font-medium">
                 {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "CREATOR")?.user.name}
               </p>
