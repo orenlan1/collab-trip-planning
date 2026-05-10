@@ -194,7 +194,7 @@ describe('Trip endpoints', () => {
       expect(dayCount).toBe(0);
     });
 
-    it('adds the creator as a member with role "creator"', async () => {
+    it('adds the creator as a member with role "CREATOR"', async () => {
       const createRes = await ownerAgent.post('/api/trips').send(BASE_TRIP).expect(201);
 
       const detailRes = await ownerAgent
@@ -203,7 +203,7 @@ describe('Trip endpoints', () => {
 
       const members: Array<{ role: string }> = detailRes.body.members;
       expect(members).toHaveLength(1);
-      expect(members[0]!.role).toBe('creator');
+      expect(members[0]!.role).toBe('CREATOR');
     });
   });
 
@@ -431,7 +431,7 @@ describe('Trip endpoints', () => {
         select: { id: true },
       });
       await prisma.tripMember.create({
-        data: { tripId, userId: otherUser.id, role: 'member' },
+        data: { tripId, userId: otherUser.id, role: 'MEMBER' },
       });
 
       await otherAgent.delete(`/api/trips/${tripId}`).expect(403);

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { TripRole } from "@prisma/client";
 import userService from "../services/user-service.js";
 import { prisma } from "../prisma/client.js";
 
@@ -57,7 +58,7 @@ export async function isTripOwner(req: Request, res: Response, next: NextFunctio
       return res.status(403).json({ error: "You are not a member of this trip" });
     }
 
-    if (member.role !== "creator") {
+    if (member.role !== TripRole.CREATOR) {
       return res.status(403).json({ error: "Only the trip owner can perform this action" });
     }
 

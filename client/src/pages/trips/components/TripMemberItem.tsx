@@ -18,7 +18,7 @@ export const TripMemberItem = ({ member, isOnline = false }: TripMemberProps) =>
           </div>
           <div className="flex-1">
             <div className="text-sm font-semibold">{member.user.name}</div>
-            <div className="text-xs text-slate-500">{member.role}</div>
+            <div className="text-xs text-slate-500">{member.role.toLowerCase()}</div>
           </div>
 
       </div>
