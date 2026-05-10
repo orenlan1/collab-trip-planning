@@ -21,6 +21,7 @@ vi.mock('@prisma/client', () => ({
   PrismaClient: function MockPrismaClient(this: any) {
     Object.assign(this, mockPrisma);
   },
+  TripRole: { CREATOR: 'CREATOR', MEMBER: 'MEMBER' },
 }));
 
 beforeEach(() => {
@@ -85,7 +86,7 @@ describe('acceptMagicLinkInvitation', () => {
     expiresAt: new Date(Date.now() + 3600 * 1000),
     trip: { id: 'trip-1', title: 'Paris' },
   };
-  const fakeMember = { id: 'member-1', tripId: 'trip-1', userId: 'user-2', role: 'member' };
+  const fakeMember = { id: 'member-1', tripId: 'trip-1', userId: 'user-2', role: 'MEMBER' };
 
   it('throws NotFoundError for an invalid or expired token', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn: (tx: any) => unknown) => {
@@ -141,7 +142,7 @@ describe('acceptMagicLinkInvitation', () => {
     expect(result.member).toEqual(fakeMember);
   });
 
-  it('creates the new member with role "member"', async () => {
+  it('creates the new member with role "MEMBER"', async () => {
     const createFn = vi.fn().mockResolvedValue(fakeMember);
     mockPrisma.$transaction.mockImplementation(async (fn: (tx: any) => unknown) => {
       const tx = {
@@ -155,7 +156,7 @@ describe('acceptMagicLinkInvitation', () => {
     await service.acceptMagicLinkInvitation('valid-token', 'user-2');
 
     expect(createFn).toHaveBeenCalledWith({
-      data: { tripId: 'trip-1', userId: 'user-2', role: 'member' },
+      data: { tripId: 'trip-1', userId: 'user-2', role: 'MEMBER' },
     });
   });
 });

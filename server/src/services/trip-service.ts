@@ -1,4 +1,5 @@
 import {prisma} from '../prisma/client.js';
+import { TripRole } from '@prisma/client';
 import type {TripFormData, TripUpdateData } from '../controllers/trip-controller.js';
 import itineraryService from './itinerary-service.js';
 import { getExcludedDates, normalizeDate, formatTripForAPI } from '../lib/utils.js';
@@ -58,7 +59,7 @@ const create = async (data: CreateTripInput, creatorId: string) => {
       members: {
         create: {
             userId: creatorId,
-            role: "creator"
+            role: TripRole.CREATOR
         }
       },
       itinerary: {

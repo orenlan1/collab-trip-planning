@@ -100,7 +100,7 @@ export const TripOverviewPage = () => {
                 </Popover>
               </div>
               <p className="text-sm text-white/90 font-medium">
-                {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "creator")?.user.name}
+                {startDate && new Date(startDate).toLocaleDateString()} - {endDate && new Date(endDate).toLocaleDateString()} • {members.length} travelers • Hosted by {members.find(m => m.role === "CREATOR")?.user.name}
               </p>
             </div>
           </div>

@@ -16,7 +16,7 @@ export function ParticipantsCard({ tripId }: ParticipantCardProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const members = useTripStore(state => state.members);
   const { user } = useAuth();
-  const isCreator = members.find(member => member.userId === user?.id)?.role === 'creator';
+  const isCreator = members.find(member => member.userId === user?.id)?.role === 'CREATOR';
   const { connectedUserIds } = useTripSocket();
 
   return (

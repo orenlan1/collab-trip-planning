@@ -85,7 +85,7 @@ model TripMember {
   tripId   String
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
-  role     String   @default("member")
+  role     TripRole @default(MEMBER)
   joinedAt DateTime @default(now())
 
   expenseSplits ExpenseSplit[]
@@ -243,6 +243,11 @@ model Expense {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum TripRole {
+  CREATOR
+  MEMBER
 }
 
 enum ExpenseCategory {

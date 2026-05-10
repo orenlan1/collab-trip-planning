@@ -6,8 +6,10 @@ import { format } from 'date-fns';
 import { FaUsers, FaMapMarkerAlt, FaCalendarAlt, FaTrash } from 'react-icons/fa';
 import { DeleteTripDialog } from './components/DeleteTripDialog';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/context/AuthContext';
 
 export function MyTripsPage() {
+  const { user } = useAuth();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -182,13 +184,15 @@ export function MyTripsPage() {
                         {trip.members?.length || 0} {trip.members?.length === 1 ? 'member' : 'members'}
                       </span>
                     </div>
-                    <button
-                      onClick={(e) => handleDeleteClick(e, trip.id)}
-                      className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-muted"
-                      aria-label="Delete trip"
-                    >
-                      <FaTrash className="text-sm" />
-                    </button>
+                    {trip.members.find(m => m.userId === user?.id)?.role === 'CREATOR' && (
+                      <button
+                        onClick={(e) => handleDeleteClick(e, trip.id)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-muted"
+                        aria-label="Delete trip"
+                      >
+                        <FaTrash className="text-sm" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TripRole } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { NotFoundError, ConflictError } from '../errors/AppError.js';
 
@@ -74,7 +74,7 @@ export class InvitationService {
         data: {
           tripId: invitation.tripId,
           userId,
-          role: 'member'
+          role: TripRole.MEMBER
         }
       });
 
