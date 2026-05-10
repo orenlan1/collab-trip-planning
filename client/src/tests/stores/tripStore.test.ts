@@ -25,7 +25,9 @@ const mockFlight = (id: string): Flight => ({
   flightNumber: `FL${id}`,
   airline: 'TestAir',
   departure: '2024-07-01T10:00:00Z',
+  departureTimezoneId: 'Asia/Jerusalem',
   arrival: '2024-07-01T14:00:00Z',
+  arrivalTimezoneId: 'Europe/Paris',
   from: 'TLV',
   to: 'CDG',
 });

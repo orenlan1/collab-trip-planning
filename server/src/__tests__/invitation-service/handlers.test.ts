@@ -21,6 +21,7 @@ vi.mock('@prisma/client', () => ({
   PrismaClient: function MockPrismaClient(this: any) {
     Object.assign(this, mockPrisma);
   },
+  TripRole: { CREATOR: 'CREATOR', MEMBER: 'MEMBER' },
 }));
 
 beforeEach(() => {
