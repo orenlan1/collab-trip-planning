@@ -19,6 +19,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.tsx'
 import { SocketProvider } from './context/SocketContext.tsx'
 import { TripLayout } from './layouts/TripLayout.tsx'
 import { JoinTripPage } from './pages/trips/JoinTripPage.tsx';
+import { ProfilePage } from './pages/profile/ProfilePage.tsx';
 import { Navbar } from './components/navigation/top/Navbar.tsx'
 import {APIProvider} from "@vis.gl/react-google-maps"
 
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: 'trips/create',
         element: <ProtectedRoute><CreateTripPage /></ProtectedRoute>
+      },
+      {
+        path: 'profile',
+        element: <ProtectedRoute><ProfilePage /></ProtectedRoute>
       },
     ]
   },

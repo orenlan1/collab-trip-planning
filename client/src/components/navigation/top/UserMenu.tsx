@@ -55,18 +55,6 @@ export function UserMenu({ user }: UserMenuProps) {
             <Menu.Item>
               {({ active }) => (
                 <button
-                  onClick={() => navigate('/settings')}
-                  className={`${
-                    active ? 'bg-secondary' : ''
-                  } block w-full text-left px-4 py-2 text-sm text-foreground rounded-lg transition-colors`}
-                >
-                  Settings
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <button
                   onClick={handleLogout}
                   className={`${
                     active ? 'bg-secondary' : ''

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
-import { NotificationBell } from './NotificationBell';
 import { UserMenu } from './UserMenu';
 
 export function Navbar() {
@@ -35,7 +34,6 @@ export function Navbar() {
       <nav className="flex items-center gap-4">
         {user ? (
           <>
-            <NotificationBell />
             <ThemeToggle />
             <UserMenu user={user} />
           </>
